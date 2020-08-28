@@ -39,7 +39,7 @@ namespace CocaBot.Commands
             embed.AddField("Discord",
                 "Discord Message XP: " + Data.discord_message_xp + "\nDiscord Messages: " + Data.discord_message_count + "\nDiscord Game XP: " + Data.discord_game_xp + "\nDiscord Commends: " + Data.discord_commends + "\nDiscord Commends Sent: " + Data.discord_commends_sent + "\nDiscord Bans: " + Data.discord_ban_count);
             embed.AddField("SpookVooper",
-               "Description: " + Data.description + "\nBalance: " + Data.credits + "\nDistrict: " + Data.district + "\nPost Likes: " + Data.post_likes + "\nComment Likes" + Data.comment_likes + "\nAPI Use: " + Data.api_use_count);
+               "Description: " + Data.description + "\nBalance: " + Data.credits + "\nDistrict: " + Data.district + "\nPost Likes: " + Data.post_likes + "\nComment Likes: " + Data.comment_likes + "\nAPI Use: " + Data.api_use_count);
             embed.AddField("Twitch",
                 "Twicth XP: " + Data.twitch_message_xp + "\nTwicth Messages: " + Data.twitch_messages);
             await ctx.RespondAsync(embed: embed);
