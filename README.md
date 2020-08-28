@@ -3,7 +3,7 @@ A simple discord bot which uses the SpookVooper API to show info about user
 
 **Note:** *For this to work you require [SpookVooper API wrapper](https://github.com/SpikeViper/SpookVooper.Api)!*
 
-# How to add SpookVooper API wrapper as a reference
+## How to add SpookVooper API wrapper as a reference
 
 1. Open CocaBot.csproj.user
 2. Right Click in the Solution Explorer: Solution 'CocaBot' (1 of 1 projects)
