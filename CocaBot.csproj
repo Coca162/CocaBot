@@ -13,6 +13,7 @@
     <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00712" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00712" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-nightly-00712" />
+    <PackageReference Include="SpookVooper.Api" Version="1.0.6" />
   </ItemGroup>
 
 </Project>

@@ -45,7 +45,7 @@ namespace CocaBot
             var commandsConfig = new CommandsNextConfiguration
             {
                 StringPrefixes = new string[] {ConfigJson.Prefix},
-                EnableDms = true,
+                EnableDms = false,
                 EnableMentionPrefix = true,
                 IgnoreExtraArguments = true
             };
