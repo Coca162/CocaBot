@@ -186,7 +186,7 @@ namespace CocaBot.Commands
                 Color = new DiscordColor(0x64FF)
             };
             embed.AddField("Top 5:",
-                "1. Xboy: " + Xboy_Total_XP + "\n2. Voopmont: " + Voopmont_Total_XP + "\n3. Tyco: " + Tyco_Total_XP + "\n4. Dan: " + Dan_Total_XP + "\n5. Coca: " + Coca_Total_XP);
+                "1. Xboy: " + Xboy_Total_XP + "\n2. Voopmont: " + Voopmont_Total_XP + "\n3. Dan: " + Dan_Total_XP + "\n4. Tyco: " + Tyco_Total_XP + "\n5. Coca: " + Coca_Total_XP);
             await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
         }
     }
