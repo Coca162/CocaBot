@@ -14,6 +14,12 @@ namespace CocaBot.Commands
         {
             await ctx.Channel.SendMessageAsync("Pong").ConfigureAwait(false);
         }
-        
+
+        [Command("version")]
+        public async Task Version(CommandContext ctx)
+        {
+            await ctx.Channel.SendMessageAsync("This CocaBot is version 1.0").ConfigureAwait(false);
+        }
+
     }
 }
