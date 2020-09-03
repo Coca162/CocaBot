@@ -5,6 +5,7 @@ using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.Entities;
 using SpookVooper.Api;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 namespace CocaBot.Commands
 {
@@ -186,8 +187,41 @@ namespace CocaBot.Commands
                 Color = new DiscordColor(0x64FF)
             };
             embed.AddField("Top 5:",
-                "1. Xboy: " + Xboy_Total_XP + "\n2. Voopmont: " + Voopmont_Total_XP + "\n3. Dan: " + Dan_Total_XP + "\n4. Tyco: " + Tyco_Total_XP + "\n5. Coca: " + Coca_Total_XP);
+                "1. Xboy: " + Xboy_Total_XP + "\n2. Voopmont: " + Voopmont_Total_XP + "\n3. Tyco: " + Tyco_Total_XP + "\n4. Dan: " + Dan_Total_XP + "\n5. Coca: " + Coca_Total_XP);
             await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
+        }
+
+        [Command("leaderboardloop")]
+        public async Task leaderboardLoop(CommandContext ctx)
+        {
+            var Xboy = "9062fe43-75b0-4f26-a8fd-6a1cdd6883a2";
+            var Voopmont = "d88f1221-deb9-4f17-a789-f79f6dc02c11";
+            var Tyco = "c9535d5e-1769-40ea-a3d4-6b73775eb086";
+            var Dan = "c094e9bd-c021-443f-8138-3433e9ba8b04";
+            var Coca = "e1616412-c384-4b00-b443-b8940423df67";
+
+
+            // Could use DateTime.Now, but we don't care about time zones - just elapsed time
+            // Also, UtcNow has slightly better performance
+            var startTime = DateTime.UtcNow;
+
+            while (true)
+            {
+                var Xboy_Data = await SpookVooperAPI.Users.GetUser(Xboy);
+                var Voopmont_Data = await SpookVooperAPI.Users.GetUser(Voopmont);
+                var Dan_Data = await SpookVooperAPI.Users.GetUser(Dan);
+                var Tyco_Data = await SpookVooperAPI.Users.GetUser(Tyco);
+                var Coca_Data = await SpookVooperAPI.Users.GetUser(Coca);
+
+                var Xboy_Total_XP = Xboy_Data.post_likes + Xboy_Data.comment_likes + (Xboy_Data.twitch_message_xp * 4) + (Xboy_Data.discord_commends * 5) + (Xboy_Data.discord_message_xp * 2) + (Xboy_Data.discord_game_xp / 100);
+                var Voopmont_Total_XP = Voopmont_Data.post_likes + Voopmont_Data.comment_likes + (Voopmont_Data.twitch_message_xp * 4) + (Voopmont_Data.discord_commends * 5) + (Voopmont_Data.discord_message_xp * 2) + (Voopmont_Data.discord_game_xp / 100);
+                var Dan_Total_XP = Dan_Data.post_likes + Dan_Data.comment_likes + (Dan_Data.twitch_message_xp * 4) + (Dan_Data.discord_commends * 5) + (Dan_Data.discord_message_xp * 2) + (Dan_Data.discord_game_xp / 100);
+                var Tyco_Total_XP = Tyco_Data.post_likes + Tyco_Data.comment_likes + (Tyco_Data.twitch_message_xp * 4) + (Tyco_Data.discord_commends * 5) + (Tyco_Data.discord_message_xp * 2) + (Tyco_Data.discord_game_xp / 100);
+                var Coca_Total_XP = Coca_Data.post_likes + Coca_Data.comment_likes + (Coca_Data.twitch_message_xp * 4) + (Coca_Data.discord_commends * 5) + (Coca_Data.discord_message_xp * 2) + (Coca_Data.discord_game_xp / 100);
+
+                await ctx.RespondAsync(Xboy_Total_XP + "\n" + Voopmont_Total_XP + "\n" + Dan_Total_XP + "\n" + Tyco_Total_XP + "\n" + Coca_Total_XP).ConfigureAwait(false);
+                await Task.Delay(3600000);
+            }
         }
     }
 }
