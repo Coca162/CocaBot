@@ -226,6 +226,31 @@ namespace CocaBot.Commands
                 }
             }
         }
+
+        [Command("balanceloop")]
+        public async Task balanceLoop(CommandContext ctx, DiscordUser discordUser)
+        {
+            var test = ctx.Member.IsOwner;
+            if (test == false)
+            {
+                await ctx.RespondAsync("You are not server owner").ConfigureAwait(false);
+            }
+            else
+            {
+                var discordID = discordUser.Id;
+                string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
+                string SV_Name = await SpookVooperAPI.Users.GetUsername(SVID);
+                var Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
+
+                while (true)
+                {
+                    await ctx.Channel.SendMessageAsync(SV_Name + " Balance: ¢" + Balance).ConfigureAwait(false);
+                    await Task.Delay(3600000);
+                }
+
+            }
+
+        }
     }
 }
 
