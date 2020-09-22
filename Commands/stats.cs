@@ -93,6 +93,15 @@ namespace CocaBot.Commands
         }
 
         [Command("balance")]
+        public async Task balanceusergroup(CommandContext ctx, [RemainingText] string group)
+        {
+            string SVID = await SpookVooperAPI.Groups.GetSVIDFromName(group);
+            var Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
+
+            await ctx.Channel.SendMessageAsync(group + " Balance: ¢" + Balance).ConfigureAwait(false);
+        }
+
+        [Command("balance")]
         public async Task balanceuser(CommandContext ctx)
         {
             var discordID = ctx.Member.Id;
@@ -240,16 +249,37 @@ namespace CocaBot.Commands
                 var discordID = discordUser.Id;
                 string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
                 string SV_Name = await SpookVooperAPI.Users.GetUsername(SVID);
-                var Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
 
                 while (true)
                 {
+                    var Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
                     await ctx.Channel.SendMessageAsync(SV_Name + " Balance: ¢" + Balance).ConfigureAwait(false);
                     await Task.Delay(3600000);
                 }
 
             }
+        }
 
+        [Command("balanceloop")]
+        public async Task balanceLoop(CommandContext ctx, string SVID)
+        {
+            var test = ctx.Member.IsOwner;
+            if (test != false)
+            {
+                string SV_Name = await SpookVooperAPI.Groups.GetName(SVID);
+
+                while (true)
+                {
+                    var Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
+                    await ctx.Channel.SendMessageAsync(SV_Name + " Balance: ¢" + Balance).ConfigureAwait(false);
+                    await Task.Delay(3600000);
+                }
+
+            }
+            else
+            {
+                await ctx.RespondAsync("You are not server owner").ConfigureAwait(false);
+            }
         }
     }
 }
