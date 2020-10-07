@@ -6,6 +6,7 @@ using DSharpPlus.Entities;
 using SpookVooper.Api;
 using System;
 using System.Linq;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 namespace CocaBot.Commands
 {
@@ -43,6 +44,7 @@ namespace CocaBot.Commands
                "Description: " + Data.description + "\nBalance: " + Data.credits + "\nDistrict: " + Data.district + "\nPost Likes: " + Data.post_likes + "\nComment Likes: " + Data.comment_likes + "\nAPI Use: " + Data.api_use_count);
             embed.AddField("Twitch",
                 "Twitch XP: " + Data.twitch_message_xp + "\nTwitch Messages: " + Data.twitch_messages);
+            //Make this into "Username: {variable}" when not lazy
             await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
         }
 
@@ -78,6 +80,7 @@ namespace CocaBot.Commands
                "Description: " + Data.description + "\nBalance: " + Data.credits + "\nDistrict: " + Data.district + "\nPost Likes: " + Data.post_likes + "\nComment Likes: " + Data.comment_likes + "\nAPI Use: " + Data.api_use_count);
             embed.AddField("Twitch",
                 "Twitch XP: " + Data.twitch_message_xp + "\nTwitch Messages: " + Data.twitch_messages);
+            //Make this into "Username: {variable}" when not lazy
             await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
         }
 
@@ -93,15 +96,6 @@ namespace CocaBot.Commands
         }
 
         [Command("balance")]
-        public async Task balanceusergroup(CommandContext ctx, [RemainingText] string group)
-        {
-            string SVID = await SpookVooperAPI.Groups.GetSVIDFromName(group);
-            var Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
-
-            await ctx.Channel.SendMessageAsync(group + " Balance: ¢" + Balance).ConfigureAwait(false);
-        }
-
-        [Command("balance")]
         public async Task balanceuser(CommandContext ctx)
         {
             var discordID = ctx.Member.Id;
@@ -110,6 +104,30 @@ namespace CocaBot.Commands
             var Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
 
             await ctx.Channel.SendMessageAsync(SV_Name + " Balance: ¢" + Balance).ConfigureAwait(false);
+        }
+
+        [Command("balance")]
+        public async Task balanceuserSVuser(CommandContext ctx, string opt, [RemainingText] string Inputname)
+        {
+
+            if (opt.ToLower() == "group")
+            {
+                string SVID = await SpookVooperAPI.Groups.GetSVIDFromName(Inputname);
+                var Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
+                string SVname = await SpookVooperAPI.Groups.GetName(SVID);
+                await ctx.Channel.SendMessageAsync(SVname + " Balance: ¢" + Balance).ConfigureAwait(false);
+            }
+            else if (opt.ToLower() == "user")
+            {
+                string SVID = await SpookVooperAPI.Users.GetSVIDFromUsername(Inputname);
+                string SVname = await SpookVooperAPI.Users.GetUsername(SVID);
+                var Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
+                await ctx.Channel.SendMessageAsync(SVname + " Balance: ¢" + Balance).ConfigureAwait(false);
+            }
+            else
+            {
+                await ctx.Channel.SendMessageAsync($"{Inputname} is not a user or a group!").ConfigureAwait(false);
+            }
         }
 
         [Command("xp")]
@@ -197,6 +215,7 @@ namespace CocaBot.Commands
             };
             embed.AddField("Top 5:",
                 "1. Xboy: " + Xboy_Total_XP + "\n2. Voopmont: " + Voopmont_Total_XP + "\n3. Tyco: " + Tyco_Total_XP + "\n4. Dan: " + Dan_Total_XP + "\n5. Coca: " + Coca_Total_XP);
+            //Make this into "Username: {variable}" when not lazy
             await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
         }
 
@@ -280,6 +299,72 @@ namespace CocaBot.Commands
             {
                 await ctx.RespondAsync("You are not server owner").ConfigureAwait(false);
             }
+        }
+
+        [Command("verify")]
+        public async Task VerifyCitzen(CommandContext ctx)
+        {
+            var ServerID = ctx.Guild.Id;
+            if (ServerID == 762075097422495784)
+            {
+                var discordID = ctx.User.Id;
+                string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
+                var Data = await SpookVooperAPI.Users.GetUser(SVID);
+                var new_yam_role = ctx.Guild.GetRole(762434338847195138);
+                var non_citizen_role = ctx.Guild.GetRole(762739003630944296);
+
+                if (Data.district == "New Yam")
+                {
+                    var discordName = ctx.User.Username;
+                    var discordPFP = ctx.User.AvatarUrl;
+
+                    await ctx.TriggerTypingAsync();
+                    var iconURL = new DiscordEmbedBuilder.EmbedAuthor
+                    {
+                        Name = discordName,
+                        IconUrl = discordPFP,
+                    };
+
+                    var embed = new DiscordEmbedBuilder
+                    {
+                        Title = "You now have the New Yam Citizen role!",
+                        Color = new DiscordColor(0x64FF),
+                        Author = iconURL
+                    };
+                    await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
+                    await ctx.Member.GrantRoleAsync(new_yam_role).ConfigureAwait(false);
+                    await ctx.Member.RevokeRoleAsync(non_citizen_role).ConfigureAwait(false);
+                }
+                else
+                {
+                    var discordName = ctx.User.Username;
+                    var discordPFP = ctx.User.AvatarUrl;
+
+                    await ctx.RespondAsync($"{discordName} is not a New Yam Citizen!").ConfigureAwait(false);
+                    await ctx.TriggerTypingAsync();
+                    var iconURL = new DiscordEmbedBuilder.EmbedAuthor
+                    {
+                        Name = discordName,
+                        IconUrl = discordPFP,
+                    };
+
+                    var embed = new DiscordEmbedBuilder
+                    {
+                        Title = "You are a Non-Citizen of New Yam!",
+                        Color = new DiscordColor(0x64FF),
+                        Author = iconURL
+                    };
+                    await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
+                    await ctx.Member.GrantRoleAsync(non_citizen_role).ConfigureAwait(false);
+                    await ctx.Member.RevokeRoleAsync(new_yam_role).ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                var ServerName = ctx.Guild.Name;
+                await ctx.RespondAsync($"This is {ServerName} not New Yam Community Server!").ConfigureAwait(false);
+            }
+
         }
     }
 }
