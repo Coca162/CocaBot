@@ -32,12 +32,12 @@ namespace CocaBot
             var config = new DiscordConfiguration
             {
                 Token = ConfigJson.Token,
-                TokenType = TokenType.Bot ,
+                TokenType = TokenType.Bot,
                 AutoReconnect = true,
                 LogLevel = LogLevel.Debug,
                 UseInternalLogHandler = true
             };
-                
+
             Client = new DiscordClient(config);
 
             Client.Ready += OnClientReady;
@@ -46,7 +46,7 @@ namespace CocaBot
 
             var commandsConfig = new CommandsNextConfiguration
             {
-                StringPrefixes = new string[] {ConfigJson.Prefix},
+                StringPrefixes = new string[] { ConfigJson.Prefix },
                 EnableDms = false,
                 EnableMentionPrefix = true,
                 IgnoreExtraArguments = true
@@ -76,16 +76,16 @@ namespace CocaBot
 
                 if (Data.district == "New Yam")
                 {
-
                     await e.Member.GrantRoleAsync(new_yam_role).ConfigureAwait(false);
                     await e.Member.RevokeRoleAsync(non_citizen_role).ConfigureAwait(false);
                 }
                 else
                 {
-
                     await e.Member.GrantRoleAsync(non_citizen_role).ConfigureAwait(false);
                     await e.Member.RevokeRoleAsync(new_yam_role).ConfigureAwait(false);
                 }
+                var welcome = e.Guild.GetChannel(762425370405896233);
+                await welcome.SendMessageAsync($"Welcome {e.Member.Username} to {e.Guild.Name}!");
             }
         }
 
