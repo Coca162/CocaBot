@@ -302,6 +302,72 @@ namespace CocaBot.Commands
         }
 
         [Command("verify")]
+        public async Task VerifyCitzenAll(CommandContext ctx, DiscordUser discordUser)
+        {
+            var ServerID = ctx.Guild.Id;
+            if (ServerID == 762075097422495784)
+            {
+                var discordID = discordUser.Id;
+                string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
+                var Data = await SpookVooperAPI.Users.GetUser(SVID);
+                var new_yam_role = ctx.Guild.GetRole(762434338847195138);
+                var non_citizen_role = ctx.Guild.GetRole(762739003630944296);
+
+                if (Data.district == "New Yam")
+                {
+                    var discordName = discordUser.Username;
+                    var discordPFP = discordUser.AvatarUrl;
+
+                    await ctx.TriggerTypingAsync();
+                    var iconURL = new DiscordEmbedBuilder.EmbedAuthor
+                    {
+                        Name = discordName,
+                        IconUrl = discordPFP,
+                    };
+
+                    var embed = new DiscordEmbedBuilder
+                    {
+                        Title = "You now have the New Yam Citizen role!",
+                        Color = new DiscordColor(0x64FF),
+                        Author = iconURL
+                    };
+                    await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
+                    await ctx.Member.GrantRoleAsync(new_yam_role).ConfigureAwait(false);
+                    await ctx.Member.RevokeRoleAsync(non_citizen_role).ConfigureAwait(false);
+                }
+                else
+                {
+                    var discordName = discordUser.Username;
+                    var discordPFP = discordUser.AvatarUrl;
+
+                    await ctx.RespondAsync($"{discordName} is not a New Yam Citizen!").ConfigureAwait(false);
+                    await ctx.TriggerTypingAsync();
+                    var iconURL = new DiscordEmbedBuilder.EmbedAuthor
+                    {
+                        Name = discordName,
+                        IconUrl = discordPFP,
+                    };
+
+                    var embed = new DiscordEmbedBuilder
+                    {
+                        Title = "You are a Non-Citizen of New Yam!",
+                        Color = new DiscordColor(0x64FF),
+                        Author = iconURL
+                    };
+                    await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
+                    await ctx.Member.GrantRoleAsync(non_citizen_role).ConfigureAwait(false);
+                    await ctx.Member.RevokeRoleAsync(new_yam_role).ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                var ServerName = ctx.Guild.Name;
+                await ctx.RespondAsync($"This is {ServerName} not New Yam Community Server!").ConfigureAwait(false);
+            }
+
+        }
+
+        [Command("verify")]
         public async Task VerifyCitzen(CommandContext ctx)
         {
             var ServerID = ctx.Guild.Id;
