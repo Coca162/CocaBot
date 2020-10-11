@@ -42,6 +42,8 @@ namespace CocaBot
 
             Client.Ready += OnClientReady;
 
+            Client.GuildMemberAdded += Client_GuildMemberAdded;
+
             var commandsConfig = new CommandsNextConfiguration
             {
                 StringPrefixes = new string[] {ConfigJson.Prefix},
@@ -59,6 +61,32 @@ namespace CocaBot
             await Client.ConnectAsync();
 
             await Task.Delay(-1);
+        }
+
+        private async Task Client_GuildMemberAdded(GuildMemberAddEventArgs e)
+        {
+            var ServerID = e.Member.Guild.Id;
+            if (ServerID == 762075097422495784)
+            {
+                var discordID = e.Member.Id;
+                string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
+                var Data = await SpookVooperAPI.Users.GetUser(SVID);
+                var new_yam_role = e.Member.Guild.GetRole(762434338847195138);
+                var non_citizen_role = e.Member.Guild.GetRole(762739003630944296);
+
+                if (Data.district == "New Yam")
+                {
+
+                    await e.Member.GrantRoleAsync(new_yam_role).ConfigureAwait(false);
+                    await e.Member.RevokeRoleAsync(non_citizen_role).ConfigureAwait(false);
+                }
+                else
+                {
+
+                    await e.Member.GrantRoleAsync(non_citizen_role).ConfigureAwait(false);
+                    await e.Member.RevokeRoleAsync(new_yam_role).ConfigureAwait(false);
+                }
+            }
         }
 
         private Task OnClientReady(ReadyEventArgs e)
