@@ -71,18 +71,18 @@ namespace CocaBot
                 var discordID = e.Member.Id;
                 string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
                 var Data = await SpookVooperAPI.Users.GetUser(SVID);
-                var new_yam_role = e.Member.Guild.GetRole(762434338847195138);
+                var district_role = e.Member.Guild.GetRole(762434338847195138);
                 var non_citizen_role = e.Member.Guild.GetRole(762739003630944296);
 
                 if (Data.district == "New Yam")
                 {
-                    await e.Member.GrantRoleAsync(new_yam_role).ConfigureAwait(false);
+                    await e.Member.GrantRoleAsync(district_role).ConfigureAwait(false);
                     await e.Member.RevokeRoleAsync(non_citizen_role).ConfigureAwait(false);
                 }
                 else
                 {
                     await e.Member.GrantRoleAsync(non_citizen_role).ConfigureAwait(false);
-                    await e.Member.RevokeRoleAsync(new_yam_role).ConfigureAwait(false);
+                    await e.Member.RevokeRoleAsync(district_role).ConfigureAwait(false);
                 }
                 var welcome = e.Guild.GetChannel(762425370405896233);
                 await welcome.SendMessageAsync($"Welcome {e.Member.Username} to {e.Guild.Name}!");
