@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -13,7 +13,8 @@
     <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00712" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00712" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-nightly-00712" />
-    <PackageReference Include="SpookVooper.Api" Version="1.0.7" />
+    <PackageReference Include="SpookVooper.Api" Version="1.1.0" />
   </ItemGroup>
+
 
 </Project>

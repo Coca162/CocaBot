@@ -1,8 +1,5 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CocaBot.Commands
@@ -18,8 +15,7 @@ namespace CocaBot.Commands
         [Command("version")]
         public async Task Version(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync("This CocaBot is version 1.3").ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync("This CocaBot is version 1.3.1").ConfigureAwait(false);
         }
-
     }
 }

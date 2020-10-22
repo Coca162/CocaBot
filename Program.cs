@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace CocaBot
+﻿namespace CocaBot
 {
     class Program
     {
