@@ -359,7 +359,7 @@ namespace CocaBot.Commands
                 string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
                 User Data = await SpookVooperAPI.Users.GetUser(SVID);
                 string senate_role = "Senator";
-                string if_senate_role = await SpookVooperAPI.Users.HasDiscordRole(SVID, senate_role);
+                bool if_senate_role = await SpookVooperAPI.Users.HasDiscordRole(SVID, senate_role);
 
                 if ((Data.district == "New Yam") && (type.ToLower() == "citizen"))
                 {
@@ -410,7 +410,7 @@ namespace CocaBot.Commands
                     await ctx.Member.GrantRoleAsync(non_citizen_role).ConfigureAwait(false);
                     await ctx.Member.RevokeRoleAsync(district_role).ConfigureAwait(false);
                 }
-                else if ((if_senate_role == "true") && ((type.ToLower() == "senator")))
+                else if ((if_senate_role == true) && ((type.ToLower() == "senator")))
                 {
                     string discordName = ctx.User.Username;
                     string discordPFP = ctx.User.AvatarUrl;

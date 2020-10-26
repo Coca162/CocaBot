@@ -77,7 +77,7 @@ namespace CocaBot
                 DSharpPlus.Entities.DiscordRole district_role = e.Member.Guild.GetRole(ConfigJson.CitizenID);
                 DSharpPlus.Entities.DiscordRole non_citizen_role = e.Member.Guild.GetRole(ConfigJson.NonCitizenID);
                 string senate_role = "Senator";
-                string if_senate_role = await SpookVooperAPI.Users.HasDiscordRole(SVID, senate_role);
+                bool if_senate_role = await SpookVooperAPI.Users.HasDiscordRole(SVID, senate_role);
 
                 if (Data.district == ConfigJson.DistrictName)
                 {
@@ -87,7 +87,7 @@ namespace CocaBot
                 {
                     await e.Member.GrantRoleAsync(non_citizen_role).ConfigureAwait(false);
                 }
-                if (if_senate_role == "true")
+                if (if_senate_role == true)
                 {
                     DSharpPlus.Entities.DiscordRole senator_role_id = e.Guild.GetRole(ConfigJson.SenateID);
 

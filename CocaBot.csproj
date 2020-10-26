@@ -14,7 +14,7 @@
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00712" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-nightly-00712" />
     <PackageReference Include="Microsoft.AspNet.SignalR.JS" Version="2.4.1" />
-    <PackageReference Include="SpookVooper.Api" Version="1.1.0" />
+    <PackageReference Include="SpookVooper.Api" Version="1.1.1" />
   </ItemGroup>
 
 
