@@ -93,7 +93,7 @@ namespace CocaBot
 
                     await e.Member.GrantRoleAsync(senator_role_id).ConfigureAwait(false);
                 }
-                var welcome = e.Guild.GetChannel(ConfigJson.SenateID);
+                var welcome = e.Guild.GetChannel(ConfigJson.WelcomeID);
                 await welcome.SendMessageAsync($"Welcome {e.Member.Mention} to {e.Guild.Name}!");
             }
         }

@@ -13,6 +13,8 @@ namespace CocaBot
         public string Prefix { get; private set; }
         [JsonProperty("server_id")]
         public ulong ServerID { get; private set; }
+        [JsonProperty("welcome_id")]    
+        public ulong WelcomeID { get; private set; }
         [JsonProperty("district_name")]
         public string DistrictName { get; private set; }
         [JsonProperty("citizen_id")]
