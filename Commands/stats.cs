@@ -1,14 +1,16 @@
-﻿using DSharpPlus;
-using DSharpPlus.CommandsNext;
+﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.Entities;
+using Newtonsoft.Json;
 using SpookVooper.Api;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
+using System;
+using SpookVooper.Api.Entities;
+
 namespace CocaBot.Commands
 {
     public class statistics : BaseCommandModule
@@ -16,22 +18,22 @@ namespace CocaBot.Commands
         [Command("stats")]
         public async Task Statisticsall(CommandContext ctx, DiscordUser discordUser)
         {
-            var discordName = discordUser.Username;
-            var discordPFP = discordUser.AvatarUrl;
-            var discordID = discordUser.Id;
+            string discordName = discordUser.Username;
+            string discordPFP = discordUser.AvatarUrl;
+            ulong discordID = discordUser.Id;
             string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
             string SV_Name = await SpookVooperAPI.Users.GetUsername(SVID);
-            var Data = await SpookVooperAPI.Users.GetUser(SVID);
+            User Data = await SpookVooperAPI.Users. GetUser(SVID);
 
             await ctx.TriggerTypingAsync();
-            var iconURL = new DiscordEmbedBuilder.EmbedAuthor
+            DiscordEmbedBuilder.EmbedAuthor iconURL = new DiscordEmbedBuilder.EmbedAuthor
             {
                 Name = $"{discordName} Statistics",
                 IconUrl = discordPFP,
             };
 
 
-            var embed = new DiscordEmbedBuilder
+            DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
                 Description = $"Statistics for [{discordName}](https://spookvooper.com/User/Info?svid={SVID})'s SpookVooper account",
                 Color = new DiscordColor(0x64FF),
@@ -57,22 +59,22 @@ namespace CocaBot.Commands
         [Command("stats")]
         public async Task Statisticsuser(CommandContext ctx)
         {
-            var discordName = ctx.Member.Username;
-            var discordPFP = ctx.Member.AvatarUrl;
-            var discordID = ctx.Member.Id;
+            string discordName = ctx.Member.Username;
+            string discordPFP = ctx.Member.AvatarUrl;
+            ulong discordID = ctx.Member.Id;
             string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
             string SV_Name = await SpookVooperAPI.Users.GetUsername(SVID);
-            var Data = await SpookVooperAPI.Users.GetUser(SVID);
+            User Data = await SpookVooperAPI.Users.GetUser(SVID);
 
             await ctx.TriggerTypingAsync();
-            var iconURL = new DiscordEmbedBuilder.EmbedAuthor
+            DiscordEmbedBuilder.EmbedAuthor iconURL = new DiscordEmbedBuilder.EmbedAuthor
             {
                 Name = $"{discordName} Statistics",
                 IconUrl = discordPFP,
             };
 
 
-            var embed = new DiscordEmbedBuilder
+            DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
                 Description = $"Statistics for [{discordName}](https://spookvooper.com/User/Info?svid={SVID})'s SpookVooper account",
                 Color = new DiscordColor(0x64FF),
@@ -98,10 +100,10 @@ namespace CocaBot.Commands
         [Command("balance")]
         public async Task balanceall(CommandContext ctx, DiscordUser discordUser)
         {
-            var discordID = discordUser.Id;
+            ulong discordID = discordUser.Id;
             string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
             string SV_Name = await SpookVooperAPI.Users.GetUsername(SVID);
-            var Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
+            decimal Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
 
             await ctx.Channel.SendMessageAsync(SV_Name + " Balance: ¢" + Balance).ConfigureAwait(false);
         }
@@ -114,7 +116,7 @@ namespace CocaBot.Commands
             if (opt.ToLower() == "group")
             {
                 string SVID = await SpookVooperAPI.Groups.GetSVIDFromName(Inputname);
-                var Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
+                decimal Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
                 string SVname = await SpookVooperAPI.Groups.GetName(SVID);
                 await ctx.Channel.SendMessageAsync($"{SVname} Balance: ¢{Balance}").ConfigureAwait(false);
             }
@@ -122,7 +124,7 @@ namespace CocaBot.Commands
             {
                 string SVID = await SpookVooperAPI.Users.GetSVIDFromUsername(Inputname);
                 string SVname = await SpookVooperAPI.Users.GetUsername(SVID);
-                var Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
+                decimal Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
                 await ctx.Channel.SendMessageAsync($"{SVname} Balance: ¢{Balance}").ConfigureAwait(false);
             }
             else
@@ -134,10 +136,10 @@ namespace CocaBot.Commands
         [Command("balance")]
         public async Task balanceuser(CommandContext ctx)
         {
-            var discordID = ctx.Member.Id;
+            ulong discordID = ctx.Member.Id;
             string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
             string SVname = await SpookVooperAPI.Users.GetUsername(SVID);
-            var Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
+            decimal Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
 
             await ctx.Channel.SendMessageAsync($"{SVname} Balance: ¢{Balance}").ConfigureAwait(false);
         }
@@ -146,22 +148,22 @@ namespace CocaBot.Commands
         [Command("xp")]
         public async Task xpall(CommandContext ctx, DiscordUser discordUser)
         {
-            var discordName = discordUser.Username;
-            var discordPFP = discordUser.AvatarUrl;
-            var discordID = discordUser.Id;
+            string discordName = discordUser.Username;
+            string discordPFP = discordUser.AvatarUrl;
+            ulong discordID = discordUser.Id;
             string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
             string SV_Name = await SpookVooperAPI.Users.GetUsername(SVID);
-            var Data = await SpookVooperAPI.Users.GetUser(SVID);
-            var Total_XP = Data.post_likes + Data.comment_likes + (Data.twitch_message_xp * 4) + (Data.discord_commends * 5) + (Data.discord_message_xp * 2) + (Data.discord_game_xp / 100);
+            User Data = await SpookVooperAPI.Users.GetUser(SVID);
+            int Total_XP = Data.post_likes + Data.comment_likes + (Data.twitch_message_xp * 4) + (Data.discord_commends * 5) + (Data.discord_message_xp * 2) + (Data.discord_game_xp / 100);
 
             await ctx.TriggerTypingAsync();
-            var iconURL = new DiscordEmbedBuilder.EmbedAuthor
+            DiscordEmbedBuilder.EmbedAuthor iconURL = new DiscordEmbedBuilder.EmbedAuthor
             {
                 Name = discordName + " XP",
                 IconUrl = discordPFP,
             };
 
-            var embed = new DiscordEmbedBuilder
+            DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
                 Title = "Total_XP: " + Total_XP,
                 Description = $"XP for [{discordName}](https://spookvooper.com/User/Info?svid={SVID})'s SpookVooper account",
@@ -174,22 +176,21 @@ namespace CocaBot.Commands
         [Command("xp")]
         public async Task xpuser(CommandContext ctx)
         {
-            var discordName = ctx.Member.Username;
-            var discordPFP = ctx.Member.AvatarUrl;
-            var discordID = ctx.Member.Id;
+            string discordName = ctx.Member.Username;
+            string discordPFP = ctx.Member.AvatarUrl;
+            ulong discordID = ctx.Member.Id;
             string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
-            string SV_Name = await SpookVooperAPI.Users.GetUsername(SVID);
-            var Data = await SpookVooperAPI.Users.GetUser(SVID);
-            var Total_XP = Data.post_likes + Data.comment_likes + (Data.twitch_message_xp * 4) + (Data.discord_commends * 5) + (Data.discord_message_xp * 2) + (Data.discord_game_xp / 100);
+            User Data = await SpookVooperAPI.Users.GetUser(SVID);
+            int Total_XP = Data.post_likes + Data.comment_likes + (Data.twitch_message_xp * 4) + (Data.discord_commends * 5) + (Data.discord_message_xp * 2) + (Data.discord_game_xp / 100);
 
             await ctx.TriggerTypingAsync();
-            var iconURL = new DiscordEmbedBuilder.EmbedAuthor
+            DiscordEmbedBuilder.EmbedAuthor iconURL = new DiscordEmbedBuilder.EmbedAuthor
             {
                 Name = discordName + " XP",
                 IconUrl = discordPFP,
             };
 
-            var embed = new DiscordEmbedBuilder
+            DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
                 Title = "Total XP: " + Total_XP,
                 Description = $"XP for [{discordName}](https://spookvooper.com/User/Info?svid={SVID})'s SpookVooper account",
@@ -202,75 +203,94 @@ namespace CocaBot.Commands
         [Command("leaderboard")]
         public async Task leaderboard(CommandContext ctx)
         {
-            var Xboy = "9062fe43-75b0-4f26-a8fd-6a1cdd6883a2";
-            var Voopmont = "d88f1221-deb9-4f17-a789-f79f6dc02c11";
-            var Tyco = "c9535d5e-1769-40ea-a3d4-6b73775eb086";
-            var Dan = "c094e9bd-c021-443f-8138-3433e9ba8b04";
-            var Coca = "e1616412-c384-4b00-b443-b8940423df67";
+            string Xboy = "9062fe43-75b0-4f26-a8fd-6a1cdd6883a2";
+            string Voopmont = "d88f1221-deb9-4f17-a789-f79f6dc02c11";
+            string Tyco = "c9535d5e-1769-40ea-a3d4-6b73775eb086";
+            string Dan = "c094e9bd-c021-443f-8138-3433e9ba8b04";
+            string Coca = "e1616412-c384-4b00-b443-b8940423df67";
 
-            var Xboy_Data = await SpookVooperAPI.Users.GetUser(Xboy);
-            var Voopmont_Data = await SpookVooperAPI.Users.GetUser(Voopmont);
-            var Dan_Data = await SpookVooperAPI.Users.GetUser(Dan);
-            var Tyco_Data = await SpookVooperAPI.Users.GetUser(Tyco);
-            var Coca_Data = await SpookVooperAPI.Users.GetUser(Coca);
+            User Xboy_Data = await SpookVooperAPI.Users.GetUser(Xboy);
+            User Voopmont_Data = await SpookVooperAPI.Users.GetUser(Voopmont);
+            User Dan_Data = await SpookVooperAPI.Users.GetUser(Dan);
+            User Tyco_Data = await SpookVooperAPI.Users.GetUser(Tyco);
+            User Coca_Data = await SpookVooperAPI.Users.GetUser(Coca);
 
-            var Xboy_Total_XP = Xboy_Data.post_likes + Xboy_Data.comment_likes + (Xboy_Data.twitch_message_xp * 4) + (Xboy_Data.discord_commends * 5) + (Xboy_Data.discord_message_xp * 2) + (Xboy_Data.discord_game_xp / 100);
-            var Voopmont_Total_XP = Voopmont_Data.post_likes + Voopmont_Data.comment_likes + (Voopmont_Data.twitch_message_xp * 4) + (Voopmont_Data.discord_commends * 5) + (Voopmont_Data.discord_message_xp * 2) + (Voopmont_Data.discord_game_xp / 100);
-            var Dan_Total_XP = Dan_Data.post_likes + Dan_Data.comment_likes + (Dan_Data.twitch_message_xp * 4) + (Dan_Data.discord_commends * 5) + (Dan_Data.discord_message_xp * 2) + (Dan_Data.discord_game_xp / 100);
-            var Tyco_Total_XP = Tyco_Data.post_likes + Tyco_Data.comment_likes + (Tyco_Data.twitch_message_xp * 4) + (Tyco_Data.discord_commends * 5) + (Tyco_Data.discord_message_xp * 2) + (Tyco_Data.discord_game_xp / 100);
-            var Coca_Total_XP = Coca_Data.post_likes + Coca_Data.comment_likes + (Coca_Data.twitch_message_xp * 4) + (Coca_Data.discord_commends * 5) + (Coca_Data.discord_message_xp * 2) + (Coca_Data.discord_game_xp / 100);
+            int Xboy_Total_XP = Xboy_Data.post_likes + Xboy_Data.comment_likes + (Xboy_Data.twitch_message_xp * 4) + (Xboy_Data.discord_commends * 5) + (Xboy_Data.discord_message_xp * 2) + (Xboy_Data.discord_game_xp / 100);
+            int Voopmont_Total_XP = Voopmont_Data.post_likes + Voopmont_Data.comment_likes + (Voopmont_Data.twitch_message_xp * 4) + (Voopmont_Data.discord_commends * 5) + (Voopmont_Data.discord_message_xp * 2) + (Voopmont_Data.discord_game_xp / 100);
+            int Dan_Total_XP = Dan_Data.post_likes + Dan_Data.comment_likes + (Dan_Data.twitch_message_xp * 4) + (Dan_Data.discord_commends * 5) + (Dan_Data.discord_message_xp * 2) + (Dan_Data.discord_game_xp / 100);
+            int Tyco_Total_XP = Tyco_Data.post_likes + Tyco_Data.comment_likes + (Tyco_Data.twitch_message_xp * 4) + (Tyco_Data.discord_commends * 5) + (Tyco_Data.discord_message_xp * 2) + (Tyco_Data.discord_game_xp / 100);
+            int Coca_Total_XP = Coca_Data.post_likes + Coca_Data.comment_likes + (Coca_Data.twitch_message_xp * 4) + (Coca_Data.discord_commends * 5) + (Coca_Data.discord_message_xp * 2) + (Coca_Data.discord_game_xp / 100);
 
-            var embed = new DiscordEmbedBuilder
+            Dictionary<string, int> myDict = new Dictionary<string, int>();
+            myDict.Add("Xboy", Xboy_Total_XP);
+            myDict.Add("Voopmont", Voopmont_Total_XP);
+            myDict.Add("Tyco", Tyco_Total_XP);
+            myDict.Add("Dan", Dan_Total_XP);
+            myDict.Add("Coca", Coca_Total_XP);
+
+            IOrderedEnumerable<KeyValuePair<string, int>> sortedDict = from entry in myDict orderby entry.Value ascending select entry;
+
+            DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
                 Title = "SpookVooper Leaderboard",
                 Description = "XP Leaderboard from [SpookVooper.com](https://spookvooper.com/Leaderboard/Index/0)",
                 Color = new DiscordColor(0x64FF)
             };
-            embed.AddField("Top 5:",
-                $"1. Xboy: {Xboy_Total_XP}\n2. Voopmont: {Voopmont_Total_XP}\n3. Dan: {Tyco_Total_XP}\n4. Tyco: {Dan_Total_XP}\n5. Coca: {Coca_Total_XP}");
-            await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
+
+            foreach (var item in sortedDict)
+                embed.AddField($"{item.Key}:",
+                    $"{item.Value} XP"); 
         }
 
         [Command("leaderboardloop")]
         public async Task leaderboardLoop(CommandContext ctx)
         {
-            var test = ctx.Member.IsOwner;
+            bool test = ctx.Member.IsOwner;
             if (test == false)
             {
                 await ctx.RespondAsync("You are not server owner").ConfigureAwait(false);
             }
             else
             {
-                var Xboy = "9062fe43-75b0-4f26-a8fd-6a1cdd6883a2";
-                var Voopmont = "d88f1221-deb9-4f17-a789-f79f6dc02c11";
-                var Tyco = "c9535d5e-1769-40ea-a3d4-6b73775eb086";
-                var Dan = "c094e9bd-c021-443f-8138-3433e9ba8b04";
-                var Coca = "e1616412-c384-4b00-b443-b8940423df67";
+                string Xboy = "9062fe43-75b0-4f26-a8fd-6a1cdd6883a2";
+                string Voopmont = "d88f1221-deb9-4f17-a789-f79f6dc02c11";
+                string Tyco = "c9535d5e-1769-40ea-a3d4-6b73775eb086";
+                string Dan = "c094e9bd-c021-443f-8138-3433e9ba8b04";
+                string Coca = "e1616412-c384-4b00-b443-b8940423df67";
 
                 while (true)
                 {
-                    var Xboy_Data = await SpookVooperAPI.Users.GetUser(Xboy);
-                    var Voopmont_Data = await SpookVooperAPI.Users.GetUser(Voopmont);
-                    var Dan_Data = await SpookVooperAPI.Users.GetUser(Dan);
-                    var Tyco_Data = await SpookVooperAPI.Users.GetUser(Tyco);
-                    var Coca_Data = await SpookVooperAPI.Users.GetUser(Coca);
+                    User Xboy_Data = await SpookVooperAPI.Users.GetUser(Xboy);
+                    User Voopmont_Data = await SpookVooperAPI.Users.GetUser(Voopmont);
+                    User Dan_Data = await SpookVooperAPI.Users.GetUser(Dan);
+                    User Tyco_Data = await SpookVooperAPI.Users.GetUser(Tyco);
+                    User Coca_Data = await SpookVooperAPI.Users.GetUser(Coca);
 
-                    var Xboy_Total_XP = Xboy_Data.post_likes + Xboy_Data.comment_likes + (Xboy_Data.twitch_message_xp * 4) + (Xboy_Data.discord_commends * 5) + (Xboy_Data.discord_message_xp * 2) + (Xboy_Data.discord_game_xp / 100);
-                    var Voopmont_Total_XP = Voopmont_Data.post_likes + Voopmont_Data.comment_likes + (Voopmont_Data.twitch_message_xp * 4) + (Voopmont_Data.discord_commends * 5) + (Voopmont_Data.discord_message_xp * 2) + (Voopmont_Data.discord_game_xp / 100);
-                    var Dan_Total_XP = Dan_Data.post_likes + Dan_Data.comment_likes + (Dan_Data.twitch_message_xp * 4) + (Dan_Data.discord_commends * 5) + (Dan_Data.discord_message_xp * 2) + (Dan_Data.discord_game_xp / 100);
-                    var Tyco_Total_XP = Tyco_Data.post_likes + Tyco_Data.comment_likes + (Tyco_Data.twitch_message_xp * 4) + (Tyco_Data.discord_commends * 5) + (Tyco_Data.discord_message_xp * 2) + (Tyco_Data.discord_game_xp / 100);
-                    var Coca_Total_XP = Coca_Data.post_likes + Coca_Data.comment_likes + (Coca_Data.twitch_message_xp * 4) + (Coca_Data.discord_commends * 5) + (Coca_Data.discord_message_xp * 2) + (Coca_Data.discord_game_xp / 100);
+                    int Xboy_Total_XP = Xboy_Data.post_likes + Xboy_Data.comment_likes + (Xboy_Data.twitch_message_xp * 4) + (Xboy_Data.discord_commends * 5) + (Xboy_Data.discord_message_xp * 2) + (Xboy_Data.discord_game_xp / 100);
+                    int Voopmont_Total_XP = Voopmont_Data.post_likes + Voopmont_Data.comment_likes + (Voopmont_Data.twitch_message_xp * 4) + (Voopmont_Data.discord_commends * 5) + (Voopmont_Data.discord_message_xp * 2) + (Voopmont_Data.discord_game_xp / 100);
+                    int Dan_Total_XP = Dan_Data.post_likes + Dan_Data.comment_likes + (Dan_Data.twitch_message_xp * 4) + (Dan_Data.discord_commends * 5) + (Dan_Data.discord_message_xp * 2) + (Dan_Data.discord_game_xp / 100);
+                    int Tyco_Total_XP = Tyco_Data.post_likes + Tyco_Data.comment_likes + (Tyco_Data.twitch_message_xp * 4) + (Tyco_Data.discord_commends * 5) + (Tyco_Data.discord_message_xp * 2) + (Tyco_Data.discord_game_xp / 100);
+                    int Coca_Total_XP = Coca_Data.post_likes + Coca_Data.comment_likes + (Coca_Data.twitch_message_xp * 4) + (Coca_Data.discord_commends * 5) + (Coca_Data.discord_message_xp * 2) + (Coca_Data.discord_game_xp / 100);
 
-                    var embed = new DiscordEmbedBuilder
+                    Dictionary<string, int> myDict = new Dictionary<string, int>();
+                    myDict.Add("Xboy", Xboy_Total_XP);
+                    myDict.Add("Voopmont", Voopmont_Total_XP);
+                    myDict.Add("Tyco", Tyco_Total_XP);
+                    myDict.Add("Dan", Dan_Total_XP);
+                    myDict.Add("Coca", Coca_Total_XP);
+
+                    IOrderedEnumerable<KeyValuePair<string, int>> sortedDict = from entry in myDict orderby entry.Value ascending select entry;
+
+                    DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                     {
                         Title = "SpookVooper Leaderboard",
                         Description = "XP Leaderboard from [SpookVooper.com](https://spookvooper.com/Leaderboard/Index/0)",
                         Color = new DiscordColor(0x64FF)
                     };
-                    embed.AddField("Top 5:",
-                        $"1. Xboy: {Xboy_Total_XP}\n2. Voopmont: {Voopmont_Total_XP}\n3. Dan: {Tyco_Total_XP}\n4. Tyco: {Dan_Total_XP}\n5. Coca: {Coca_Total_XP}");
-                    await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
-                    await Task.Delay(3600000);
+
+                    foreach (var item in sortedDict)
+                        embed.AddField($"{item.Key}:",
+                            $"{item.Value} XP");
                 }
             }
         }
@@ -278,20 +298,20 @@ namespace CocaBot.Commands
         [Command("balanceloop")]
         public async Task balanceLoop(CommandContext ctx, DiscordUser discordUser)
         {
-            var test = ctx.Member.IsOwner;
-            if (test == false)
+            bool ifowner = ctx.Member.IsOwner;
+            if (ifowner == false)
             {
                 await ctx.RespondAsync("You are not server owner").ConfigureAwait(false);
             }
             else
             {
-                var discordID = discordUser.Id;
+                ulong discordID = discordUser.Id;
                 string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
                 string SVname = await SpookVooperAPI.Users.GetUsername(SVID);
 
                 while (true)
                 {
-                    var Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
+                    decimal Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
                     await ctx.Channel.SendMessageAsync($"{SVname} Balance: ¢{Balance}").ConfigureAwait(false);
                     await Task.Delay(3600000);
                 }
@@ -300,16 +320,16 @@ namespace CocaBot.Commands
         }
 
         [Command("balanceloop")]
-        public async Task balanceLoop(CommandContext ctx, string SVID)
+        public async Task BalanceLoop(CommandContext ctx, string SVID)
         {
-            var test = ctx.Member.IsOwner;
+            bool test = ctx.Member.IsOwner;
             if (test != false)
             {
                 string SVname = await SpookVooperAPI.Groups.GetName(SVID);
 
                 while (true)
                 {
-                    var Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
+                    decimal Balance = await SpookVooperAPI.Economy.GetBalance(SVID);
                     await ctx.Channel.SendMessageAsync($"{SVname} Balance: ¢{Balance}").ConfigureAwait(false);
                     await Task.Delay(3600000);
                 }
@@ -322,30 +342,40 @@ namespace CocaBot.Commands
         }
 
         [Command("verify")]
-        public async Task VerifyCitzenAll(CommandContext ctx, DiscordUser discordUser)
+        public async Task VerifyUser(CommandContext ctx, string type)
         {
-            var ServerID = ctx.Guild.Id;
-            if (ServerID == 762075097422495784)
-            {
-                var discordID = discordUser.Id;
-                string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
-                var Data = await SpookVooperAPI.Users.GetUser(SVID);
-                var district_role = ctx.Guild.GetRole(762434338847195138);
-                var non_citizen_role = ctx.Guild.GetRole(762739003630944296);
+            string json = string.Empty;
 
-                if (Data.district == "New Yam")
+            using (var fs = File.OpenRead("config.json"))
+            using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
+                json = await sr.ReadToEndAsync().ConfigureAwait(false);
+
+            ConfigJson ConfigJson = JsonConvert.DeserializeObject<ConfigJson>(json);
+
+            ulong GuildID = ctx.Guild.Id;
+            if (GuildID == ConfigJson.ServerID)
+            {
+                ulong discordID = ctx.User.Id;
+                string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
+                User Data = await SpookVooperAPI.Users.GetUser(SVID);
+                string senate_role = "Senator";
+                bool if_senate_role = await SpookVooperAPI.Users.HasDiscordRole(SVID, senate_role);
+
+                if ((Data.district == "New Yam") && (type.ToLower() == "citizen"))
                 {
-                    var discordName = discordUser.Username;
-                    var discordPFP = discordUser.AvatarUrl;
+                    string discordName = ctx.User.Username;
+                    string discordPFP = ctx.User.AvatarUrl;
+                    DiscordRole district_role = ctx.Guild.GetRole(ConfigJson.CitizenID);
+                    DiscordRole non_citizen_role = ctx.Guild.GetRole(ConfigJson.NonCitizenID);
 
                     await ctx.TriggerTypingAsync();
-                    var iconURL = new DiscordEmbedBuilder.EmbedAuthor
+                    DiscordEmbedBuilder.EmbedAuthor iconURL = new DiscordEmbedBuilder.EmbedAuthor
                     {
                         Name = discordName,
                         IconUrl = discordPFP,
                     };
 
-                    var embed = new DiscordEmbedBuilder
+                    DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                     {
                         Title = "You now have the New Yam Citizen role!",
                         Color = new DiscordColor(0x64FF),
@@ -355,20 +385,22 @@ namespace CocaBot.Commands
                     await ctx.Member.GrantRoleAsync(district_role).ConfigureAwait(false);
                     await ctx.Member.RevokeRoleAsync(non_citizen_role).ConfigureAwait(false);
                 }
-                else
+                else if (type.ToLower() == "citizen")
                 {
-                    var discordName = discordUser.Username;
-                    var discordPFP = discordUser.AvatarUrl;
+                    string discordName = ctx.User.Username;
+                    string discordPFP = ctx.User.AvatarUrl;
+                    DiscordRole district_role = ctx.Guild.GetRole(ConfigJson.CitizenID);
+                    DiscordRole non_citizen_role = ctx.Guild.GetRole(ConfigJson.NonCitizenID);
 
                     await ctx.RespondAsync($"{discordName} is not a New Yam Citizen!").ConfigureAwait(false);
                     await ctx.TriggerTypingAsync();
-                    var iconURL = new DiscordEmbedBuilder.EmbedAuthor
+                    DiscordEmbedBuilder.EmbedAuthor iconURL = new DiscordEmbedBuilder.EmbedAuthor
                     {
                         Name = discordName,
                         IconUrl = discordPFP,
                     };
 
-                    var embed = new DiscordEmbedBuilder
+                    DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                     {
                         Title = "You are a Non-Citizen of New Yam!",
                         Color = new DiscordColor(0x64FF),
@@ -378,79 +410,59 @@ namespace CocaBot.Commands
                     await ctx.Member.GrantRoleAsync(non_citizen_role).ConfigureAwait(false);
                     await ctx.Member.RevokeRoleAsync(district_role).ConfigureAwait(false);
                 }
-            }
-            else
-            {
-                var ServerName = ctx.Guild.Name;
-                await ctx.RespondAsync($"This is {ServerName} not New Yam Community Server!").ConfigureAwait(false);
-            }
-
-        }
-
-        [Command("verify")]
-        public async Task VerifyCitzen(CommandContext ctx)
-        {
-            var ServerID = ctx.Guild.Id;
-            if (ServerID == 762075097422495784)
-            {
-                var discordID = ctx.User.Id;
-                string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
-                var Data = await SpookVooperAPI.Users.GetUser(SVID);
-                var district_role = ctx.Guild.GetRole(762434338847195138);
-                var non_citizen_role = ctx.Guild.GetRole(762739003630944296);
-
-                if (Data.district == "New Yam")
+                else if ((if_senate_role == true) && ((type.ToLower() == "senator")))
                 {
-                    var discordName = ctx.User.Username;
-                    var discordPFP = ctx.User.AvatarUrl;
+                    string discordName = ctx.User.Username;
+                    string discordPFP = ctx.User.AvatarUrl;
+                    DiscordRole senator_role_id = ctx.Guild.GetRole(ConfigJson.SenateID);
 
-                    await ctx.TriggerTypingAsync();
-                    var iconURL = new DiscordEmbedBuilder.EmbedAuthor
+                    DiscordEmbedBuilder.EmbedAuthor iconURL = new DiscordEmbedBuilder.EmbedAuthor
                     {
                         Name = discordName,
                         IconUrl = discordPFP,
                     };
 
-                    var embed = new DiscordEmbedBuilder
+                    DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                     {
-                        Title = "You now have the New Yam Citizen role!",
+                        Title = "You are a Senator!",
                         Color = new DiscordColor(0x64FF),
                         Author = iconURL
                     };
                     await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
-                    await ctx.Member.GrantRoleAsync(district_role).ConfigureAwait(false);
-                    await ctx.Member.RevokeRoleAsync(non_citizen_role).ConfigureAwait(false);
+                    await ctx.Member.GrantRoleAsync(senator_role_id).ConfigureAwait(false);
+                }
+                else if (type.ToLower() == "senator")
+                {
+                    string discordName = ctx.User.Username;
+                    string discordPFP = ctx.User.AvatarUrl;
+                    DiscordRole senator_role_id = ctx.Guild.GetRole(ConfigJson.SenateID);
+
+                    DiscordEmbedBuilder.EmbedAuthor iconURL = new DiscordEmbedBuilder.EmbedAuthor
+                    {
+                        Name = discordName,
+                        IconUrl = discordPFP,
+                    };
+
+                    DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                    {
+                        Title = "You are not a Senator!",
+                        Color = new DiscordColor(0x64FF),
+                        Description = "If you are a Senator VoopAI has probably not updated",
+                        Author = iconURL
+                    };
+                    await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
+                    await ctx.Member.RevokeRoleAsync(senator_role_id).ConfigureAwait(false);
                 }
                 else
                 {
-                    var discordName = ctx.User.Username;
-                    var discordPFP = ctx.User.AvatarUrl;
-
-                    await ctx.RespondAsync($"{discordName} is not a New Yam Citizen!").ConfigureAwait(false);
-                    await ctx.TriggerTypingAsync();
-                    var iconURL = new DiscordEmbedBuilder.EmbedAuthor
-                    {
-                        Name = discordName,
-                        IconUrl = discordPFP,
-                    };
-
-                    var embed = new DiscordEmbedBuilder
-                    {
-                        Title = "You are a Non-Citizen of New Yam!",
-                        Color = new DiscordColor(0x64FF),
-                        Author = iconURL
-                    };
-                    await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
-                    await ctx.Member.GrantRoleAsync(non_citizen_role).ConfigureAwait(false);
-                    await ctx.Member.RevokeRoleAsync(district_role).ConfigureAwait(false);
+                    await ctx.RespondAsync("The verify type is not Senator or Citizen!").ConfigureAwait(false);
                 }
             }
             else
             {
-                var ServerName = ctx.Guild.Name;
+                string ServerName = ctx.Guild.Name;
                 await ctx.RespondAsync($"This is {ServerName} not New Yam Community Server!").ConfigureAwait(false);
             }
-
         }
     }
 }

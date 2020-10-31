@@ -1,12 +1,7 @@
 ﻿using DSharpPlus;
 using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.EventArgs;
-using DSharpPlus.Net;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,9 +22,9 @@ namespace CocaBot
             using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
                 json = await sr.ReadToEndAsync().ConfigureAwait(false);
 
-            var ConfigJson = JsonConvert.DeserializeObject<ConfigJson>(json);
+            ConfigJson ConfigJson = JsonConvert.DeserializeObject<ConfigJson>(json);
 
-            var config = new DiscordConfiguration
+            DiscordConfiguration config = new DiscordConfiguration
             {
                 Token = ConfigJson.Token,
                 TokenType = TokenType.Bot,
@@ -44,7 +39,7 @@ namespace CocaBot
 
             Client.GuildMemberAdded += Client_GuildMemberAdded;
 
-            var commandsConfig = new CommandsNextConfiguration
+            CommandsNextConfiguration commandsConfig = new CommandsNextConfiguration
             {
                 StringPrefixes = new string[] { ConfigJson.Prefix },
                 EnableDms = false,
@@ -65,27 +60,41 @@ namespace CocaBot
 
         private async Task Client_GuildMemberAdded(GuildMemberAddEventArgs e)
         {
-            var ServerID = e.Member.Guild.Id;
-            if (ServerID == 762075097422495784)
-            {
-                var discordID = e.Member.Id;
-                string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
-                var Data = await SpookVooperAPI.Users.GetUser(SVID);
-                var district_role = e.Member.Guild.GetRole(762434338847195138);
-                var non_citizen_role = e.Member.Guild.GetRole(762739003630944296);
+            string json = string.Empty;
 
-                if (Data.district == "New Yam")
+            using (var fs = File.OpenRead("config.json"))
+            using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
+                json = await sr.ReadToEndAsync().ConfigureAwait(false);
+
+            ConfigJson ConfigJson = JsonConvert.DeserializeObject<ConfigJson>(json);
+
+            ulong GuildID = e.Member.Guild.Id;
+            if (GuildID == ConfigJson.ServerID)
+            {
+                ulong discordID = e.Member.Id;
+                string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
+                SpookVooper.Api.Entities.User Data = await SpookVooperAPI.Users.GetUser(SVID);
+                DSharpPlus.Entities.DiscordRole district_role = e.Member.Guild.GetRole(ConfigJson.CitizenID);
+                DSharpPlus.Entities.DiscordRole non_citizen_role = e.Member.Guild.GetRole(ConfigJson.NonCitizenID);
+                string senate_role = "Senator";
+                bool if_senate_role = await SpookVooperAPI.Users.HasDiscordRole(SVID, senate_role);
+
+                if (Data.district == ConfigJson.DistrictName)
                 {
                     await e.Member.GrantRoleAsync(district_role).ConfigureAwait(false);
-                    await e.Member.RevokeRoleAsync(non_citizen_role).ConfigureAwait(false);
                 }
                 else
                 {
                     await e.Member.GrantRoleAsync(non_citizen_role).ConfigureAwait(false);
-                    await e.Member.RevokeRoleAsync(district_role).ConfigureAwait(false);
                 }
-                var welcome = e.Guild.GetChannel(762425370405896233);
-                await welcome.SendMessageAsync($"Welcome {e.Member.Username} to {e.Guild.Name}!");
+                if (if_senate_role == true)
+                {
+                    DSharpPlus.Entities.DiscordRole senator_role_id = e.Guild.GetRole(ConfigJson.SenateID);
+
+                    await e.Member.GrantRoleAsync(senator_role_id).ConfigureAwait(false);
+                }
+                DSharpPlus.Entities.DiscordChannel welcome = e.Guild.GetChannel(ConfigJson.WelcomeID);
+                await welcome.SendMessageAsync($"Welcome {e.Member.Mention} to {e.Guild.Name}!");
             }
         }
 
