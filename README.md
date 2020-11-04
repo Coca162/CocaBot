@@ -2,7 +2,7 @@
 #### A simple discord bot which uses the SpookVooper API to show info about user
 
 ## Installation Proccess
-
+(These installations will not work for the source code as this may require a reference to be added!)
 __Windows:__
 
 Follow the first steps of installing Microsoft Visual Studios and Dsharp Nuget packages [here](https://youtu.be/7-tyLCAO4mY) but install version 4.0.0-nightly-00712 as version above it might break the bot
