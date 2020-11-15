@@ -6,6 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="SpookVooper.Api-master\**" />
+    <EmbeddedResource Remove="SpookVooper.Api-master\**" />
+    <None Remove="SpookVooper.Api-master\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="bin\Debug\netcoreapp3.1\config.json" />
   </ItemGroup>
 
@@ -17,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SpookVooper.Api-master\SpookVooper.Api\SpookVooper.Api.csproj" />
+    <ProjectReference Include="SpookVooper.Api-master\SpookVooper.Api\SpookVooper.Api.csproj" />
   </ItemGroup>
 
 

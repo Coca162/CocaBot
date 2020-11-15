@@ -133,7 +133,7 @@ namespace CocaBot.Commands
 
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                 {
-                    Title = $"Total XP: {Total_XP}\nMessage to Message XP: 1 : {Ratio_Messages_Rounded}",
+                    Title = $"Total XP: {Total_XP}\nMessage to XP: 1 : {Ratio_Messages_Rounded * 2}",
                     Description = $"XP for [{discordName}](https://spookvooper.com/User/Info?svid={SVID})'s SpookVooper account",
                     Color = new DiscordColor("2CC26C"),
                     Author = iconURL
@@ -179,7 +179,7 @@ namespace CocaBot.Commands
 
                         DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                         {
-                            Title = $"Total XP: {Total_XP}\nMessage to Message XP: 1 : {Ratio_Messages_Rounded}",
+                            Title = $"Total XP: {Total_XP}\nMessage to XP: 1 : {Ratio_Messages_Rounded * 2}",
                             Description = $"XP for [{name}](https://spookvooper.com/User/Info?svid={SVID})'s SpookVooper account",
                             Color = new DiscordColor("2CC26C"),
                             Author = iconURL
@@ -209,7 +209,7 @@ namespace CocaBot.Commands
 
                     DiscordEmbedBuilder embed = new DiscordEmbedBuilder
                     {
-                        Title = $"Total XP: {Total_XP}\nMessage to Message XP: 1 : {Ratio_Messages_Rounded}",
+                        Title = $"Total XP: {Total_XP}\nMessage to XP: 1 : {Ratio_Messages_Rounded * 2}",
                         Description = $"XP for [{discordName}](https://spookvooper.com/User/Info?svid={SVID})'s SpookVooper account",
                         Color = new DiscordColor("2CC26C"),
                         Author = iconURL
