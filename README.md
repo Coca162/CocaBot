@@ -1,5 +1,5 @@
 # CocaBot
-#### A simple discord bot which uses the SpookVooper API to show info about user
+#### A simple SV discord bot which uses the SpookVooper API to show info about user
 
 ## Installation Proccess
 
