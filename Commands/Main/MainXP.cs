@@ -47,7 +47,7 @@ namespace CocaBot.Commands
                     $"Discord Message XP: {Data.discord_message_xp}\nDiscord Messages: {Data.discord_message_count}\nDiscord Game XP: {Data.discord_game_xp}\nDiscord Commends: {Data.discord_commends}\nDiscord Commends Sent: {Data.discord_commends_sent}\nDiscord Bans: {Data.discord_ban_count}\nDiscord PFP Url: {Data.Image_Url}");
                 embed.AddField(
                     "SpookVooper",
-                    $"Description: {Data.description}\nBalance: {Data.credits}\nDistrict: + {Data.district}\nPost Likes: {Data.post_likes}\nComment Likes: {Data.comment_likes}\nAPI Use: {Data.api_use_count}");
+                    $"Description: {Data.description}\nBalance: {Data.credits}\nDistrict: {Data.district}\nPost Likes: {Data.post_likes}\nComment Likes: {Data.comment_likes}\nAPI Use: {Data.api_use_count}");
                 embed.AddField(
                     "Twitch",
                     $"Twitch XP: {Data.twitch_message_xp}\nTwitch Messages: {Data.twitch_messages}");
@@ -95,7 +95,7 @@ namespace CocaBot.Commands
                     $"Discord Message XP: {Data.discord_message_xp}\nDiscord Messages: {Data.discord_message_count}\nDiscord Game XP: {Data.discord_game_xp}\nDiscord Commends: {Data.discord_commends}\nDiscord Commends Sent: {Data.discord_commends_sent}\nDiscord Bans: {Data.discord_ban_count}\nDiscord PFP Url: {Data.Image_Url}");
                 embed.AddField(
                     "SpookVooper",
-                    $"Description: {Data.description}\nBalance: {Data.credits}\nDistrict: + {Data.district}\nPost Likes: {Data.post_likes}\nComment Likes: {Data.comment_likes}\nAPI Use: {Data.api_use_count}");
+                    $"Description: {Data.description}\nBalance: {Data.credits}\nDistrict: {Data.district}\nPost Likes: {Data.post_likes}\nComment Likes: {Data.comment_likes}\nAPI Use: {Data.api_use_count}");
                 embed.AddField(
                     "Twitch",
                     $"Twitch XP: {Data.twitch_message_xp}\nTwitch Messages: {Data.twitch_messages}");

@@ -6,24 +6,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="SpookVooper.Api-master\**" />
-    <EmbeddedResource Remove="SpookVooper.Api-master\**" />
-    <None Remove="SpookVooper.Api-master\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="bin\Debug\netcoreapp3.1\config.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00713" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00713" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-nightly-00713" />
+    <PackageReference Include="DSharpPlus" Version="4.0.0-rc1" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-rc1" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-rc1" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.26" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="SpookVooper.Api-master\SpookVooper.Api\SpookVooper.Api.csproj" />
+    <ProjectReference Include="..\SpookVooper.Api-master\SpookVooper.Api\SpookVooper.Api.csproj" />
   </ItemGroup>
 
 

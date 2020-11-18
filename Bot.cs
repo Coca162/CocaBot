@@ -29,11 +29,10 @@ namespace CocaBot
                 Token = ConfigJson.Token,
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
-                LogLevel = LogLevel.Debug,
-                UseInternalLogHandler = true
+                MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Debug
             };
 
-            Client = new DiscordClient(config);
+            this.Client = new DiscordClient(config);
 
             Client.Ready += OnClientReady;
 
@@ -65,7 +64,7 @@ namespace CocaBot
             await Task.Delay(-1);
         }
 
-        private async Task Client_GuildMemberAdded(GuildMemberAddEventArgs e)
+        private async Task Client_GuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)
         {
             string json = string.Empty;
 
@@ -83,12 +82,14 @@ namespace CocaBot
                 SpookVooper.Api.Entities.User Data = await SpookVooperAPI.Users.GetUser(SVID);
                 DSharpPlus.Entities.DiscordRole district_role = e.Member.Guild.GetRole(ConfigJson.CitizenID);
                 DSharpPlus.Entities.DiscordRole non_citizen_role = e.Member.Guild.GetRole(ConfigJson.NonCitizenID);
+                DSharpPlus.Entities.DiscordRole unpicked_state_role = e.Member.Guild.GetRole(778423688118272071);
                 string senate_role = "Senator";
                 bool if_senate_role = await SpookVooperAPI.Users.HasDiscordRole(SVID, senate_role);
 
-                if (Data.district == ConfigJson.DistrictName)
+                if (Data.district.ToLower() == ConfigJson.DistrictName.ToLower())
                 {
                     await e.Member.GrantRoleAsync(district_role).ConfigureAwait(false);
+                    await e.Member.GrantRoleAsync(unpicked_state_role).ConfigureAwait(false);
                 }
                 else
                 {
@@ -106,11 +107,11 @@ namespace CocaBot
 
             if (e.Member.Id == 470203136771096596)
             {
-                await e.Member.BanAsync(1, "being Asdia");
+                await e.Member.BanAsync(0, "being Asdia");
             }
         }
 
-        private Task OnClientReady(ReadyEventArgs e)
+        private Task OnClientReady(DiscordClient sender, ReadyEventArgs e)
         {
             return Task.CompletedTask;
         }
