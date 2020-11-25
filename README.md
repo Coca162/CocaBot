@@ -5,7 +5,7 @@
 
 __Windows:__
 
-Follow the first steps of installing Microsoft Visual Studios and Dsharp Nuget packages [here](https://youtu.be/7-tyLCAO4mY) but install version 4.0.0-nightly-00712 as version above it might break the bot
+Follow the first steps of installing Microsoft Visual Studios and Dsharp Nuget packages [here](https://youtu.be/7-tyLCAO4mY) but install version 4.0.0rc1 as version above it might break the bot
 
 Install the SpookVooper.Api Nuget package as well
 
