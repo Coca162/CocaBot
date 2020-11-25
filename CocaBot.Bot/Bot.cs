@@ -86,6 +86,10 @@ namespace CocaBot
                 {
                     await e.Context.RespondAsync($"You are blacklisted!");
                 }
+                if (failedCheck is DeveloperOnly)
+                {
+                    await e.Context.RespondAsync($"You are not a whitelisted developer!");
+                }
             }
         }
 
