@@ -7,6 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using SpookVooper.Api;
 using CocaBot.Commands;
+using DSharpPlus.CommandsNext.Exceptions;
+using DSharpPlus.CommandsNext.Converters;
+using DSharpPlus.CommandsNext.Entities;
+using DSharpPlus.Entities;
 
 namespace CocaBot
 {
@@ -29,14 +33,14 @@ namespace CocaBot
                 Token = ConfigJson.Token,
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
-                LogLevel = LogLevel.Debug,
-                UseInternalLogHandler = true
+                MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Debug
             };
 
-            Client = new DiscordClient(config);
+#pragma warning disable IDE0003
+            this.Client = new DiscordClient(config);
+#pragma warning restore IDE0003
 
             Client.Ready += OnClientReady;
-
             Client.GuildMemberAdded += Client_GuildMemberAdded;
 
             CommandsNextConfiguration commandsConfig = new CommandsNextConfiguration
@@ -44,21 +48,48 @@ namespace CocaBot
                 StringPrefixes = new string[] { ConfigJson.Prefix },
                 EnableDms = false,
                 EnableMentionPrefix = true,
-                IgnoreExtraArguments = true
+                IgnoreExtraArguments = true,
             };
 
             Commands = Client.UseCommandsNext(commandsConfig);
 
-            Commands.RegisterCommands<ping>();
+            Commands.CommandErrored += CmdErroredHandler;
+            Commands.SetHelpFormatter<CustomHelpFormatter>();
 
-            Commands.RegisterCommands<statistics>();
+            // Basic:
+            Commands.RegisterCommands<Basic>();
+            // Economy:
+            Commands.RegisterCommands<Balance>();
+            // Other:
+            Commands.RegisterCommands<Verify>();
+            // Users:
+            Commands.RegisterCommands<Name>();
+            Commands.RegisterCommands<Statistics>();
+            Commands.RegisterCommands<SVID>();
+            // XP:
+            Commands.RegisterCommands<Experience>();
+            Commands.RegisterCommands<Leaderboards>();
+
+            // Loop variations of commands are included in the same command file
 
             await Client.ConnectAsync();
 
             await Task.Delay(-1);
         }
 
-        private async Task Client_GuildMemberAdded(GuildMemberAddEventArgs e)
+        private async Task CmdErroredHandler(CommandsNextExtension _, CommandErrorEventArgs e)
+        {
+            var failedChecks = ((ChecksFailedException)e.Exception).FailedChecks;
+            foreach (var failedCheck in failedChecks)
+            {
+                if (failedCheck is EnableBlacklist)
+                {
+                    await e.Context.RespondAsync($"You are blacklisted!");
+                }
+            }
+        }
+
+        private async Task Client_GuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)
         {
             string json = string.Empty;
 
@@ -74,14 +105,16 @@ namespace CocaBot
                 ulong discordID = e.Member.Id;
                 string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
                 SpookVooper.Api.Entities.User Data = await SpookVooperAPI.Users.GetUser(SVID);
-                DSharpPlus.Entities.DiscordRole district_role = e.Member.Guild.GetRole(ConfigJson.CitizenID);
-                DSharpPlus.Entities.DiscordRole non_citizen_role = e.Member.Guild.GetRole(ConfigJson.NonCitizenID);
+                DiscordRole district_role = e.Member.Guild.GetRole(ConfigJson.CitizenID);
+                DiscordRole non_citizen_role = e.Member.Guild.GetRole(ConfigJson.NonCitizenID);
+                DiscordRole unpicked_state_role = e.Member.Guild.GetRole(778423688118272071);
                 string senate_role = "Senator";
                 bool if_senate_role = await SpookVooperAPI.Users.HasDiscordRole(SVID, senate_role);
 
-                if (Data.district == ConfigJson.DistrictName)
+                if (Data.district.ToLower() == ConfigJson.DistrictName.ToLower())
                 {
                     await e.Member.GrantRoleAsync(district_role).ConfigureAwait(false);
+                    await e.Member.GrantRoleAsync(unpicked_state_role).ConfigureAwait(false);
                 }
                 else
                 {
@@ -96,9 +129,14 @@ namespace CocaBot
                 DSharpPlus.Entities.DiscordChannel welcome = e.Guild.GetChannel(ConfigJson.WelcomeID);
                 await welcome.SendMessageAsync($"Welcome {e.Member.Mention} to {e.Guild.Name}!");
             }
+
+            if (e.Member.Id == 470203136771096596)
+            {
+                await e.Member.BanAsync(0, "being Asdia");
+            }
         }
 
-        private Task OnClientReady(ReadyEventArgs e)
+        private Task OnClientReady(DiscordClient sender, ReadyEventArgs e)
         {
             return Task.CompletedTask;
         }

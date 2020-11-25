@@ -15,7 +15,7 @@ __Linux:__
 
 Install nuget and dotnet
 
-Make sure config.json is where Bot.cs is and not in bin\Debug\netcoreapp3.1
+Make sure config.json is where Bot.cs is and not in bin\Debug\netcoreapp5.0
 
 Add your discord token key to config.json
 
