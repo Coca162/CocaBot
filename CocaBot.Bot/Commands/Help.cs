@@ -16,6 +16,7 @@ namespace CocaBot.Commands
 
         public override CommandHelpMessage Build()
         {
+            //green
             EmbedBuilder.Color = new DiscordColor("2CC26C");
             return base.Build();
         }
