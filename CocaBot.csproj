@@ -6,15 +6,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Commands\**" />
+    <EmbeddedResource Remove="Commands\**" />
+    <None Remove="Commands\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="bin\Debug\netcoreapp3.1\config.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00712" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00712" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-nightly-00712" />
-    <PackageReference Include="Microsoft.AspNet.SignalR.JS" Version="2.4.1" />
-    <PackageReference Include="SpookVooper.Api" Version="1.1.1" />
+    <PackageReference Include="DSharpPlus" Version="4.0.0-rc1" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-rc1" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-rc1" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.26" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="SpookVooper.Api-master\SpookVooper.Api\SpookVooper.Api.csproj" />
   </ItemGroup>
 
 
