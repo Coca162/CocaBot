@@ -17,9 +17,8 @@ namespace CocaBot.Commands
             string discordName = discordUser.Username;
             string discordPFP = discordUser.AvatarUrl;
             ulong discordID = discordUser.Id;
-            string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
-            string SV_Name = await SpookVooperAPI.Users.GetUsername(SVID);
-            User Data = await SpookVooperAPI.Users.GetUser(SVID);
+            User user = new User(await User.GetSVIDFromDiscordAsync(discordID));
+            var data = await user.GetSnapshotAsync();
 
             await ctx.TriggerTypingAsync();
             DiscordEmbedBuilder.EmbedAuthor iconURL = new DiscordEmbedBuilder.EmbedAuthor
@@ -31,23 +30,23 @@ namespace CocaBot.Commands
 
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
-                Description = $"Statistics for [{discordName}](https://spookvooper.com/User/Info?svid={SVID})'s SpookVooper account",
+                Description = $"Statistics for [{discordName}](https://spookvooper.com/User/Info?svid={user.Id})'s SpookVooper account",
                 Color = new DiscordColor("2CC26C"),
                 Author = iconURL
             };
 
             embed.AddField(
                 "ID",
-                $"SpookVooper Name: {SV_Name}\nSpookVooper ID: {SVID}\nDiscord ID: {discordID}\nMinecraft ID: {Data.minecraft_id}\n Twitch ID: {Data.twitch_id}\n NationStates: {Data.nationstate}");
+                $"SpookVooper Name: {data.UserName}\nSpookVooper ID: {user.Id}\nDiscord ID: {discordID}\nMinecraft ID: {data.minecraft_id}\n Twitch ID: {data.twitch_id}\n NationStates: {data.nationstate}");
             embed.AddField(
                 "Discord",
-                $"Discord Message XP: {Data.discord_message_xp}\nDiscord Messages: {Data.discord_message_count}\nDiscord Game XP: {Data.discord_game_xp}\nDiscord Commends: {Data.discord_commends}\nDiscord Commends Sent: {Data.discord_commends_sent}\nDiscord Bans: {Data.discord_ban_count}\nDiscord PFP Url: {Data.Image_Url}");
+                $"Discord Message XP: {data.discord_message_xp}\nDiscord Messages: {data.discord_message_count}\nDiscord Game XP: {data.discord_game_xp}\nDiscord Commends: {data.discord_commends}\nDiscord Commends Sent: {data.discord_commends_sent}\nDiscord Bans: {data.discord_ban_count}\nDiscord PFP Url: {data.image_url}");
             embed.AddField(
                 "SpookVooper",
-                $"Description: {Data.description}\nBalance: {Data.Credits}\nDistrict: + {Data.district}\nPost Likes: {Data.post_likes}\nComment Likes: {Data.comment_likes}\nAPI Use: {Data.api_use_count}");
+                $"Description: {data.description}\nBalance: {data.credits}\nDistrict: + {data.district}\nPost Likes: {data.post_likes}\nComment Likes: {data.comment_likes}\nAPI Use: {data.api_use_count}");
             embed.AddField(
                 "Twitch",
-                $"Twitch XP: {Data.twitch_message_xp}\nTwitch Messages: {Data.twitch_messages}");
+                $"Twitch XP: {data.twitch_message_xp}\nTwitch Messages: {data.twitch_messages}");
 
             await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
         }
@@ -59,9 +58,8 @@ namespace CocaBot.Commands
             string discordName = ctx.Member.Username;
             string discordPFP = ctx.Member.AvatarUrl;
             ulong discordID = ctx.Member.Id;
-            string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
-            string SV_Name = await SpookVooperAPI.Users.GetUsername(SVID);
-            User Data = await SpookVooperAPI.Users.GetUser(SVID);
+            User user = new User(await User.GetSVIDFromDiscordAsync(discordID));
+            var data = await user.GetSnapshotAsync();
 
             await ctx.TriggerTypingAsync();
             DiscordEmbedBuilder.EmbedAuthor iconURL = new DiscordEmbedBuilder.EmbedAuthor
@@ -73,23 +71,23 @@ namespace CocaBot.Commands
 
             DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
-                Description = $"Statistics for [{discordName}](https://spookvooper.com/User/Info?svid={SVID})'s SpookVooper account",
+                Description = $"Statistics for [{discordName}](https://spookvooper.com/User/Info?svid={user.Id})'s SpookVooper account",
                 Color = new DiscordColor("2CC26C"),
                 Author = iconURL
             };
 
             embed.AddField(
                 "ID",
-                $"SpookVooper Name: {SV_Name}\nSpookVooper ID: {SVID}\nDiscord ID: {discordID}\nMinecraft ID: {Data.minecraft_id}\n Twitch ID: {Data.twitch_id}\n NationStates: {Data.nationstate}");
+                $"SpookVooper Name: {data.UserName}\nSpookVooper ID: {user.Id}\nDiscord ID: {discordID}\nMinecraft ID: {data.minecraft_id}\n Twitch ID: {data.twitch_id}\n NationStates: {data.nationstate}");
             embed.AddField(
                 "Discord",
-                $"Discord Message XP: {Data.discord_message_xp}\nDiscord Messages: {Data.discord_message_count}\nDiscord Game XP: {Data.discord_game_xp}\nDiscord Commends: {Data.discord_commends}\nDiscord Commends Sent: {Data.discord_commends_sent}\nDiscord Bans: {Data.discord_ban_count}\nDiscord PFP Url: {Data.Image_Url}");
+                $"Discord Message XP: {data.discord_message_xp}\nDiscord Messages: {data.discord_message_count}\nDiscord Game XP: {data.discord_game_xp}\nDiscord Commends: {data.discord_commends}\nDiscord Commends Sent: {data.discord_commends_sent}\nDiscord Bans: {data.discord_ban_count}\nDiscord PFP Url: {data.image_url}");
             embed.AddField(
                 "SpookVooper",
-                $"Description: {Data.description}\nBalance: {Data.Credits}\nDistrict: + {Data.district}\nPost Likes: {Data.post_likes}\nComment Likes: {Data.comment_likes}\nAPI Use: {Data.api_use_count}");
+                $"Description: {data.description}\nBalance: {data.credits}\nDistrict: + {data.district}\nPost Likes: {data.post_likes}\nComment Likes: {data.comment_likes}\nAPI Use: {data.api_use_count}");
             embed.AddField(
                 "Twitch",
-                $"Twitch XP: {Data.twitch_message_xp}\nTwitch Messages: {Data.twitch_messages}");
+                $"Twitch XP: {data.twitch_message_xp}\nTwitch Messages: {data.twitch_messages}");
 
             await ctx.RespondAsync(embed: embed).ConfigureAwait(false);
         }

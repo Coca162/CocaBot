@@ -136,10 +136,11 @@ namespace CocaBot.Commands
 
                 foreach (var item in usersDict)
                 {
-                    User Data = await SpookVooperAPI.Users.GetUser(item.Value);
-                    int Total_XP = Data.GetTotalXP();
+                    User user = new User(item.Value);
+                    var data = await user.GetSnapshotAsync();
+                    int Total_XP = data.post_likes + data.comment_likes + (data.twitch_message_xp * 4) + (data.discord_commends * 5) + (data.discord_message_xp * 2) + (data.discord_game_xp / 100);
 #pragma warning disable IDE0004
-                    decimal Ratio_Messages = (decimal)Data.discord_message_xp / (decimal)Data.discord_message_count;
+                    decimal Ratio_Messages = (decimal)data.discord_message_xp / (decimal)data.discord_message_count;
 #pragma warning restore IDE0004
                     decimal multiplier = (decimal)Math.Pow(10, Convert.ToDouble(2));
                     decimal Ratio_Messages_Rounded = (Math.Ceiling(Ratio_Messages * multiplier) / multiplier);
@@ -181,9 +182,11 @@ namespace CocaBot.Commands
                 await Task.Delay((int)delay);
                 LeadeboardUpdaterAsync(ctx);
                 if (time == 60) { time = 0; };
-                timer = new Timer();
-                timer.Interval = (float)(time * 60000);
-                timer.Enabled = true;
+                timer = new Timer
+                {
+                    Interval = (float)(time * 60000),
+                    Enabled = true
+                };
                 timer.Elapsed += (sender, e) => LeadeboardUpdaterAsync(ctx);
             }
         }
@@ -205,10 +208,11 @@ namespace CocaBot.Commands
 
             foreach (var item in usersDict)
             {
-                User Data = await SpookVooperAPI.Users.GetUser(item.Value);
-                int Total_XP = Data.GetTotalXP();
+                User user = new User(item.Value);
+                var data = await user.GetSnapshotAsync();
+                int Total_XP = data.post_likes + data.comment_likes + (data.twitch_message_xp * 4) + (data.discord_commends * 5) + (data.discord_message_xp * 2) + (data.discord_game_xp / 100);
 #pragma warning disable IDE0004
-                decimal Ratio_Messages = (decimal)Data.discord_message_xp / (decimal)Data.discord_message_count;
+                decimal Ratio_Messages = (decimal)data.discord_message_xp / (decimal)data.discord_message_count;
 #pragma warning restore IDE0004
                 decimal multiplier = (decimal)Math.Pow(10, Convert.ToDouble(2));
                 decimal Ratio_Messages_Rounded = (Math.Ceiling(Ratio_Messages * multiplier) / multiplier);
@@ -234,4 +238,3 @@ namespace CocaBot.Commands
         }
     }
 }
-

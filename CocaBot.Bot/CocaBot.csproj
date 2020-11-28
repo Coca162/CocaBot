@@ -49,7 +49,7 @@
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-rc1" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-rc1" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.26" />
-    <PackageReference Include="SpookVooper.Api" Version="1.2.0" />
+    <PackageReference Include="SpookVooper.Api" Version="1.2.8" />
   </ItemGroup>
 
 </Project>

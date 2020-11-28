@@ -11,6 +11,7 @@ using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.Entities;
+using SpookVooper.Api.Entities;
 
 namespace CocaBot
 {
@@ -107,15 +108,15 @@ namespace CocaBot
             if (GuildID == ConfigJson.ServerID)
             {
                 ulong discordID = e.Member.Id;
-                string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
-                SpookVooper.Api.Entities.User Data = await SpookVooperAPI.Users.GetUser(SVID);
+                User user = new User(await User.GetSVIDFromDiscordAsync(discordID));
+                var data = await user.GetSnapshotAsync();
                 DiscordRole district_role = e.Member.Guild.GetRole(ConfigJson.CitizenID);
                 DiscordRole non_citizen_role = e.Member.Guild.GetRole(ConfigJson.NonCitizenID);
                 DiscordRole unpicked_state_role = e.Member.Guild.GetRole(778423688118272071);
                 string senate_role = "Senator";
-                bool if_senate_role = await SpookVooperAPI.Users.HasDiscordRole(SVID, senate_role);
+                bool if_senate_role = await user.HasDiscordRoleAsync(senate_role);
 
-                if (Data.district.ToLower() == ConfigJson.DistrictName.ToLower())
+                if (data.district.ToLower() == ConfigJson.DistrictName.ToLower())
                 {
                     await e.Member.GrantRoleAsync(district_role).ConfigureAwait(false);
                     await e.Member.GrantRoleAsync(unpicked_state_role).ConfigureAwait(false);
@@ -126,11 +127,11 @@ namespace CocaBot
                 }
                 if (if_senate_role == true)
                 {
-                    DSharpPlus.Entities.DiscordRole senator_role_id = e.Guild.GetRole(ConfigJson.SenateID);
+                    DiscordRole senator_role_id = e.Guild.GetRole(ConfigJson.SenateID);
 
                     await e.Member.GrantRoleAsync(senator_role_id).ConfigureAwait(false);
                 }
-                DSharpPlus.Entities.DiscordChannel welcome = e.Guild.GetChannel(ConfigJson.WelcomeID);
+                DiscordChannel welcome = e.Guild.GetChannel(ConfigJson.WelcomeID);
                 await welcome.SendMessageAsync($"Welcome {e.Member.Mention} to {e.Guild.Name}!");
             }
 

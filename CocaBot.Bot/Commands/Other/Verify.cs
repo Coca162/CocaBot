@@ -28,12 +28,12 @@ namespace CocaBot.Commands
             if (GuildID == ConfigJson.ServerID)
             {
                 ulong discordID = ctx.User.Id;
-                string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
-                User Data = await SpookVooperAPI.Users.GetUser(SVID);
+                User user = new User(await User.GetSVIDFromDiscordAsync(discordID));
+                var data = await user.GetSnapshotAsync();
                 string senate_role = "Senator";
-                bool if_senate_role = await SpookVooperAPI.Users.HasDiscordRole(SVID, senate_role);
+                bool if_senate_role = await user.HasDiscordRoleAsync(senate_role);
 
-                if ((Data.district == "New Yam") && (type.ToLower() == "citizen"))
+                if ((data.district == "New Yam") && (type.ToLower() == "citizen"))
                 {
                     string discordName = ctx.User.Username;
                     string discordPFP = ctx.User.AvatarUrl;
