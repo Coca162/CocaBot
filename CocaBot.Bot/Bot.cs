@@ -5,13 +5,11 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using SpookVooper.Api;
 using CocaBot.Commands;
 using DSharpPlus.CommandsNext.Exceptions;
-using DSharpPlus.CommandsNext.Converters;
-using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.Entities;
 using SpookVooper.Api.Entities;
+using System;
 
 namespace CocaBot
 {
@@ -80,17 +78,24 @@ namespace CocaBot
 
         private async Task CmdErroredHandler(CommandsNextExtension _, CommandErrorEventArgs e)
         {
-            var failedChecks = ((ChecksFailedException)e.Exception).FailedChecks;
-            foreach (var failedCheck in failedChecks)
+            try
             {
-                if (failedCheck is EnableBlacklist)
+                var failedChecks = ((ChecksFailedException)e.Exception).FailedChecks;
+                foreach (var failedCheck in failedChecks)
                 {
-                    await e.Context.RespondAsync($"You are blacklisted!");
+                    if (failedCheck is EnableBlacklist)
+                    {
+                        await e.Context.RespondAsync($"You are blacklisted!");
+                    }
+                    if (failedCheck is DeveloperOnly)
+                    {
+                        await e.Context.RespondAsync($"You are not a whitelisted developer!");
+                    }
                 }
-                if (failedCheck is DeveloperOnly)
-                {
-                    await e.Context.RespondAsync($"You are not a whitelisted developer!");
-                }
+            }
+            catch (Exception a)
+            {
+                await e.Context.RespondAsync($"While attempting to run the command the following error has happened:\n{e.Exception.Message}");
             }
         }
 

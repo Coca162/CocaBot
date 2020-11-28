@@ -1,10 +1,8 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using SpookVooper.Api;
 using SpookVooper.Api.Entities;
 using SpookVooper.Api.Entities.Groups;
-using System;
 using System.Threading.Tasks;
 
 namespace CocaBot.Commands

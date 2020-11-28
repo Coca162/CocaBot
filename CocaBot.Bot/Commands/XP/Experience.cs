@@ -1,7 +1,6 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using SpookVooper.Api;
 using System.Threading.Tasks;
 using System;
 using SpookVooper.Api.Entities;

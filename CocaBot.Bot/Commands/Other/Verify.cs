@@ -2,7 +2,6 @@
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
-using SpookVooper.Api;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
