@@ -93,7 +93,9 @@ namespace CocaBot
                     }
                 }
             }
+#pragma warning disable IDE0059
             catch (Exception a)
+#pragma warning restore IDE0059
             {
                 await e.Context.RespondAsync($"While attempting to run the command the following error has happened:\n{e.Exception.Message}");
             }
