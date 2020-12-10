@@ -9,7 +9,7 @@ Follow the first steps of installing Microsoft Visual Studios and Dsharp Nuget p
 
 Install the SpookVooper.Api Nuget package as well
 
-After that click on Build and Build Solution. After this you will get a exe in bin\Debug\netcoreapp3.1 that will make your bot come to life as long as you set up config.json (same location) with the discord token key!
+After that click on Build and Build Solution. After this you will get a exe in bin\Debug\netcoreapp5.0 that will make your bot come to life as long as you set up config.json (same location) with the discord token key!
 
 __Linux:__
 
