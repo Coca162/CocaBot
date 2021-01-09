@@ -9,11 +9,13 @@ public class EnableBlacklist : CheckBaseAttribute
 {
     public EnableBlacklist() { }
 
+    readonly List<float> blacklist = new List<float>
+    {
+    470203136771096596 //Asdia
+    };
+
     public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
     {
-        List<float> blacklist = new List<float>();
-        blacklist.Add(470203136771096596); //Asdia
-
         bool blacklisted = false;
         foreach(var id in blacklist)
         {
@@ -29,16 +31,18 @@ public class DeveloperOnly : CheckBaseAttribute
 {
     public DeveloperOnly() { }
 
+    readonly List<float> whitelist = new List<float>
+    {
+    388454632835514380 //Coca
+    };
+
     public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
     {
-        List<float> whitelist = new List<float>();
-        whitelist.Add(388454632835514380); //Coca
-
-        bool whitelisted = true;
+        bool whitelisted = false;
         foreach (var id in whitelist)
         {
             if (id == ctx.User.Id)
-                whitelisted = false;
+                whitelisted = true;
         }
         return Task.FromResult(whitelisted == true);
     }
