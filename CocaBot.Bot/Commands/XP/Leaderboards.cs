@@ -12,8 +12,6 @@ namespace CocaBot.Commands
 {
     public class Leaderboards : BaseCommandModule
     {
-        Timer timer;
-
         Dictionary<string, string> usersDict = new Dictionary<string, string>
         {
                 { "Xboy", "9062fe43-75b0-4f26-a8fd-6a1cdd6883a2" },

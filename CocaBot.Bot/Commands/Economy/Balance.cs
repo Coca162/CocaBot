@@ -10,8 +10,6 @@ namespace CocaBot.Commands
 {
     public class Balance : BaseCommandModule
     {
-        System.Timers.Timer timer;
-
         [Command("balance"), EnableBlacklist]
         [Aliases("balan", "bal", "b")]
         [Priority(1)]
