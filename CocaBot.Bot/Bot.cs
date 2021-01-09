@@ -1,15 +1,15 @@
-﻿using DSharpPlus;
+﻿using CocaBot.Commands;
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Exceptions;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Newtonsoft.Json;
+using SpookVooper.Api.Entities;
+using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using CocaBot.Commands;
-using DSharpPlus.CommandsNext.Exceptions;
-using DSharpPlus.Entities;
-using SpookVooper.Api.Entities;
-using System;
 
 namespace CocaBot
 {
@@ -44,7 +44,7 @@ namespace CocaBot
 
             CommandsNextConfiguration commandsConfig = new CommandsNextConfiguration
             {
-                StringPrefixes = new string[] { ConfigJson.Prefix },
+                StringPrefixes = ConfigJson.Prefix,
                 EnableDms = false,
                 EnableMentionPrefix = true,
                 IgnoreExtraArguments = true,
@@ -93,11 +93,39 @@ namespace CocaBot
                     }
                 }
             }
-#pragma warning disable IDE0059
-            catch (Exception a)
-#pragma warning restore IDE0059
+            catch (Exception)
             {
-                await e.Context.RespondAsync($"While attempting to run the command the following error has happened:\n{e.Exception.Message}");
+                if (e.Exception.Message == "Response failed: HTTP Code BadGateway")
+                {
+                    DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                    {
+                        Title = $"SpookVooper Error",
+                        Description = $"SpookVooper cannot be reached",
+                        Color = DiscordColor.Red
+                    };
+                    await e.Context.RespondAsync(embed: embed).ConfigureAwait(false);
+                }
+                else if (e.Exception.Message == "Could not find a suitable overload for the command.")
+                {
+                    var json = string.Empty;
+                    using (var fs = File.OpenRead("config.json"))
+                    using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
+                        json = await sr.ReadToEndAsync().ConfigureAwait(false);
+
+                    ConfigJson ConfigJson = JsonConvert.DeserializeObject<ConfigJson>(json);
+
+                    await e.Context.RespondAsync($"The arguments for this command are invalid.\nPlease do '{ConfigJson.Prefix[0]}help {e.Command.Name}' to see all needed arguments.");
+                }
+                else if (e.Exception.Message != "Specified command was not found.")
+                {
+                    DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                    {
+                        Title = $"CocaBot Error",
+                        Description = $"While attempting to run the command the following error has happened:\n{e.Exception.Message}",
+                        Color = DiscordColor.Red
+                    };
+                    await e.Context.RespondAsync(embed: embed).ConfigureAwait(false);
+                }
             }
         }
 

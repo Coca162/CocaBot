@@ -2,10 +2,10 @@
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
+using SpookVooper.Api.Entities;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using SpookVooper.Api.Entities;
 
 namespace CocaBot.Commands
 {
