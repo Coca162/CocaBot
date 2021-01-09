@@ -5,12 +5,11 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using SpookVooper.Api;
 using CocaBot.Commands;
 using DSharpPlus.CommandsNext.Exceptions;
-using DSharpPlus.CommandsNext.Converters;
-using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.Entities;
+using SpookVooper.Api.Entities;
+using System;
 
 namespace CocaBot
 {
@@ -45,7 +44,7 @@ namespace CocaBot
 
             CommandsNextConfiguration commandsConfig = new CommandsNextConfiguration
             {
-                StringPrefixes = new string[] { ConfigJson.Prefix },
+                StringPrefixes = ConfigJson.Prefix,
                 EnableDms = false,
                 EnableMentionPrefix = true,
                 IgnoreExtraArguments = true,
@@ -79,16 +78,53 @@ namespace CocaBot
 
         private async Task CmdErroredHandler(CommandsNextExtension _, CommandErrorEventArgs e)
         {
-            var failedChecks = ((ChecksFailedException)e.Exception).FailedChecks;
-            foreach (var failedCheck in failedChecks)
+            try
             {
-                if (failedCheck is EnableBlacklist)
+                var failedChecks = ((ChecksFailedException)e.Exception).FailedChecks;
+                foreach (var failedCheck in failedChecks)
                 {
-                    await e.Context.RespondAsync($"You are blacklisted!");
+                    if (failedCheck is EnableBlacklist)
+                    {
+                        await e.Context.RespondAsync($"You are blacklisted!");
+                    }
+                    if (failedCheck is DeveloperOnly)
+                    {
+                        await e.Context.RespondAsync($"You are not a whitelisted developer!");
+                    }
                 }
-                if (failedCheck is DeveloperOnly)
+            }
+            catch (Exception)
+            {
+                if (e.Exception.Message == "Response failed: HTTP Code BadGateway")
                 {
-                    await e.Context.RespondAsync($"You are not a whitelisted developer!");
+                    DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                    {
+                        Title = $"SpookVooper Error",
+                        Description = $"SpookVooper cannot be reached",
+                        Color = DiscordColor.Red
+                    };
+                    await e.Context.RespondAsync(embed: embed).ConfigureAwait(false);
+                }
+                else if (e.Exception.Message == "Could not find a suitable overload for the command.")
+                {
+                    var json = string.Empty;
+                    using (var fs = File.OpenRead("config.json"))
+                    using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
+                        json = await sr.ReadToEndAsync().ConfigureAwait(false);
+
+                    ConfigJson ConfigJson = JsonConvert.DeserializeObject<ConfigJson>(json);
+
+                    await e.Context.RespondAsync($"The arguments for this command are invalid.\nPlease do '{ConfigJson.Prefix[0]}help {e.Command.Name}' to see all needed arguments.");
+                }
+                else if (e.Exception.Message != "Specified command was not found.")
+                {
+                    DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+                    {
+                        Title = $"CocaBot Error",
+                        Description = $"While attempting to run the command the following error has happened:\n{e.Exception.Message}",
+                        Color = DiscordColor.Red
+                    };
+                    await e.Context.RespondAsync(embed: embed).ConfigureAwait(false);
                 }
             }
         }
@@ -107,15 +143,15 @@ namespace CocaBot
             if (GuildID == ConfigJson.ServerID)
             {
                 ulong discordID = e.Member.Id;
-                string SVID = await SpookVooperAPI.Users.GetSVIDFromDiscord(discordID);
-                SpookVooper.Api.Entities.User Data = await SpookVooperAPI.Users.GetUser(SVID);
+                User user = new User(await User.GetSVIDFromDiscordAsync(discordID));
+                var data = await user.GetSnapshotAsync();
                 DiscordRole district_role = e.Member.Guild.GetRole(ConfigJson.CitizenID);
                 DiscordRole non_citizen_role = e.Member.Guild.GetRole(ConfigJson.NonCitizenID);
                 DiscordRole unpicked_state_role = e.Member.Guild.GetRole(778423688118272071);
                 string senate_role = "Senator";
-                bool if_senate_role = await SpookVooperAPI.Users.HasDiscordRole(SVID, senate_role);
+                bool if_senate_role = await user.HasDiscordRoleAsync(senate_role);
 
-                if (Data.district.ToLower() == ConfigJson.DistrictName.ToLower())
+                if (data.district.ToLower() == ConfigJson.DistrictName.ToLower())
                 {
                     await e.Member.GrantRoleAsync(district_role).ConfigureAwait(false);
                     await e.Member.GrantRoleAsync(unpicked_state_role).ConfigureAwait(false);
@@ -126,11 +162,11 @@ namespace CocaBot
                 }
                 if (if_senate_role == true)
                 {
-                    DSharpPlus.Entities.DiscordRole senator_role_id = e.Guild.GetRole(ConfigJson.SenateID);
+                    DiscordRole senator_role_id = e.Guild.GetRole(ConfigJson.SenateID);
 
                     await e.Member.GrantRoleAsync(senator_role_id).ConfigureAwait(false);
                 }
-                DSharpPlus.Entities.DiscordChannel welcome = e.Guild.GetChannel(ConfigJson.WelcomeID);
+                DiscordChannel welcome = e.Guild.GetChannel(ConfigJson.WelcomeID);
                 await welcome.SendMessageAsync($"Welcome {e.Member.Mention} to {e.Guild.Name}!");
             }
 

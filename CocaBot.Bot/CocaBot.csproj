@@ -42,6 +42,7 @@
     <None Include="bin\Debug\netcoreapp5.0\Newtonsoft.Json.dll" />
     <None Include="bin\Debug\netcoreapp5.0\ref\CocaBot.dll" />
     <None Include="bin\Debug\netcoreapp5.0\SpookVooper.Api.dll" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml.user" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,7 +50,7 @@
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-rc1" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-rc1" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.26" />
-    <PackageReference Include="SpookVooper.Api" Version="1.2.0" />
+    <PackageReference Include="SpookVooper.Api" Version="1.3.13" />
   </ItemGroup>
 
 </Project>

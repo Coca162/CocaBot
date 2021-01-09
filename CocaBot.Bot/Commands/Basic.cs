@@ -17,7 +17,7 @@ namespace CocaBot.Commands
         [Aliases("ver", "v")]
         public async Task Version(CommandContext ctx)
         {
-            await ctx.Channel.SendMessageAsync("This CocaBot is version 1.5").ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync("This CocaBot is version 1.5.2").ConfigureAwait(false);
         }
     }
 }
