@@ -16,13 +16,7 @@ public class EnableBlacklist : CheckBaseAttribute
 
     public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
     {
-        bool blacklisted = false;
-        foreach(var id in blacklist)
-        {
-            if (id == ctx.User.Id)
-                blacklisted = true;
-        }
-        return Task.FromResult(blacklisted == false);
+        return Task.FromResult(blacklist.Contains(ctx.User.Id));
     }
 }
 
@@ -38,12 +32,6 @@ public class DeveloperOnly : CheckBaseAttribute
 
     public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
     {
-        bool whitelisted = false;
-        foreach (var id in whitelist)
-        {
-            if (id == ctx.User.Id)
-                whitelisted = true;
-        }
-        return Task.FromResult(whitelisted == true);
+        return Task.FromResult(whitelist.Contains(ctx.User.Id));
     }
 }
