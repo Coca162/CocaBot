@@ -10,7 +10,6 @@ namespace CocaBot.Commands
 {
     public class Experience : BaseCommandModule
     {
-        Timer timer;
         [Command("experience"), EnableBlacklist]
         [Priority(1)]
         [Aliases("xp", "x")]
