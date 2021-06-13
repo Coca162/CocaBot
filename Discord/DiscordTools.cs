@@ -7,6 +7,7 @@ using static Shared.Database;
 using System.Threading.Tasks;
 using SpookVooper.Api.Entities;
 using MySql.Data.MySqlClient;
+using static Shared.Main;
 
 namespace Discord
 {
@@ -14,13 +15,38 @@ namespace Discord
     {
         public static async Task<string> DiscordToSVID(ulong id)
         {
+            //if (IdSVIDs.TryGetValue(id, out string svid)) return svid;
+
             string DbSVID = await GetSVID(Platform.Discord, id);
-            if (DbSVID != null) return DbSVID;
+            if (DbSVID != null)
+            {
+                //IdSVIDs.Add(id, DbSVID);
+                return DbSVID;
+            }
 
             string DiscordSVID = await User.GetSVIDFromDiscordAsync(id);
-            if (DiscordSVID != "u-2a0057e6-356a-4a49-b825-c37796cb7bd9") return DiscordSVID;
+            if (DiscordSVID != "u-2a0057e6-356a-4a49-b825-c37796cb7bd9")
+            {
+                //IdSVIDs.Add(id, DiscordSVID);
+                return DiscordSVID;
+            }
 
             return "";
         }
+        /*
+        public static async Task<string> DiscordToToken(ulong id)
+        {
+            if (IdTokens.TryGetValue(id, out string token)) return token;
+
+            string DbToken = await GetToken(Platform.Discord, id);
+            if (DbToken != null)
+            {
+                IdSVIDs.Add(id, DbToken);
+                return DbToken;
+            }
+
+            return "";
+        }
+        */
     }
 }

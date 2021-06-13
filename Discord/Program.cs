@@ -10,7 +10,7 @@ namespace Discord
         static async Task Main(string[] args)
         {
             DiscordConfig config = await GetConfig<DiscordConfig>();
-            await BeginMysql(config);
+            await BeginCocaBot(config, Platform.Discord);
 
             Bot bot = new Bot();
             bot.RunAsync(config).GetAwaiter().GetResult();

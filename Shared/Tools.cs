@@ -3,6 +3,7 @@ using SpookVooper.Api.Entities.Groups;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using static Shared.Main;
 
 namespace Shared
 {
@@ -44,8 +45,9 @@ namespace Shared
         public static async Task<Dictionary<SVIDTypes, Entity>> ConvertToEntities(string input)
         {
             if (input == null) return null;
-            StringInputs type = await IdentifyInput(input);
             Dictionary<SVIDTypes, Entity> entities = new();
+            if (input == "Old King") entities.Add(SVIDTypes.Group, new Entity("g-" + "oldking"));
+            StringInputs type = await IdentifyInput(input);
             if (type == StringInputs.SVID) entities.Add(await SVIDToType(input), new Entity(input));
             else if (type == StringInputs.Name)
             {

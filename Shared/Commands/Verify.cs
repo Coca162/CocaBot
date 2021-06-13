@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using static Shared.Database;
+using static Shared.Main;
 
 namespace Shared.Commands
 {
