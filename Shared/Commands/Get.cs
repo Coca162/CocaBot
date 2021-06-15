@@ -22,7 +22,8 @@ namespace Shared.Commands
                 msg += entity.Key.ToString() + " ";
                 msg += await GetMessage(entity) + "\n";
             }
-            return msg.Substring(msg.Length - 1);
+            msg = msg.Substring(0, msg.Length - 1);
+            return msg;
         }
 
         private static async Task<string> GetMessage(KeyValuePair<SVIDTypes, Entity> entity)
