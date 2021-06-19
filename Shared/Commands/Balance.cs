@@ -31,7 +31,7 @@ namespace Shared.Commands
         {
             string name = await entity.GetNameAsync();
             decimal balance = await GetBalance(entity);
-            return $"{name}'s Balance: ${balance}";
+            return $"{name}'s Balance: ¢{balance}";
         }
 
         public static async Task<decimal> GetBalance(Entity entity)
