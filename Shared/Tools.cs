@@ -44,19 +44,31 @@ namespace Shared
 
         public static async Task<Dictionary<SVIDTypes, Entity>> ConvertToEntities(string input)
         {
-            if (input == null) return null;
             Dictionary<SVIDTypes, Entity> entities = new();
-            if (input == "Old King") entities.Add(SVIDTypes.Group, new Entity("g-" + "oldking"));
+            foreach (KeyValuePair<SVIDTypes, string> svid in await ConvertToSVIDs(input))
+            {
+                entities.Add(svid.Key, new Entity(svid.Value));
+            }
+            return entities;
+        }
+
+        public static async Task<Dictionary<SVIDTypes, string>> ConvertToSVIDs(string input)
+        {
+            if (input == null) return null;
+            Dictionary<SVIDTypes, string> entities = new();
+            if (input == "Old King") entities.Add(SVIDTypes.Group, "g-oldking");
             StringInputs type = await IdentifyInput(input);
-            if (type == StringInputs.SVID) entities.Add(await SVIDToType(input), new Entity(input));
+            if (type == StringInputs.SVID) entities.Add(await SVIDToType(input), input);
             else if (type == StringInputs.Name)
             {
                 Dictionary<SVIDTypes, string> NameEntities = await NameToSVIDs(input);
                 if (NameEntities != null)
-                    foreach (var entity in NameEntities) entities.Add(entity.Key, new Entity(entity.Value));
+                    foreach (var entity in NameEntities) entities.Add(entity.Key, entity.Value);
             }
             return entities;
         }
+
+
         public static async Task<StringInputs> IdentifyInput(string input)
         {
             if ((input[0] == 'g' || input[0] == 'u') && await VerifySVID(input)) return StringInputs.SVID;

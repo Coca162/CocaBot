@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using DSharpPlus.CommandsNext;
+using Discord.Commands;
 
 namespace Discord
 {
@@ -40,6 +41,8 @@ namespace Discord
             Commands.RegisterCommands<Economy>();
 
             Commands.RegisterCommands<Misc>();
+
+            Commands.RegisterCommands<Stats>();
 
             await Client.ConnectAsync();
 
