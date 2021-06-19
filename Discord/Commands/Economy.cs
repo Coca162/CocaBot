@@ -11,7 +11,7 @@ using static Shared.Commands.Balance;
 using static Shared.Commands.Payment;
 using static Shared.Main;
 
-namespace Discord
+namespace Discord.Commands
 {
     public class Economy : BaseCommandModule
     {

@@ -12,7 +12,7 @@ using static Shared.Commands.Register;
 using static Shared.Commands.Verify;
 using static Shared.Main;
 
-namespace Discord
+namespace Discord.Commands
 {
     public class Misc : BaseCommandModule
     {
