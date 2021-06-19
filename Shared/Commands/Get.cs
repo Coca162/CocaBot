@@ -19,7 +19,6 @@ namespace Shared.Commands
 
             foreach (var entity in entities)
             {
-                msg += entity.Key.ToString() + " ";
                 msg += await GetMessage(entity) + "\n";
             }
             msg = msg.Substring(0, msg.Length - 1);
