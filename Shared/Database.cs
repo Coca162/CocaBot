@@ -95,21 +95,21 @@ namespace Shared
             cmdVerify.Parameters.AddWithValue("@key", key);
             Console.WriteLine($"{cmdVerify.ExecuteNonQuery()} rows where affected in the database!");
 
-            await UpdateAllCache(platform, id).ConfigureAwait(false);
+            //await UpdateAllCache(platform, id).ConfigureAwait(false);
 
             return true;
         }
-
+        /*
         public static async Task UpdateAllCache(Platform platform, ulong id)
         {
             string get = $"SELECT SVID, Token FROM Tokens WHERE {platform} = @id;";
             MySqlCommand cmdGet = new(get, Sqlconnection);
             cmdGet.Parameters.AddWithValue("@id", id);
             MySqlDataReader getReader = cmdGet.ExecuteReader();
-            //IdSVIDs.Add(id, getReader.GetString(0));
-            //IdTokens.Add(id, getReader.GetString(1));
+            IdSVIDs.Add(id, getReader.GetString(0));
+            IdTokens.Add(id, getReader.GetString(1));
         }
-        /*
+        
         public static async Task UpdateIdSVIDCache(Platform platform, ulong id)
         {
             string get = $"SELECT SVID FROM Tokens WHERE {platform} = @id;";
