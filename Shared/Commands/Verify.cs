@@ -4,13 +4,13 @@ using static Shared.Main;
 
 namespace Shared.Commands
 {
-    public class Verify
+    public static class Verify
     {
         public static async Task<string> VerifyAll(Platform platform, ulong id, string key)
         {
-            if (await Database.Verify(platform, key, id)) 
+            if (await Verify(platform, key, id)) 
                 return $"Successfully linked your {platform} to SpookVooper account {await GetSVID(platform, id)}";
-            else return $"Failed to link {platform} and SV accounts!";
+            return $"Failed to link {platform} and SV accounts!";
         }
     }
 }

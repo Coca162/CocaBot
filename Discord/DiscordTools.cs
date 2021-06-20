@@ -25,13 +25,8 @@ namespace Discord
             }
 
             string DiscordSVID = await User.GetSVIDFromDiscordAsync(id);
-            if (DiscordSVID != "u-2a0057e6-356a-4a49-b825-c37796cb7bd9")
-            {
-                //IdSVIDs.Add(id, DiscordSVID);
-                return DiscordSVID;
-            }
-
-            return "";
+            
+            return DiscordSVID != "u-2a0057e6-356a-4a49-b825-c37796cb7bd9" ? DiscordSVID : "";
         }
         /*
         public static async Task<string> DiscordToToken(ulong id)

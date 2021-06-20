@@ -7,7 +7,7 @@ using static Shared.Tools;
 
 namespace Shared.Commands
 {
-    public class Balance
+    public static class Balance
     {
         public static async Task<string> BalanceAll(string input)
         {
@@ -18,10 +18,10 @@ namespace Shared.Commands
 
             string msg = "";
 
-            foreach (var entity in entities)
+            foreach ((SVIDTypes type, Entity entity) in entities)
             {
-                msg += entity.Key.ToString() + " ";
-                msg += await BalanceMessage(entity.Value) + "\n";
+                msg += type + " ";
+                msg += await BalanceMessage(entity) + "\n";
             }
             msg = msg.Substring(0, msg.Length - 1);
             return msg;

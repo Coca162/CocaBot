@@ -6,7 +6,7 @@ using static Shared.Tools;
 
 namespace Shared.Commands
 {
-    public class Get
+    public static class Get
     {
         public static async Task<string> GetAll(string input)
         {
@@ -25,9 +25,10 @@ namespace Shared.Commands
             return msg;
         }
 
-        private static async Task<string> GetMessage(KeyValuePair<SVIDTypes, Entity> entity)
+        private static async Task<string> GetMessage(KeyValuePair<SVIDTypes, Entity> entityType)
         {
-            return $"{entity.Key}:\nSVID - {entity.Value.Id}\nName - {await entity.Value.GetNameAsync()}";
+            (SVIDTypes type, Entity entity) = entityType;
+            return $"{type}:\nSVID - {entity.Id}\nName - {await entity.GetNameAsync()}";
         }
     }
 }

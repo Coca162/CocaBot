@@ -14,7 +14,7 @@ namespace Shared
         //public static Dictionary<ulong, string> IdSVIDs { get; set; }
         //public static Dictionary<ulong, string> IdTokens { get; set; }
 
-        public readonly static string[] Districts = { "new yam", "voopmont", "san vooperisco", "medievala", "old yam", "new vooperis", "isle of servers past", "server past", "servers past", "los vooperis", "queensland", "netherlands", "vooperia city", "new spudland", "landing cove", "old king", "corgi" };
+        public static readonly string[] Districts = { "new yam", "voopmont", "san vooperisco", "medievala", "old yam", "new vooperis", "isle of servers past", "server past", "servers past", "los vooperis", "queensland", "netherlands", "vooperia city", "new spudland", "landing cove", "old king", "corgi" };
 
         public static string OauthSecret { get; set; }
 
@@ -22,7 +22,7 @@ namespace Shared
         {
             string json;
 
-            using (FileStream fs = File.OpenRead("secret.json"))
+            await using (FileStream fs = File.OpenRead("secret.json"))
             using (StreamReader sr = new StreamReader(fs, new UTF8Encoding(false)))
                 json = await sr.ReadToEndAsync().ConfigureAwait(false);
 

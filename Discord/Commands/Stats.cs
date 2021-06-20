@@ -64,14 +64,14 @@ namespace Discord.Commands
                         GroupSnapshot groupSnapshot = await group.GetSnapshotAsync();
                         string defaultRoleId = groupSnapshot.Default_Role_Id != null ? groupSnapshot.Default_Role_Id.ToString() : "none";
 
-                        DiscordEmbedBuilder.EmbedAuthor groupIconURL = new DiscordEmbedBuilder.EmbedAuthor { Name = $"{groupSnapshot.Name} Statistics" };
-                        DiscordEmbedBuilder.EmbedThumbnail groupThumbnail = new DiscordEmbedBuilder.EmbedThumbnail { Url = groupSnapshot.Image_Url };
+                        DiscordEmbedBuilder.EmbedAuthor groupIconUrl = new() { Name = $"{groupSnapshot.Name} Statistics" };
+                        DiscordEmbedBuilder.EmbedThumbnail groupThumbnail = new() { Url = groupSnapshot.Image_Url };
 
-                        DiscordEmbedBuilder groupEmbed = new DiscordEmbedBuilder
+                        DiscordEmbedBuilder groupEmbed = new()
                         {
                             Description = $"Statistics for Group [{groupSnapshot.Name}](https://spookvooper.com/User/Info?svid={group.Id})",
                             Color = new DiscordColor("2CC26C"),
-                            Author = groupIconURL,
+                            Author = groupIconUrl,
                             Thumbnail = groupThumbnail
                         };
 
@@ -107,14 +107,14 @@ namespace Discord.Commands
                         string userName = await user.GetNameAsync();
                         string discordId = userSnapshot.discord_id != null ? userSnapshot.discord_id.ToString() : "none";
 
-                        DiscordEmbedBuilder.EmbedAuthor userIconURL = new DiscordEmbedBuilder.EmbedAuthor { Name = $"{userName} Statistics" };
-                        DiscordEmbedBuilder.EmbedThumbnail userThumbnail = new DiscordEmbedBuilder.EmbedThumbnail { Url = userSnapshot.Image_Url };
+                        DiscordEmbedBuilder.EmbedAuthor userIconUrl = new() { Name = $"{userName} Statistics" };
+                        DiscordEmbedBuilder.EmbedThumbnail userThumbnail = new() { Url = userSnapshot.Image_Url };
 
-                        DiscordEmbedBuilder userEmbed = new DiscordEmbedBuilder
+                        DiscordEmbedBuilder userEmbed = new()
                         {
                             Description = $"Statistics for [{userName}](https://spookvooper.com/User/Info?svid={user.Id})'s SpookVooper account",
                             Color = new DiscordColor("2CC26C"),
-                            Author = userIconURL,
+                            Author = userIconUrl,
                             Thumbnail = userThumbnail
                         };
 

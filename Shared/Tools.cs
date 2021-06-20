@@ -63,7 +63,7 @@ namespace Shared
             {
                 Dictionary<SVIDTypes, string> NameEntities = await NameToSVIDs(input);
                 if (NameEntities != null)
-                    foreach (var entity in NameEntities) entities.Add(entity.Key, entity.Value);
+                    foreach ((SVIDTypes entityType, string entity) in NameEntities) entities.Add(entityType, entity);
             }
             return entities;
         }
@@ -78,7 +78,7 @@ namespace Shared
         public static async Task<bool> VerifySVID(string svid)
         {
             Entity Entity = new Entity(svid);
-            string result = Entity.GetName();
+            string result = await Entity.GetNameAsync();
             return !result.Contains($"Could not find entity {svid}");
         }
 
