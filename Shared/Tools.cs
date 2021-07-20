@@ -45,9 +45,9 @@ namespace Shared
         public static async Task<Dictionary<SVIDTypes, Entity>> ConvertToEntities(string input)
         {
             Dictionary<SVIDTypes, Entity> entities = new();
-            foreach (KeyValuePair<SVIDTypes, string> svid in await ConvertToSVIDs(input))
+            foreach ((SVIDTypes type, string svid) in await ConvertToSVIDs(input))
             {
-                entities.Add(svid.Key, new Entity(svid.Value));
+                entities.Add(type, new Entity(svid));
             }
             return entities;
         }
@@ -77,7 +77,7 @@ namespace Shared
 
         public static async Task<bool> VerifySVID(string svid)
         {
-            Entity Entity = new Entity(svid);
+            Entity Entity = new(svid);
             string result = await Entity.GetNameAsync();
             return !result.Contains($"Could not find entity {svid}");
         }
