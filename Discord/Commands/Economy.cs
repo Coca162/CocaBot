@@ -1,10 +1,6 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using static Discord.DiscordTools;
 using static Shared.Commands.Balance;
@@ -52,7 +48,7 @@ namespace Discord.Commands
                                    Platform.Discord, ctx.User.Id, await token)).ConfigureAwait(false);
             */
 
-            await ctx.RespondAsync(await Shared.Commands.Payment.Pay(amount, await DiscordToSVID(ctx.User.Id), await DiscordToSVID(discordUser.Id),
+            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id), await DiscordToSVID(discordUser.Id),
                        Platform.Discord, ctx.User.Id)).ConfigureAwait(false);
         }
 
@@ -70,13 +66,13 @@ namespace Discord.Commands
             await ctx.RespondAsync(await Shared.Commands.Payment.Pay(amount, await from, await to,
                                    Platform.Discord, ctx.User.Id, await token)).ConfigureAwait(false);
             */
-            await ctx.RespondAsync(await Shared.Commands.Payment.Pay(amount, await DiscordToSVID(ctx.User.Id), await DiscordToSVID(discordUser.Id),
+            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id), await DiscordToSVID(discordUser.Id),
                        Platform.Discord, ctx.User.Id)).ConfigureAwait(false);
         }
 
         [Command("pay")]
         [Priority(0)]
-        public async Task Pay(CommandContext ctx,
+        public async Task PayAll(CommandContext ctx,
             [Description("Money to send")] decimal amount, 
             [RemainingText, Description("The Entity to send the money to (Either SVID or Name)")] string to)
         {
@@ -90,7 +86,7 @@ namespace Discord.Commands
                                  Platform.Discord, ctx.User.Id, await token)).ConfigureAwait(false);
             */
 
-            await ctx.RespondAsync(await Shared.Commands.Payment.Pay(amount, await DiscordToSVID(ctx.User.Id), to,
+            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id), to,
                      Platform.Discord, ctx.User.Id)).ConfigureAwait(false);
         }
     }
