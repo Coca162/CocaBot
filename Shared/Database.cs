@@ -84,7 +84,7 @@ namespace Shared
 
             if (await CheckID(platform, id) == true)
             {
-                string clean = $"UPDATE people SET {platform} = NULL WHERE {platform} = @id;";
+                string clean = $"UPDATE Tokens SET {platform} = NULL WHERE {platform} = @id;";
                 MySqlCommand cmdClean = new(clean, Sqlconnection);
                 Console.WriteLine($"{cmdClean.ExecuteNonQuery()} rows where affected in the database!");
             }
@@ -99,6 +99,60 @@ namespace Shared
 
             return true;
         }
+
+        public static async Task<bool> ValourName(ulong discordUserID, string valourName)
+        {
+            if (await CheckID(Platform.Discord, discordUserID) != true)
+            {
+                return false;
+            }
+
+            string verify = $"UPDATE Tokens SET {String.ValourName} = @valourName WHERE {Platform.Discord} = @discordID;";
+            MySqlCommand cmdVerify = new(verify, Sqlconnection);
+            cmdVerify.Parameters.AddWithValue("@valourName", valourName);
+            cmdVerify.Parameters.AddWithValue("@discordID", discordUserID);
+            Console.WriteLine($"{cmdVerify.ExecuteNonQuery()} rows where affected in the database!");
+
+            //await UpdateAllCache(platform, id).ConfigureAwait(false);
+
+            return true;
+        }
+
+        public static async Task<bool> ValourDisconnect(ulong discordUserID)
+        {
+            if (await CheckID(Platform.Discord, discordUserID) == true)
+            {
+                string clean = $"UPDATE Tokens SET {String.ValourName} = NULL, Valour = NULL WHERE {Platform.Discord} = @id;";
+                MySqlCommand cmdClean = new(clean, Sqlconnection);
+                cmdClean.Parameters.AddWithValue("@id", discordUserID);
+                Console.WriteLine($"{cmdClean.ExecuteNonQuery()} rows where affected in the database!");
+                return true;
+            }
+            return false;
+        }
+
+        public static async Task<bool> ValourConnect(string name, ulong id)
+        {
+            if (await CheckString(String.ValourName, name) != true) return false;
+
+            if (await CheckID(Platform.Valour, id) == true)
+            {
+                string clean = $"UPDATE Tokens SET {Platform.Valour} = NULL WHERE {Platform.Valour} = @id;";
+                MySqlCommand cmdClean = new(clean, Sqlconnection);
+                Console.WriteLine($"{cmdClean.ExecuteNonQuery()} rows where affected in the database!");
+            }
+
+            string verify = $"UPDATE Tokens SET {Platform.Valour} = @id WHERE {String.ValourName} = @name;";
+            MySqlCommand cmdVerify = new(verify, Sqlconnection);
+            cmdVerify.Parameters.AddWithValue("@id", id);
+            cmdVerify.Parameters.AddWithValue("@name", name);
+            Console.WriteLine($"{cmdVerify.ExecuteNonQuery()} rows where affected in the database!");
+
+            //await UpdateAllCache(platform, id).ConfigureAwait(false);
+
+            return true;
+        }
+
         /*
         public static async Task UpdateAllCache(Platform platform, ulong id)
         {
@@ -133,7 +187,8 @@ namespace Shared
         {
             SVID,
             Token,
-            VerifKey
+            VerifKey,
+            ValourName
         }
     }
 }

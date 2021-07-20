@@ -42,6 +42,8 @@ namespace Discord
 
             Commands.RegisterCommands<Misc>();
 
+            Commands.RegisterCommands<Valour>();
+
             Commands.RegisterCommands<Stats>();
 
             await Client.ConnectAsync();

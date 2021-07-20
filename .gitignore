@@ -226,3 +226,5 @@ project.lock.json
 global.json
 
 Discord/Properties/PublishProfiles/
+
+Valour/Properties/PublishProfiles/

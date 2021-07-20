@@ -2,14 +2,12 @@
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using static Discord.DiscordTools;
 using static Shared.Commands.Get;
 using static Shared.Commands.Register;
 using static Shared.Commands.Verify;
+using static Shared.Commands.Code;
 using static Shared.Main;
 
 namespace Discord.Commands
@@ -44,8 +42,13 @@ namespace Discord.Commands
         public async Task Register(CommandContext ctx)
         { await ctx.RespondAsync(RegisterMessage).ConfigureAwait(false); }
 
+        [Command("code"), Aliases("opensource")]
+        [Description("Gives link for linking your SV account to your discord account")]
+        public async Task Code(CommandContext ctx)
+        { await ctx.RespondAsync(CodeLink).ConfigureAwait(false); }
+
         [Command("verify"), Aliases("verif")]
-        [Description("Links your account by the key that is given to after doing /register. Make sure to do in DMs!")]
+        [Description("Links your account by the key that is given to after doing c/register. Make sure to do in DMs!")]
         public async Task Verify(CommandContext ctx, [Description("The key provided to you")] string key)
         { await ctx.RespondAsync(await VerifyAll(Platform.Discord, ctx.User.Id, key)).ConfigureAwait(false); }
 
@@ -57,6 +60,35 @@ namespace Discord.Commands
             {
                 Environment.Exit(666);
             }
+        }
+    }
+
+    [Group("valour")] // let's mark this class as a command group
+    [Description("Valour related commands")] // give it a description for help purposes
+    public class Valour : BaseCommandModule
+    {
+        [Command("connect"), Aliases("link")]
+        [Description("Connects your valour account so that it can do /pay and self /balance")]
+        public async Task Connect(CommandContext ctx, [Description("Valour Name")] string name)
+        {
+            if (!(await Shared.Database.ValourName(ctx.User.Id, name)))
+            {
+                await ctx.RespondAsync("Your discord account is not linked to a SV account! Do c/register first!").ConfigureAwait(false);
+                return;
+            }
+            await ctx.RespondAsync("Do c/confirm on your valour account to complete connection process!").ConfigureAwait(false);
+        }
+
+        [Command("disconnect"), Aliases("unlink")]
+        [Description("Removes valour name and valour id from db.")]
+        public async Task Disconnect(CommandContext ctx)
+        {
+            if (!(await Shared.Database.ValourDisconnect(ctx.User.Id)))
+            {
+                await ctx.RespondAsync("Your discord account is not linked to a SV account! Do c/register first and then c/connect then you can do this command!").ConfigureAwait(false);
+                return;
+            }
+            await ctx.RespondAsync("Your Valour accounts have been wiped").ConfigureAwait(false);
         }
     }
 }

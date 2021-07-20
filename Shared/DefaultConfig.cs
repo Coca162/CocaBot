@@ -14,7 +14,5 @@ namespace Shared
         public string Database { get; }
         [JsonProperty("oauth_secret")]
         public string OauthSecret { get; }
-        [JsonProperty("prefix")]
-        public string[] Prefix { get;  }
     }
 }
