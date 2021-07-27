@@ -7,22 +7,13 @@ namespace Valour.Commands
     class Owo : CommandModuleBase
     {
         [Command("owo")]
-        public async Task OWO(CommandContext ctx, [Remainder] string input)
-        {
-            await ctx.ReplyAsync(Owoify.Owoifier.Owoify(input, Owoify.Owoifier.OwoifyLevel.Owo)).ConfigureAwait(false);
-        }
+        public async Task OWO(CommandContext ctx, [Remainder] string input) => await ctx.ReplyAsync(Owoify.Owoifier.Owoify(input, Owoify.Owoifier.OwoifyLevel.Owo)).ConfigureAwait(false);
 
         [Command("uwu")]
-        public async Task UWU(CommandContext ctx, [Remainder] string input)
-        {
-            await ctx.ReplyAsync(Owoify.Owoifier.Owoify(input, Owoify.Owoifier.OwoifyLevel.Uwu)).ConfigureAwait(false);
-        }
+        public async Task UWU(CommandContext ctx, [Remainder] string input) => await ctx.ReplyAsync(Owoify.Owoifier.Owoify(input, Owoify.Owoifier.OwoifyLevel.Uwu)).ConfigureAwait(false);
 
         [Command("uvu")]
-        public async Task UVU(CommandContext ctx, [Remainder] string input)
-        {
-            await ctx.ReplyAsync(Owoify.Owoifier.Owoify(input, Owoify.Owoifier.OwoifyLevel.Uvu)).ConfigureAwait(false);
-        }
+        public async Task UVU(CommandContext ctx, [Remainder] string input) => await ctx.ReplyAsync(Owoify.Owoifier.Owoify(input, Owoify.Owoifier.OwoifyLevel.Uvu)).ConfigureAwait(false);
 
         [Command("iwi")]
         public async Task IWI(CommandContext ctx, int times, string type ,[Remainder] string input)

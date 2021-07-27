@@ -1,14 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using System.Threading.Tasks;
 using Valour.Net;
-using System.IO;
-using System.Text.Json;
-using Valour.Net.CommandHandling;
-using Valour.Net.CommandHandling.Attributes;
-using Valour.Net.Models;
-using System.Linq;
-using System.Collections.Generic;
 using static Shared.Main;
 
 namespace Valour
@@ -23,7 +14,8 @@ namespace Valour
             Filter.AddProfanity(profanities);
 
             ValourConfig config = await GetConfig<ValourConfig>();
-            await BeginCocaBot(config, Platform.Discord);
+            platform = Platform.Valour;
+            await BeginCocaBot(config);
 
             ValourClient.BotPrefixList = config.Prefix;
 

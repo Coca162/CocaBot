@@ -39,18 +39,15 @@ namespace Discord.Commands
 
         [Command("register"), Aliases("reg", "login")]
         [Description("Gives link for linking your SV account to your discord account")]
-        public async Task Register(CommandContext ctx)
-        { await ctx.RespondAsync(RegisterMessage).ConfigureAwait(false); }
+        public async Task Register(CommandContext ctx) => await ctx.RespondAsync(RegisterMessage).ConfigureAwait(false);
 
         [Command("code"), Aliases("opensource")]
         [Description("Gives link for linking your SV account to your discord account")]
-        public async Task Code(CommandContext ctx)
-        { await ctx.RespondAsync(CodeLink).ConfigureAwait(false); }
+        public async Task Code(CommandContext ctx) => await ctx.RespondAsync(CodeLink).ConfigureAwait(false);
 
         [Command("verify"), Aliases("verif")]
         [Description("Links your account by the key that is given to after doing c/register. Make sure to do in DMs!")]
-        public async Task Verify(CommandContext ctx, [Description("The key provided to you")] string key)
-        { await ctx.RespondAsync(await VerifyAll(Platform.Discord, ctx.User.Id, key)).ConfigureAwait(false); }
+        public async Task Verify(CommandContext ctx, [Description("The key provided to you")] string key) => await ctx.RespondAsync(await VerifyAll(Platform.Discord, ctx.User.Id, key)).ConfigureAwait(false);
 
         [Command("kill")]
         [Description("Kills the bot incase of a emergency. Coca only command for obiovus reasons!")]

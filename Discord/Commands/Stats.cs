@@ -4,15 +4,10 @@ using DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using SpookVooper.Api.Entities;
 using SpookVooper.Api.Entities.Groups;
 using static Discord.DiscordTools;
-using static Shared.Commands.Get;
-using static Shared.Commands.Register;
-using static Shared.Commands.Verify;
-using static Shared.Main;
 using static Shared.Tools;
 
 namespace Discord.Commands

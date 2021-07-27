@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using static Discord.DiscordTools;
 using static Shared.Commands.Balance;
 using static Shared.Commands.Payment;
-using static Shared.Main;
 
 namespace Discord.Commands
 {
@@ -48,8 +47,7 @@ namespace Discord.Commands
                                    Platform.Discord, ctx.User.Id, await token)).ConfigureAwait(false);
             */
 
-            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id), await DiscordToSVID(discordUser.Id),
-                       Platform.Discord, ctx.User.Id)).ConfigureAwait(false);
+            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id), await DiscordToSVID(discordUser.Id))).ConfigureAwait(false);
         }
 
         [Command("pay")]
@@ -66,8 +64,7 @@ namespace Discord.Commands
             await ctx.RespondAsync(await Shared.Commands.Payment.Pay(amount, await from, await to,
                                    Platform.Discord, ctx.User.Id, await token)).ConfigureAwait(false);
             */
-            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id), await DiscordToSVID(discordUser.Id),
-                       Platform.Discord, ctx.User.Id)).ConfigureAwait(false);
+            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id), await DiscordToSVID(discordUser.Id))).ConfigureAwait(false);
         }
 
         [Command("pay")]
@@ -86,8 +83,7 @@ namespace Discord.Commands
                                  Platform.Discord, ctx.User.Id, await token)).ConfigureAwait(false);
             */
 
-            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id), to,
-                     Platform.Discord, ctx.User.Id)).ConfigureAwait(false);
+            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id), to)).ConfigureAwait(false);
         }
     }
 }

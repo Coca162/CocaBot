@@ -3,7 +3,6 @@ using SpookVooper.Api.Entities.Groups;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using static Shared.Main;
 
 namespace Shared
 {

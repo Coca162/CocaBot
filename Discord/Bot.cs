@@ -1,12 +1,5 @@
 ﻿using DSharpPlus;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Discord;
 using DSharpPlus.CommandsNext;
 using Discord.Commands;
 
@@ -18,7 +11,7 @@ namespace Discord
         public CommandsNextExtension Commands { get; private set; }
         public async Task RunAsync(DiscordConfig ConfigJson)
         {
-            DiscordConfiguration config = new DiscordConfiguration
+            DiscordConfiguration config = new()
             {
                 Token = ConfigJson.Token,
                 TokenType = TokenType.Bot,
@@ -29,7 +22,7 @@ namespace Discord
 
             Client.Ready += OnClientReady; ;
 
-            CommandsNextConfiguration commandsConfig = new CommandsNextConfiguration
+            CommandsNextConfiguration commandsConfig = new()
             {
                 StringPrefixes = ConfigJson.Prefix
             };
@@ -51,9 +44,6 @@ namespace Discord
             await Task.Delay(-1);
         }
 
-        private Task OnClientReady(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs e)
-        {
-            return Task.CompletedTask;
-        }
+        private Task OnClientReady(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs e) => Task.CompletedTask;
     }
 }

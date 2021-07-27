@@ -9,9 +9,10 @@ namespace Discord
         static async Task Main(string[] args)
         {
             DiscordConfig config = await GetConfig<DiscordConfig>();
-            await BeginCocaBot(config, Platform.Discord);
+            platform = Platform.Discord;
+            await BeginCocaBot(config);
 
-            Bot bot = new Bot();
+            Bot bot = new();
             bot.RunAsync(config).GetAwaiter().GetResult();
 
             Console.WriteLine("Hello World!");

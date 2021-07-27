@@ -1,16 +1,10 @@
 ﻿using ProfanityFilter;
 using SpookVooper.Api.Entities;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Valour.Net.CommandHandling;
 using Valour.Net.CommandHandling.Attributes;
-using static Shared.Tools;
 using static Shared.Commands.Get;
-using static Shared.Commands.Register;
-using static Shared.Commands.Verify;
-using static Shared.Main;
 using static Shared.Database;
 
 namespace Valour.Commands
@@ -33,7 +27,7 @@ namespace Valour.Commands
         {
             if (!(await ValourConnect(ctx.Member.Nickname, ctx.Member.User_Id)))
             {
-                await ctx.ReplyAsync($"Could not find name to confirm in db. Retry `c/connect {ctx.Member.Nickname}` in discord.").ConfigureAwait(false);
+                await ctx.ReplyAsync($"Could not find name to confirm in db. Retry `c/valour connect {ctx.Member.Nickname}` in discord.").ConfigureAwait(false);
                 return;
             }
             await ctx.ReplyAsync("Linked account!").ConfigureAwait(false); 

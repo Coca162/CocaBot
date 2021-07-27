@@ -1,14 +1,9 @@
-﻿using ProfanityFilter;
-using SpookVooper.Api.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Threading.Tasks;
 using Valour.Net.CommandHandling;
 using Valour.Net.CommandHandling.Attributes;
-using static Shared.Tools;
-using static Shared.Commands.Balance;
 using static Shared.Commands.Code;
+using Humanizer;
 
 namespace Valour.Commands
 {
@@ -39,7 +34,7 @@ namespace Valour.Commands
         [Command("say")]
         public async Task SayOnce(CommandContext ctx, [Remainder] string Input)
         {
-            Random rnd = new Random();
+            Random rnd = new();
             int index = rnd.Next(AllegateInsults.Length);
             if (ctx.Member.Nickname == "Allegate")
             {
@@ -60,6 +55,13 @@ namespace Valour.Commands
             {
                 Environment.Exit(666);
             }
+        }
+
+        [Command("ping")]
+        public async Task Ping(CommandContext ctx)
+        {
+            TimeSpan diff = DateTime.UtcNow - ctx.Message.TimeSent;
+            await ctx.ReplyAsync($"Ping: {diff.Humanize(2)}");
         }
     }
 }
