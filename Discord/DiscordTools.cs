@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using static Shared.Tools;
-using static Shared.Database;
+﻿using static Shared.Database;
 using System.Threading.Tasks;
 using SpookVooper.Api.Entities;
-using MySql.Data.MySqlClient;
-using static Shared.Main;
 
 namespace Discord
 {
@@ -17,7 +10,7 @@ namespace Discord
         {
             //if (IdSVIDs.TryGetValue(id, out string svid)) return svid;
 
-            string DbSVID = await GetSVID(Platform.Discord, id);
+            string DbSVID = await GetString(String.SVID, id);
             if (DbSVID != null)
             {
                 //IdSVIDs.Add(id, DbSVID);
@@ -28,6 +21,7 @@ namespace Discord
             
             return DiscordSVID != "u-2a0057e6-356a-4a49-b825-c37796cb7bd9" ? DiscordSVID : "";
         }
+
         /*
         public static async Task<string> DiscordToToken(ulong id)
         {

@@ -13,7 +13,7 @@ namespace Shared.Commands
 {
     public static class Payment
     {
-        public static async Task<string> Pay(decimal amount, string from, string to, Platform platform, ulong id)
+        public static async Task<string> Pay(decimal amount, string from, string to)
         {
             Dictionary<SVIDTypes, Entity> fromEntities = await ConvertToEntities(from);
             Dictionary<SVIDTypes, Entity> toEntities = await ConvertToEntities(to);
@@ -25,8 +25,11 @@ namespace Shared.Commands
 
             (SVIDTypes fromType, Entity fromEntity) = fromEntities.First();
             (SVIDTypes toType, Entity toEntity) = toEntities.First();
-            
-            fromEntity.Auth_Key = await GetToken(platform, id) + "|" + OauthSecret;
+
+            string token = await GetToken(from);
+            if (token == null) return "Your account is not linked! Do /register and follow the steps!";
+
+            fromEntity.Auth_Key = token + "|" + config.OauthSecret;
 
             TaskResult results = await fromEntity.SendCreditsAsync(amount, toEntity, $"CocaBot {platform} /pay");
             
@@ -45,7 +48,7 @@ namespace Shared.Commands
             switch (paymentErrors)
             {
                 case PaymentErrors.Unauthorized:
-                    return "Your account is not linked! Do /register and follow the steps!";
+                    return "You do not have permission to do that!";
                 case PaymentErrors.Positive:
                     return "Transaction must be positive!";
                 case PaymentErrors.Self:
