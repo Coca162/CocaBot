@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+using System;
 using System.Threading.Tasks;
 using static Shared.Main;
 
@@ -6,16 +8,21 @@ namespace Discord
 {
     class Program
     {
-        static async Task Main(string[] args)
+        public static DiscordConfig Config;
+        public static async Task Main(string[] args)
         {
-            DiscordConfig config = await GetConfig<DiscordConfig>();
+            Config = await GetConfig<DiscordConfig>();
             platform = Platform.Discord;
-            await BeginCocaBot(config);
-
-            Bot bot = new();
-            bot.RunAsync(config).GetAwaiter().GetResult();
+            await BeginCocaBot(Config);
 
             Console.WriteLine("Hello World!");
+            CreateHostBuilder(args).Build().Run();
         }
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+                Host.CreateDefaultBuilder(args)
+                    .ConfigureWebHostDefaults(webBuilder =>
+                    {
+                        webBuilder.UseStartup<Startup>();
+                    });
     }
 }

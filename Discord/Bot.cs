@@ -2,6 +2,11 @@
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using Discord.Commands;
+using Shared;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using System;
+using static Discord.Program;
 
 namespace Discord
 {
@@ -9,22 +14,23 @@ namespace Discord
     {
         public DiscordClient Client { get; private set; }
         public CommandsNextExtension Commands { get; private set; }
-        public async Task RunAsync(DiscordConfig ConfigJson)
+        public Bot(IServiceProvider services)
         {
-            DiscordConfiguration config = new()
+            DiscordConfiguration discordConfig = new()
             {
-                Token = ConfigJson.Token,
+                Token = Config.Token,
                 TokenType = TokenType.Bot,
                 MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Debug
             };
 
-            Client = new DiscordClient(config);
+            Client = new DiscordClient(discordConfig);
 
             Client.Ready += OnClientReady; ;
 
             CommandsNextConfiguration commandsConfig = new()
             {
-                StringPrefixes = ConfigJson.Prefix
+                StringPrefixes = Config.Prefix,
+                Services = services
             };
 
             Commands = Client.UseCommandsNext(commandsConfig);
@@ -39,9 +45,7 @@ namespace Discord
 
             Commands.RegisterCommands<Stats>();
 
-            await Client.ConnectAsync();
-
-            await Task.Delay(-1);
+            Client.ConnectAsync();
         }
 
         private Task OnClientReady(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs e) => Task.CompletedTask;

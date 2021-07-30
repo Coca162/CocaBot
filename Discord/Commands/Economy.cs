@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using Shared;
 using System.Threading.Tasks;
 using static Discord.DiscordTools;
 using static Shared.Commands.Balance;
@@ -13,17 +14,17 @@ namespace Discord.Commands
         [Command("balance"), Aliases("balan", "bal", "b")]
         [Description("Gets a entities balance")]
         [Priority(1)]
-        public async Task BalanceDiscord(CommandContext ctx, [Description("A User (works with only id)")] DiscordUser discordUser)
-        { await ctx.RespondAsync(await BalanceAll(await DiscordToSVID(discordUser.Id))).ConfigureAwait(false); }
+        public async Task BalanceDiscord(CommandContext ctx, [Description("A User (works with only id)")]
+            DiscordUser discordUser, CocaBotContext db) => await ctx.RespondAsync(await BalanceAll(await DiscordToSVID(discordUser.Id, db))).ConfigureAwait(false);
 
         [Command("balance")]
         [Priority(0)]
         public async Task Balance(CommandContext ctx, 
-            [RemainingText, Description("A Entity (Either SVID, Name or if empty just you)")] string input)
+        [RemainingText, Description("A Entity (Either SVID, Name or if empty just you)")] string input, CocaBotContext db)
         {
             if (input == null)
             {
-                await BalanceDiscord(ctx, ctx.User).ConfigureAwait(false); return;
+                await BalanceDiscord(ctx, ctx.User, db).ConfigureAwait(false); return;
             }
             
             await ctx.RespondAsync(await BalanceAll(input)).ConfigureAwait(false);
@@ -34,7 +35,7 @@ namespace Discord.Commands
         [Priority(2)]
         public async Task PayDiscord(CommandContext ctx, 
             [Description("Money to send")] decimal amount,
-            [Description("The user to send the money to (works with only id)")] DiscordUser discordUser)
+            [Description("The user to send the money to (works with only id)")] DiscordUser discordUser, CocaBotContext db)
         {
             /*
             var to = DiscordToSVID(discordUser.Id);
@@ -47,13 +48,13 @@ namespace Discord.Commands
                                    Platform.Discord, ctx.User.Id, await token)).ConfigureAwait(false);
             */
 
-            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id), await DiscordToSVID(discordUser.Id))).ConfigureAwait(false);
+            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id, db), await DiscordToSVID(discordUser.Id, db), db)).ConfigureAwait(false);
         }
 
         [Command("pay")]
         public async Task PayDiscord2(CommandContext ctx,
             [Description("The user to send the money to (works with only id)")] DiscordUser discordUser,
-            [Description("Money to send")] decimal amount)
+            [Description("Money to send")] decimal amount, CocaBotContext db)
         {
             /*var to = DiscordToSVID(discordUser.Id);
             var from = DiscordToSVID(ctx.User.Id);
@@ -64,14 +65,14 @@ namespace Discord.Commands
             await ctx.RespondAsync(await Shared.Commands.Payment.Pay(amount, await from, await to,
                                    Platform.Discord, ctx.User.Id, await token)).ConfigureAwait(false);
             */
-            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id), await DiscordToSVID(discordUser.Id))).ConfigureAwait(false);
+            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id, db), await DiscordToSVID(discordUser.Id, db), db)).ConfigureAwait(false);
         }
 
         [Command("pay")]
         [Priority(0)]
         public async Task PayAll(CommandContext ctx,
             [Description("Money to send")] decimal amount, 
-            [RemainingText, Description("The Entity to send the money to (Either SVID or Name)")] string to)
+            [RemainingText, Description("The Entity to send the money to (Either SVID or Name)")] string to, CocaBotContext db)
         {
             /*
             var from = DiscordToSVID(ctx.User.Id);
@@ -83,7 +84,7 @@ namespace Discord.Commands
                                  Platform.Discord, ctx.User.Id, await token)).ConfigureAwait(false);
             */
 
-            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id), to)).ConfigureAwait(false);
+            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id, db), to, db)).ConfigureAwait(false);
         }
     }
 }

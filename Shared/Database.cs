@@ -7,20 +7,22 @@ namespace Shared
 {
     public class Database
     {
-        public static async Task<Tokens> GetUser(ulong id)
+        public static async Task<Tokens> GetUser(ulong id, CocaBotContext db)
         {
             Tokens user;
             if (platform == Platform.Discord)
             {
                 user = db.Tokens.Where(x => x.Discord == id).FirstOrDefault();
             }
-            user = db.Tokens.Where(x => x.Valour == id).FirstOrDefault();
+            else
+            {
+                user = db.Tokens.Where(x => x.Valour == id).FirstOrDefault();
+            }
 
-            if (user == null) return null;
             return user;
         }
 
-        public static async Task<bool> CheckString(String type, string request)
+        public static async Task<bool> CheckString(String type, string request, CocaBotContext db)
         {
             return type switch
             {
@@ -32,9 +34,9 @@ namespace Shared
             };
         }
 
-        public static async Task<string> GetString(String type, ulong id)
+        public static async Task<string> GetString(String type, ulong id, CocaBotContext db)
         {
-            Tokens user = await GetUser(id);
+            Tokens user = await GetUser(id, db);
             if (user == null) return null;
 
             return type switch
@@ -47,14 +49,14 @@ namespace Shared
             };
         }
 
-        public static async Task<string> GetToken(string svid)
+        public static async Task<string> GetToken(string svid, CocaBotContext db)
         {
             Tokens user = await db.Tokens.FindAsync(svid);
             if (user == null) return null;
             return user.Token;
         }
 
-        public static async Task<bool> CheckID(ulong id)
+        public static async Task<bool> CheckID(ulong id, CocaBotContext db)
         {
             if (platform == Platform.Discord)
             {
@@ -63,16 +65,17 @@ namespace Shared
             return db.Tokens.Any(x => x.Valour == id);
         }
 
-        public static async Task<bool> Verify(string key, ulong id)
+        public static async Task<bool> Verify(string key, ulong id, CocaBotContext db)
         {
             Tokens user = db.Tokens.Where(x => x.VerifKey == key).FirstOrDefault();
             if (user == null) return false;
             user.Discord = id;
+            user.VerifKey = null;
             await db.SaveChangesAsync();
             return true;
         }
 
-        public static async Task<bool> ValourName(ulong discordUserID, string valourName)
+        public static async Task<bool> ValourName(ulong discordUserID, string valourName, CocaBotContext db)
         {
             Tokens user = db.Tokens.Where(x => x.Discord == discordUserID).FirstOrDefault();
             if (user == null) return false;
@@ -82,7 +85,7 @@ namespace Shared
             return true;
         }
 
-        public static async Task<bool> ValourDisconnect(ulong discordUserID)
+        public static async Task<bool> ValourDisconnect(ulong discordUserID, CocaBotContext db)
         {
             Tokens user = db.Tokens.Where(x => x.Discord == discordUserID).FirstOrDefault();
             if (user == null) return false;
@@ -93,7 +96,7 @@ namespace Shared
             return true;
         }
 
-        public static async Task<bool> ValourConnect(string name, ulong id)
+        public static async Task<bool> ValourConnect(string name, ulong id, CocaBotContext db)
         {
             Tokens user = db.Tokens.Where(x => x.ValourName == name).FirstOrDefault();
             if (user == null) return false;

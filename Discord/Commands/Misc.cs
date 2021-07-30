@@ -9,6 +9,8 @@ using static Shared.Commands.Register;
 using static Shared.Commands.Verify;
 using static Shared.Commands.Code;
 using static Shared.Main;
+using Shared;
+using Microsoft.EntityFrameworkCore;
 
 namespace Discord.Commands
 {
@@ -17,21 +19,21 @@ namespace Discord.Commands
         [Command("get"), Aliases("g", "grab", "svid", "name")]
         [Description("Gets basic information about a entity")]
         [Priority(1)]
-        public async Task GetDiscord(CommandContext ctx, [Description("A User (works with only id)")] DiscordUser discordUser)
+        public async Task GetDiscord(CommandContext ctx, [Description("A User (works with only id)")] DiscordUser discordUser, CocaBotContext db)
         {
-            string discord = await DiscordToSVID(discordUser.Id);
+            string discord = await DiscordToSVID(discordUser.Id, db);
             if (discord != "") await ctx.RespondAsync(await GetAll(discord)).ConfigureAwait(false);
             else await ctx.RespondAsync(await GetAll(discordUser.Username)).ConfigureAwait(false);
         }
 
         [Command("get")]
         [Priority(0)]
-        public async Task Get(CommandContext ctx, 
-            [RemainingText, Description("A Entity (Either SVID, Name or if empty just you)")] string input)
+        public async Task Get(CommandContext ctx,
+            [RemainingText, Description("A Entity (Either SVID, Name or if empty just you)")] string input, CocaBotContext db)
         {
             if (input == null)
             {
-                await GetDiscord(ctx, ctx.User).ConfigureAwait(false); return; 
+                await GetDiscord(ctx, ctx.User, db).ConfigureAwait(false); return;
             }
 
             await ctx.RespondAsync(await GetAll(input)).ConfigureAwait(false);
@@ -47,7 +49,12 @@ namespace Discord.Commands
 
         [Command("verify"), Aliases("verif")]
         [Description("Links your account by the key that is given to after doing c/register. Make sure to do in DMs!")]
-        public async Task Verify(CommandContext ctx, [Description("The key provided to you")] string key) => await ctx.RespondAsync(await VerifyAll(Platform.Discord, ctx.User.Id, key)).ConfigureAwait(false);
+        public async Task Verify(CommandContext ctx, [Description("The key provided to you")] string key, CocaBotContext db)
+        {
+            DiscordDmChannel dms = await ctx.Member.CreateDmChannelAsync();
+            await dms.SendMessageAsync(key).ConfigureAwait(false);
+            await ctx.RespondAsync(await VerifyAll(ctx.User.Id, key, db)).ConfigureAwait(false);
+        }
 
         [Command("kill")]
         [Description("Kills the bot incase of a emergency. Coca only command for obiovus reasons!")]
@@ -64,11 +71,13 @@ namespace Discord.Commands
     [Description("Valour related commands")] // give it a description for help purposes
     public class Valour : BaseCommandModule
     {
+        private readonly CocaBotContext _context;
+
         [Command("connect"), Aliases("link")]
         [Description("Connects your valour account so that it can do /pay and self /balance")]
         public async Task Connect(CommandContext ctx, [Description("Valour Name")] string name)
-        {
-            if (!(await Shared.Database.ValourName(ctx.User.Id, name)))
+{
+            if (!await Database.ValourName(ctx.User.Id, name, _context))
             {
                 await ctx.RespondAsync("Your discord account is not linked to a SV account! Do c/register first!").ConfigureAwait(false);
                 return;
@@ -80,7 +89,7 @@ namespace Discord.Commands
         [Description("Removes valour name and valour id from db.")]
         public async Task Disconnect(CommandContext ctx)
         {
-            if (!(await Shared.Database.ValourDisconnect(ctx.User.Id)))
+            if (!await Database.ValourDisconnect(ctx.User.Id, _context))
             {
                 await ctx.RespondAsync("Your discord account is not linked to a SV account! Do c/register first and then c/connect then you can do this command!").ConfigureAwait(false);
                 return;

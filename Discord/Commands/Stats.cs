@@ -9,6 +9,8 @@ using SpookVooper.Api.Entities;
 using SpookVooper.Api.Entities.Groups;
 using static Discord.DiscordTools;
 using static Shared.Tools;
+using Microsoft.EntityFrameworkCore;
+using Shared;
 
 namespace Discord.Commands
 {
@@ -17,9 +19,9 @@ namespace Discord.Commands
         [Command("statistics"), Aliases("stat", "stats", "statistic")]
         [Description("Gets basic information about a entity")]
         [Priority(1)]
-        public async Task StatisticsDiscord(CommandContext ctx, [Description("A User (works with only id)")] DiscordUser discordUser)
-        {
-            string discord = await DiscordToSVID(discordUser.Id);
+        public async Task StatisticsDiscord(CommandContext ctx, [Description("A User (works with only id)")] DiscordUser discordUser, CocaBotContext db)
+{
+            string discord = await DiscordToSVID(discordUser.Id, db);
             Dictionary<SVIDTypes, string> svids = new();
             if (discord != "") svids.Add(SVIDTypes.User, discord);
             else svids = await ConvertToSVIDs(discordUser.Username);
@@ -30,11 +32,11 @@ namespace Discord.Commands
         [Command("statistics")]
         [Priority(0)]
         public async Task StatisticsAll(CommandContext ctx, 
-            [RemainingText, Description("A Entity (Either SVID, Name or if empty just you)")] string input)
+            [RemainingText, Description("A Entity (Either SVID, Name or if empty just you)")] string input, CocaBotContext db)
         {
             if (input == null)
             {
-                await StatisticsDiscord(ctx, ctx.User).ConfigureAwait(false); return; 
+                await StatisticsDiscord(ctx, ctx.User, db).ConfigureAwait(false); return; 
             }
 
             var svids = await ConvertToSVIDs(input);
@@ -97,7 +99,7 @@ namespace Discord.Commands
                         await message.RespondAsync(groupEmbed).ConfigureAwait(false);
                         break;
                     case SVIDTypes.User:
-                        User user = new User(svid.Value);
+                        User user = new(svid.Value);
                         UserSnapshot userSnapshot = await user.GetSnapshotAsync();
                         string userName = await user.GetNameAsync();
                         string discordId = userSnapshot.discord_id != null ? userSnapshot.discord_id.ToString() : "none";

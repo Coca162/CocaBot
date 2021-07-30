@@ -13,7 +13,7 @@ namespace Shared.Commands
 {
     public static class Payment
     {
-        public static async Task<string> Pay(decimal amount, string from, string to)
+        public static async Task<string> Pay(decimal amount, string from, string to, CocaBotContext db)
         {
             Dictionary<SVIDTypes, Entity> fromEntities = await ConvertToEntities(from);
             Dictionary<SVIDTypes, Entity> toEntities = await ConvertToEntities(to);
@@ -26,7 +26,7 @@ namespace Shared.Commands
             (SVIDTypes fromType, Entity fromEntity) = fromEntities.First();
             (SVIDTypes toType, Entity toEntity) = toEntities.First();
 
-            string token = await GetToken(from);
+            string token = await GetToken(from, db);
             if (token == null) return "Your account is not linked! Do /register and follow the steps!";
 
             fromEntity.Auth_Key = token + "|" + config.OauthSecret;
