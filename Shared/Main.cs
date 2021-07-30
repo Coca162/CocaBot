@@ -1,13 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.EntityFrameworkCore.Internal;
+using Newtonsoft.Json;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Shared
 {
-    public class Main
-    {
-        public static readonly CocaBotContext db = new();
+public class Main
+{
         public static Platform platform;
         public static DefaultConfig config;
         //public static Dictionary<ulong, string> IdSVIDs { get; set; }

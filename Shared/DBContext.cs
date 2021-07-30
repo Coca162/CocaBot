@@ -8,8 +8,10 @@ namespace Shared
     {
         public DbSet<Tokens> Tokens { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseMySql(
-                $@"server={config.Server};userid={config.UserID};password={config.Password};database={config.Database}", new MySqlServerVersion("8.0.25"));
+        public readonly static string ConnectionString = $@"server={config.Server};userid={config.UserID};password={config.Password};database={config.Database}";
+        public readonly static MySqlServerVersion version = new("8.0.25");
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseMySql(ConnectionString, version);
     }
 
     public class Tokens
