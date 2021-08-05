@@ -2,14 +2,15 @@
 using System.Threading.Tasks;
 using SpookVooper.Api.Entities;
 using Valour.Net.Models;
+using Shared;
 
 namespace Valour
 {
     public class ValourTools
     {
-        public static async Task<string> ValourToSVID(ValourUser user)
+        public static async Task<string> ValourToSVID(ValourUser user, CocaBotContext db)
         {
-            string DbSVID = await GetString(Shared.Database.String.SVID, user.Id);
+            string DbSVID = await GetString(String.SVID, user.Id, db);
             if (DbSVID != null) return DbSVID;
 
             return await NameToSVID(user.Username);

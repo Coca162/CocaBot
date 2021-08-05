@@ -23,7 +23,7 @@ namespace Shared.Commands
             if (fromEntities.Count != 1) return await NameError(fromEntities, "from");
             if (toEntities.Count != 1) return await NameError(toEntities, "to");
 
-            (SVIDTypes fromType, Entity fromEntity) = fromEntities.First();
+            Entity fromEntity = fromEntities.First().Value;
             (SVIDTypes toType, Entity toEntity) = toEntities.First();
 
             string token = await GetToken(from, db);
@@ -34,7 +34,7 @@ namespace Shared.Commands
             TaskResult results = await fromEntity.SendCreditsAsync(amount, toEntity, $"CocaBot {platform} /pay");
             
             if (results.Succeeded)
-                return $"Successfully sent ¢{amount} from {fromType} {await fromEntity.GetNameAsync()} to {toType} {await toEntity.GetNameAsync()}";
+                return $"Successfully sent ¢{amount} from {await fromEntity.GetNameAsync()} to {toType} {await toEntity.GetNameAsync()}";
             
             string error = results.Info;
             PaymentErrors paymentErrors;

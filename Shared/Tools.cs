@@ -24,7 +24,7 @@ namespace Shared
             Dictionary<SVIDTypes, string> svids = new();
 
             string gsvid = await Group.GetSVIDFromNameAsync(name);
-            string usvid = await User.GetSVIDFromUsernameAsync(name);
+            string usvid = await SpookVooper.Api.Entities.User.GetSVIDFromUsernameAsync(name);
 
             bool isgroup = gsvid[0].Equals('g');
             bool isuser = usvid[0].Equals('u');

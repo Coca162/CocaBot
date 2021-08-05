@@ -4,6 +4,8 @@ using Valour.Net.CommandHandling;
 using Valour.Net.CommandHandling.Attributes;
 using static Shared.Commands.Code;
 using Humanizer;
+using System.ComponentModel;
+using System.Diagnostics;
 
 namespace Valour.Commands
 {
@@ -61,7 +63,14 @@ namespace Valour.Commands
         public async Task Ping(CommandContext ctx)
         {
             TimeSpan diff = DateTime.UtcNow - ctx.Message.TimeSent;
-            await ctx.ReplyAsync($"Ping: {diff.Humanize(2)}");
+            await ctx.ReplyAsync($"Ping! {diff.Humanize(2)}");
+        }
+
+        [Command("uptime")]
+        public async Task Uptime(CommandContext ctx)
+        {
+            TimeSpan time = DateTime.Now - Process.GetCurrentProcess().StartTime;
+            await ctx.ReplyAsync("Uptime: " + time.Humanize(2));
         }
     }
 }
