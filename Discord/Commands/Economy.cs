@@ -47,6 +47,7 @@ namespace Discord.Commands
         }
 
         [Command("pay")]
+        [Priority(1)]
         public async Task PayDiscord2(CommandContext ctx,
             [Description("The user to send the money to (works with only id)")] DiscordUser discordUser,
             [Description("Money to send")] decimal amount)
