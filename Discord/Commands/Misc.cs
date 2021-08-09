@@ -5,7 +5,7 @@ using System;
 using System.Threading.Tasks;
 using static Discord.DiscordTools;
 using static Shared.Commands.Get;
-using static Shared.Commands.Register;
+using static Shared.Commands.Privacy;
 using static Shared.Commands.Verify;
 using static Shared.Commands.Code;
 using static Shared.Main;
@@ -89,7 +89,14 @@ namespace Discord.Commands
 
         [Command("code"), Aliases("opensource")]
         [Description("Gives link for linking your SV account to your discord account")]
-        public async Task Code(CommandContext ctx) => await ctx.RespondAsync(CodeLink).ConfigureAwait(false);
+        public async Task Code(CommandContext ctx) => await ctx.RespondAsync(CodeMessage).ConfigureAwait(false);
+
+        [Command("privacy")]
+        [Description("Gives link for your privacy")]
+        public async Task Privacy(CommandContext ctx) => await ctx.RespondAsync(PrivacyMessage).ConfigureAwait(false);
+
+        [Command("website")]
+        public async Task Website(CommandContext ctx) => await ctx.RespondAsync("https://cocabot.cf");
 
         [Command("kill"), Hidden()]
         [Description("Kills the bot incase of a emergency. Coca only command for obiovus reasons!")]

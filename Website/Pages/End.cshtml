@@ -1,0 +1,10 @@
+﻿@page
+@model EndModel
+@inject global::Shared.CocaBotWebContext db;
+
+<meta property="og:title" content="End">
+
+<body>
+    <center><h1 class="text-light">Successfully Registered! You are the @db.Users.Count()th user!</h1></center>
+    <center><h2 class="text-light">You can close this now!</h2></center>
+</body>

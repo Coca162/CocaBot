@@ -1,0 +1,18 @@
+﻿@page
+@model IndexModel
+@using static Program;
+@inject global::Shared.CocaBotWebContext db;
+
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<meta property="og:title" content="Main">
+
+<div class="text-center">
+    <h1 class="display-4 text-light">CocaBot</h1>
+    <h2 class="text-light">A SpookVooper bot for both Valour and Discord</h2>
+    <h3 class="text-light">CocaBot Users: @db.Users.Count()</h3>
+    <h3 class="text-light">CocaBot Valour Users: @db.Users.Where(x => x.Valour != null).Count()</h3>
+    <h3 class="text-light">Total Amount of Credits in CocaBot Accounts: @TotalMoney</h3>
+</div>

@@ -47,11 +47,19 @@ namespace Website
                 options.UseMySql(ConnectionString, version);
             });
             builder.Services.AddHttpClient();
+            builder.Services.AddRazorPages();
             var app = builder.Build();
             if (app.Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseRouting();
+            app.UseStaticFiles();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapRazorPages();
+            });
 
             //app.UseHttpsRedirection();
 
@@ -94,26 +102,6 @@ namespace Website
 
                 if (user != null) return user.SVID;
                 else return "User does not exist!";
-            });
-
-            app.Map("/end", async (HttpContext http) => {
-                return new ContentResult
-                {
-                    ContentType = "text/html",
-                    Content = "<center><h1>You can close this page!</h1></center>"
-                };
-            });
-
-            app.Map("/", async (CocaBotWebContext db) => {
-                int users = db.Users.Count();
-                int valour = db.Users.Where(x => x.Valour != null).Count();
-                TimeSpan time = DateTime.Now - Process.GetCurrentProcess().StartTime;
-
-                return new ContentResult
-                {
-                    ContentType = "text/html",
-                    Content = $"<center><h1>CocaBot has {users} registered users and {valour} connected to valour!</h1><h1>Users of CocaBot in total have {TotalMoney} credits in their accounts!</h1><h1>Uptime: {time.Humanize(2)}</h1></center>"
-                };
             });
 
             await SetTotalMoneyAsync().ConfigureAwait(false);

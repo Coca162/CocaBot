@@ -65,7 +65,7 @@ namespace Valour.Commands
             string from = await GetString(String.SVID, ctx.Member.User_Id, db);
             if (from == null)
             {
-                await ctx.ReplyAsync($"You are not connected! Do `c/valour connect {ctx.Member.Nickname}` on discord then `c/confirm` on valour and try again!").ConfigureAwait(false);
+                await ctx.ReplyAsync($"You are not connected! Do `c/valour connect {ctx.Member.Nickname}` on discord (to find out where CocaBot is located do c/discord) then `c/confirm` on valour and try again!").ConfigureAwait(false);
                 return;
             }
 

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Valour.Net.CommandHandling;
 using Valour.Net.CommandHandling.Attributes;
 using static Shared.Commands.Code;
+using static Shared.Commands.Privacy;
 using Humanizer;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -47,8 +48,21 @@ namespace Valour.Commands
         }
 
         [Command("code"), Alias("opensource")]
-        public async Task Code(CommandContext ctx)
-        { await ctx.ReplyAsync(CodeLink).ConfigureAwait(false); }
+        public async Task Code(CommandContext ctx) => await ctx.ReplyAsync(CodeMessage).ConfigureAwait(false);
+
+        [Command("privacy")]
+        public async Task Privacy(CommandContext ctx) => await ctx.ReplyAsync(PrivacyMessage);
+
+        [Command("website")]
+        public async Task Website(CommandContext ctx) => await ctx.ReplyAsync("https://cocabot.cf");
+
+        [Command("discord")]
+        public async Task Discord(CommandContext ctx) => await ctx.ReplyAsync(
+@"CocaBot is located on discord on these servers!
+SpookVooper Hub: 
+https://discord.gg/HYbjrTjmr4
+CocaBot Dev Server: 
+https://discord.gg/BXjM3pvdaQ");
 
         [Command("kill")]
         public async Task Kill(CommandContext ctx)

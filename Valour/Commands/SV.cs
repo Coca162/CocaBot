@@ -29,7 +29,7 @@ namespace Valour.Commands
             using (CocaBotContext db = new())
                 if (!await ValourConnect(ctx.Member.Nickname, ctx.Member.User_Id, db))
                 {
-                    await ctx.ReplyAsync($"Could not find name to confirm in db. Retry `c/valour connect {ctx.Member.Nickname}` in discord.").ConfigureAwait(false);
+                    await ctx.ReplyAsync($"Could not find name to confirm in db. Retry `c/valour connect {ctx.Member.Nickname}` in discord (to find out where CocaBot is located do c/discord)").ConfigureAwait(false);
                     return;
                 }
             await ctx.ReplyAsync("Linked account!").ConfigureAwait(false); 
