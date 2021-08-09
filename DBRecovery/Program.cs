@@ -14,7 +14,7 @@ namespace AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
             Config config = await GetConfig<Config>();
             await BeginCocaBot(config);
 
-            CocaBotWebContext db = new();
+            CocaBotContext db = new();
 
             string json;
 
