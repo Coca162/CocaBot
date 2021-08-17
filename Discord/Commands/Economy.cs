@@ -19,7 +19,7 @@ namespace Discord.Commands
             DiscordUser discordUser)
         {
             using CocaBotContext db = new();
-            await ctx.RespondAsync(await BalanceAll(await DiscordToSVID(discordUser.Id, db))).ConfigureAwait(false);
+            ctx.RespondAsync(await BalanceSVID(await DiscordToSVID(discordUser.Id, db)));
         }
 
         [Command("balance")]
@@ -29,10 +29,10 @@ namespace Discord.Commands
         {
             if (input == null)
             {
-                await BalanceDiscord(ctx, ctx.User).ConfigureAwait(false); return;
+                BalanceDiscord(ctx, ctx.User); return;
             }
-            
-            await ctx.RespondAsync(await BalanceAll(input)).ConfigureAwait(false);
+
+            ctx.RespondAsync(await BalanceAll(input));
         }
 
         [Command("pay"), Aliases("p", "payment")]
@@ -43,7 +43,7 @@ namespace Discord.Commands
             [Description("The user to send the money to (works with only id)")] DiscordUser discordUser)
         {
             using CocaBotContext db = new();
-            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id, db), await DiscordToSVID(discordUser.Id, db), db)).ConfigureAwait(false);
+            ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id, db), await DiscordToSVID(discordUser.Id, db), db));
         }
 
         [Command("pay")]
@@ -53,7 +53,7 @@ namespace Discord.Commands
             [Description("Money to send")] decimal amount)
         {
             using CocaBotContext db = new();
-            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id, db), await DiscordToSVID(discordUser.Id, db), db)).ConfigureAwait(false);
+            ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id, db), await DiscordToSVID(discordUser.Id, db), db));
         }
 
         [Command("pay")]
@@ -63,7 +63,7 @@ namespace Discord.Commands
             [RemainingText, Description("The Entity to send the money to (Either SVID or Name)")] string to)
         {
             using CocaBotContext db = new();
-            await ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id, db), to, db)).ConfigureAwait(false);
+            ctx.RespondAsync(await Pay(amount, await DiscordToSVID(ctx.User.Id, db), to, db));
         }
     }
 }

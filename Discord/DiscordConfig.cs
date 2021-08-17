@@ -3,7 +3,7 @@ using Shared;
 
 namespace Discord
 {
-    public struct DiscordConfig : DefaultConfig
+    public struct DiscordConfig : IDefaultConfig
     {
         [JsonProperty("token")]
         public string Token { get; private set; }

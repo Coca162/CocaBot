@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
 using Valour.Net;
 using static Shared.Main;
 
@@ -6,8 +7,7 @@ namespace Valour
 {
     class Program
     {
-        public static ProfanityFilter.ProfanityFilter Filter = new ProfanityFilter.ProfanityFilter();
-
+        public static ProfanityFilter.ProfanityFilter Filter = new();
         static async Task Main()
         {
             string[] profanities = { "cocka", "discord", "dickord", "lolipop" };

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 using System.IO;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,8 +9,9 @@ namespace Shared
 {
 public class Main
 {
+        public static HttpClient client = new();
         public static Platform platform;
-        public static DefaultConfig config;
+        public static IDefaultConfig config;
         //public static Dictionary<ulong, string> IdSVIDs { get; set; }
         //public static Dictionary<ulong, string> IdTokens { get; set; }
 
@@ -26,7 +28,7 @@ public class Main
             return JsonConvert.DeserializeObject<T>(json);
         }
 
-        public static async Task BeginCocaBot(DefaultConfig secret)
+        public static async Task BeginCocaBot(IDefaultConfig secret)
         {
             config = secret;
         }

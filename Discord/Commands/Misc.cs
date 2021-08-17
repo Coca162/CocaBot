@@ -31,8 +31,8 @@ namespace Discord.Commands
             string discord;
             using (CocaBotContext db = new())
                 discord = await DiscordToSVID(discordUser.Id, db);
-            if (discord != "") await ctx.RespondAsync(await GetAll(discord)).ConfigureAwait(false);
-            else await ctx.RespondAsync(await GetAll(discordUser.Username)).ConfigureAwait(false);
+            if (discord != "") ctx.RespondAsync(await GetSVID(discord));
+            else ctx.RespondAsync(await GetAll(discordUser.Username));
         }
 
         [Command("get")]
@@ -42,10 +42,10 @@ namespace Discord.Commands
         {
             if (input == null)
             {
-                await GetDiscord(ctx, ctx.User).ConfigureAwait(false); return;
+                GetDiscord(ctx, ctx.User); return;
             }
 
-            await ctx.RespondAsync(await GetAll(input)).ConfigureAwait(false);
+            ctx.RespondAsync(await GetAll(input));
         }
 
         [Command("register"), Aliases("reg", "login")]
@@ -61,16 +61,16 @@ namespace Discord.Commands
             }
             catch (NullReferenceException)
             {
-                await ctx.RespondAsync("Cannot do this command in dms!");
+                ctx.RespondAsync("Cannot do this command in dms!");
                 return;
             }
             try
             {
-                await dms.SendMessageAsync("https://cocabot.cf/login?key=" + key).ConfigureAwait(false);
+                await dms.SendMessageAsync("https://cocabot.cf/login?key=" + key);
             }
             catch (DSharpPlus.Exceptions.UnauthorizedException)
             {
-                await ctx.RespondAsync("Please enable direct messages from server members in the server privacy seetings!");
+                ctx.RespondAsync("Please enable direct messages from server members in the server privacy seetings!");
                 return;
             }
             await ctx.RespondAsync("Look at your DM!");

@@ -8,6 +8,9 @@ using static Shared.Main;
 using static Shared.Commands.Balance;
 using System;
 using SpookVooper.Api;
+using static Shared.Tools;
+using static Shared.Commands.Shared;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Shared.Commands
 {
@@ -15,26 +18,39 @@ namespace Shared.Commands
     {
         public static async Task<string> Pay(decimal amount, string from, string to, CocaBotContext db)
         {
-            Dictionary<SVIDTypes, Entity> fromEntities = await ConvertToEntities(from);
-            Dictionary<SVIDTypes, Entity> toEntities = await ConvertToEntities(to);
+            string toSVID;
 
-            if (fromEntities == null || fromEntities.Count == 0) return "The from Entity is not a valid name or svid!";
-            if (toEntities == null || toEntities.Count == 0) return "The to Entity is not a valid name or svid!";
-            if (fromEntities.Count != 1) return await NameError(fromEntities, "from");
-            if (toEntities.Count != 1) return await NameError(toEntities, "to");
+            if (string.IsNullOrWhiteSpace(to)) return null;
+            if (!TrySVID(from, out _, out string fromName)) throw new Exception($"From is not valid for pay. From: {from}");
+            if (TrySVID(to, out SVIDTypes toType, out string toName))
+            {
+                toSVID = to;
+            }
+            else
+            {
+                var toSearch = await SearchName(to);
 
-            Entity fromEntity = fromEntities.First().Value;
-            (SVIDTypes toType, Entity toEntity) = toEntities.First();
+                if (toSearch.Value.Item1.Count == 0 || toSearch == null) return NoExactsMessage(toSearch.Value.Item2);
+                else if (toSearch.Value.Item1.Count == 1)
+                {
+                    var entity = toSearch.Value.Item1.First();
+                    toSVID = entity.SVID;
+                    toName = entity.Name;
+                    toType = SVIDToType(toSVID);
+                }
+                else return await NameError(toSearch.Value.Item1.ToDictionary(x => SVIDToType(x.SVID), x => x.SVID), to);
+            }
 
             string token = await GetToken(from, db);
             if (token == null) return "Your account is not linked! Do /register and follow the steps!";
 
+            Entity fromEntity = new(from);
             fromEntity.Auth_Key = token + "|" + config.OauthSecret;
 
-            TaskResult results = await fromEntity.SendCreditsAsync(amount, toEntity, $"CocaBot {platform} /pay");
-            
+            TaskResult results = await fromEntity.SendCreditsAsync(amount, new Entity(toSVID), $"CocaBot {platform} /pay");
+
             if (results.Succeeded)
-                return $"Successfully sent ¢{amount} from {await fromEntity.GetNameAsync()} to {toType} {await toEntity.GetNameAsync()}";
+                return $"Successfully sent ¢{amount} from {fromName} to {toType} {toName}";
             
             string error = results.Info;
             PaymentErrors paymentErrors;
@@ -56,18 +72,18 @@ namespace Shared.Commands
                 case PaymentErrors.NoValue:
                     return "You are either sending no money or the value is too small!";
                 case PaymentErrors.LacksFunds:
-                    return $"You cannot afford to send {amount}! You only have ${await GetBalance(fromEntity)} in your balance.";
+                    return $"You cannot afford to send {amount}! You only have ¢{await BalanceMessage(fromName, fromEntity.Id)} in your balance.";
                 default:
                     Console.WriteLine($"An unknown payment error has occurred: {results.Info}\nAdd to payment error handler!");
                     return "Transaction failed. SVAPI Info:" + results.Info;
             }
         }
 
-        private static async Task<string> NameError(Dictionary<SVIDTypes, Entity> entities, string toOrFrom)
+        private static async Task<string> NameError(Dictionary<SVIDTypes, string> entities, string name)
         {
-            string msg = $"The name you used for your {toOrFrom} was both a group name and a user name! Please one of these SVID's instead:";
-            foreach ((SVIDTypes type, Entity entity) in entities)
-                msg += $"\n{type} - {entity.Id}";
+            string msg = $"The name ({name}) you used for the thing you were paying was both a group name and a user name! Please one of these SVID's instead:";
+            foreach ((SVIDTypes type, string entity) in entities)
+                msg += $"\n{type} - {entity}";
             return msg;
         }
 

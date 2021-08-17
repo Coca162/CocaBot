@@ -5,7 +5,7 @@ using static Shared.Main;
 using System.IO;
 using System.Text;
 
-namespace AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+namespace DBRecovery
 {
     class Program
     {
@@ -29,7 +29,7 @@ namespace AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         }
     }
 
-    public struct Config : DefaultConfig
+    public struct Config : IDefaultConfig
     {
         [JsonProperty("clientsecret")]
         public string ClientSecret { get; private set; }

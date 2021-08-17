@@ -2,7 +2,7 @@
 
 namespace Shared
 {
-    public interface DefaultConfig
+    public interface IDefaultConfig
     {
         [JsonProperty("server")]
         public string Server { get; }

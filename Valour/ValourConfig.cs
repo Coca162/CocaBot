@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Valour
 {
-    public struct ValourConfig : DefaultConfig
+    public struct ValourConfig : IDefaultConfig
     {
         [JsonProperty("botpassword")]
         public string BotPassword { get; set; }
