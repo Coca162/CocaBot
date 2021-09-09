@@ -3,37 +3,35 @@ using System.Threading.Tasks;
 using Valour.Net;
 using static Shared.Main;
 
-namespace Valour
+namespace Valour;
+class Program
 {
-    class Program
+    public static ProfanityFilter.ProfanityFilter Filter = new();
+    static async Task Main()
     {
-        public static ProfanityFilter.ProfanityFilter Filter = new();
-        static async Task Main()
-        {
-            string[] profanities = { "cocka", "discord", "dickord", "lolipop" };
-            Filter.AddProfanity(profanities);
+        string[] profanities = { "cocka", "discord", "dickord", "lolipop" };
+        Filter.AddProfanity(profanities);
 
-            ValourConfig config = await GetConfig<ValourConfig>();
-            platform = Platform.Valour;
-            await BeginCocaBot(config);
+        ValourConfig config = await GetConfig<ValourConfig>();
+        platform = Platform.Valour;
+        await BeginCocaBot(config);
 
-            ValourClient.BotPrefixList = config.Prefix;
+        ValourClient.BotPrefixList = config.Prefix;
 
-            await ValourClient.Start(config.Email, config.BotPassword);
+        await ValourClient.Start(config.Email, config.BotPassword);
 
-            ValourClient.RegisterModules();
+        ValourClient.RegisterModules();
 
-            //ValourClient.OnMessage += OnMessage;
+        //ValourClient.OnMessage += OnMessage;
 
-            await Task.Delay(-1);
-        }
-
-        //public static async Task OnMessage(PlanetMessage message)
-        //{
-        //    if (message.Author.Nickname == "Allegate")
-        //    {
-        //        ValourClient.PostMessage(message.Channel_Id, message.Planet_Id, "yeah okay");
-        //    }
-        //}
+        await Task.Delay(-1);
     }
+
+    //public static async Task OnMessage(PlanetMessage message)
+    //{
+    //    if (message.Author.Nickname == "Allegate")
+    //    {
+    //        ValourClient.PostMessage(message.Channel_Id, message.Planet_Id, "yeah okay");
+    //    }
+    //}
 }
