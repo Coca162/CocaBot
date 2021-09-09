@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using SpookVooper.Api.Entities;
+﻿using SpookVooper.Api.Entities;
 using SpookVooper.Api.Entities.Groups;
 using System;
 using System.Linq;
@@ -7,156 +6,166 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using static Shared.Main;
 using static Shared.Tools;
+using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 
-namespace Shared
+namespace Shared;
+public class Tools
 {
-    public class Tools
+    public static async Task<List<string>> NameToSVIDs(string name)
     {
-        public static async Task<Dictionary<SVIDTypes, string>> NameToSVIDs(string name)
+        if (name == "Old King")
+            return new List<string>() { { "g-oldking" } };
+
+        List<string> svids = new();
+
+        string gsvid = await Group.GetSVIDFromNameAsync(name);
+        string usvid = await User.GetSVIDFromUsernameAsync(name);
+
+        bool isgroup = gsvid[0].Equals('g');
+        bool isuser = usvid[0].Equals('u');
+
+        if (!isgroup && !isuser) return null;
+        else if (isgroup && isuser)
         {
-            if (name == "Old King")
-                return new Dictionary<SVIDTypes, string>() { { SVIDTypes.Group, "g-oldking" } };
-
-            Dictionary<SVIDTypes, string> svids = new();
-
-            string gsvid = await Group.GetSVIDFromNameAsync(name);
-            string usvid = await User.GetSVIDFromUsernameAsync(name);
-
-            bool isgroup = gsvid[0].Equals('g');
-            bool isuser = usvid[0].Equals('u');
-
-            if (!isgroup && !isuser) return null;
-            else if (isgroup && isuser)
-            {
-                svids.Add(SVIDTypes.User, usvid);
-                svids.Add(SVIDTypes.Group, gsvid);
-            }
-            else if (isuser) svids.Add(SVIDTypes.User, usvid);
-            else svids.Add(SVIDTypes.Group, gsvid);
-
-            return svids;
+            svids.Add(usvid);
+            svids.Add(gsvid);
         }
+        else if (isuser) svids.Add(usvid);
+        else svids.Add(gsvid);
 
-        public static async Task<Dictionary<SVIDTypes, Entity>> ConvertToEntities(string input)
+        return svids;
+    }
+
+    public static async Task<List<Entity>> ConvertToEntities(string input)
+    {
+        List<Entity> entities = new();
+        List<string> list = await ConvertToSVIDs(input);
+        for (int i = 0; i < list.Count; i++)
         {
-            Dictionary<SVIDTypes, Entity> entities = new();
-            foreach ((SVIDTypes type, string svid) in await ConvertToSVIDs(input))
-            {
-                entities.Add(type, new Entity(svid));
-            }
-            return entities;
+            string svid = list[i];
+            entities.Add(new Entity(svid));
         }
+        return entities;
+    }
 
-        public static async Task<Dictionary<SVIDTypes, string>> ConvertToSVIDs(string input)
+    public static async Task<List<string>> ConvertToSVIDs(string input)
+    {
+        if (input == null) return null;
+        List<string> entities = new();
+        bool isSVID = TrySVID(input, out _, out _);
+        if (isSVID) entities.Add(input);
+        else
         {
-            if (input == null) return null;
-            Dictionary<SVIDTypes, string> entities = new();
-            bool isSVID = TrySVID(input, out SVIDTypes type, out _);
-            if (isSVID) entities.Add(type, input);
-            else
-            {
-                Dictionary<SVIDTypes, string> NameEntities = await NameToSVIDs(input);
-                if (NameEntities != null)
-                    foreach ((SVIDTypes entityType, string entity) in NameEntities) entities.Add(entityType, entity);
-            }
-            return entities;
-        }
-
-
-        public static async Task<StringInputs> IdentifyInput(string input)
-        {
-            if ((input[0] == 'g' || input[0] == 'u') && await VerifySVID(input)) return StringInputs.SVID;
-            else return StringInputs.Name;
-        }
-
-        public static bool TrySVID(string input, out SVIDTypes type, out string name)
-        {
-            name = null;
-            type = default;
-            bool isGroup = input[0].Equals('g');
-            bool isUser = input[0].Equals('u');
-
-            if (isUser) type = SVIDTypes.User;
-            else if (isGroup) type = SVIDTypes.Group;
-            else if (!isGroup & !isUser) return false;
-
-            Entity Entity = new(input);
-            string result = Entity.GetName();
-            if (!result.Contains($"Could not find entity {input}"))
-            {
-                name = result;
-                return true;
-            }
-            return false;
-        }
-
-        public static SVIDTypes SVIDToType(string svid)
-        {
-            bool isGroup = svid[0].Equals('g');
-            bool isUser = svid[0].Equals('u');
-
-            if (isUser) return SVIDTypes.User;
-            else if (isGroup) return SVIDTypes.Group;
-            else if (!isGroup & !isUser) throw new Exception($"The SVID {svid} is invalid");
-            else throw new Exception("A SVID cannot both have 'g' and 'u' at the first character of a string!");
-        }
-
-        public static async Task<bool> VerifySVID(string svid)
-        {
-            Entity Entity = new(svid);
-            string result = await Entity.GetNameAsync();
-            return !result.Contains($"Could not find entity {svid}");
-        }
-
-        public static async Task<(List<SearchReturn>, List<SearchReturn>)?> SearchName(string input)
-        {
-            var response = await client.GetAsync($"https://api.spookvooper.com/Entity/Search?name={input}");
-            if (response == null) return null;
-            if (!response.IsSuccessStatusCode)
-            {
-                Console.WriteLine(response.ReasonPhrase);
-                return null;
-            }
-
-            List<SearchReturn> entities = JsonConvert.DeserializeObject<List<SearchReturn>>(await response.Content.ReadAsStringAsync());
-
-            List<SearchReturn> exact = new();
-            List<SearchReturn> notExact = new();
-
-            foreach (var entity in entities)
-            {
-                if (entity.Name.ToLower() == input.ToLower())
+            List<string> NameEntities = await NameToSVIDs(input);
+            if (NameEntities != null)
+                for (int i = 0; i < NameEntities.Count; i++)
                 {
-                    exact.Add(entity);
+                    string entity = NameEntities[i];
+                    entities.Add(entity);
                 }
-                else notExact.Add(entity);
+        }
+        return entities;
+    }
+
+
+    public static async Task<StringInputs> IdentifyInput(string input)
+    {
+        if ((input[0] == 'g' || input[0] == 'u') && await VerifySVID(input)) return StringInputs.SVID;
+        else return StringInputs.Name;
+    }
+
+    public static bool TrySVID(string input, out SVIDTypes type, out string name)
+    {
+        name = null;
+        type = default;
+        bool isGroup = input[0].Equals('g');
+        bool isUser = input[0].Equals('u');
+
+        if (isUser) type = SVIDTypes.User;
+        else if (isGroup) type = SVIDTypes.Group;
+        else if (!isGroup & !isUser) return false;
+
+        Entity Entity = new(input);
+        string result = Entity.GetNameAsync().Result;
+        if (!result.Contains($"Could not find entity {input}"))
+        {
+            name = result;
+            return true;
+        }
+        return false;
+    }
+
+    public static SVIDTypes SVIDToType(string svid)
+    {
+        bool isGroup = svid[0].Equals('g');
+        bool isUser = svid[0].Equals('u');
+
+        if (isUser) return SVIDTypes.User;
+        else if (isGroup) return SVIDTypes.Group;
+        else if (!isGroup & !isUser) throw new Exception($"The SVID {svid} is invalid");
+        else throw new Exception("A SVID cannot both have 'g' and 'u' at the first character of a string!");
+    }
+
+    public static async Task<bool> VerifySVID(string svid)
+    {
+        Entity Entity = new(svid);
+        string result = await Entity.GetNameAsync();
+        return !result.Contains($"Could not find entity {svid}");
+    }
+
+    public static async Task<(List<SearchReturn>, List<SearchReturn>)?> SearchName(string input)
+    {
+        Stream response = await client.GetStreamAsync($"https://api.spookvooper.com/Entity/Search?name={input}");
+        SearchReturn[] entities = await System.Text.Json.JsonSerializer.DeserializeAsync<SearchReturn[]>(response);
+
+
+        List<SearchReturn> exact = new();
+        List<SearchReturn> notExact = new();
+
+        foreach (var entity in entities)
+        {
+            if (entity.Name.ToLower() == input.ToLower())
+            {
+                exact.Add(entity);
             }
-
-            return (exact, notExact);
+            else notExact.Add(entity);
         }
 
-        public enum StringInputs
+        return (exact, notExact);
+    }
+
+    public static string SVIDTypeToString(SVIDTypes type)
+    {
+        return type switch
         {
-            Name,
-            SVID
-        }
+            SVIDTypes.User => nameof(SVIDTypes.User),
+            SVIDTypes.Group => nameof(SVIDTypes.Group),
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
+        };
+    }
 
-        public enum SVIDTypes
-        {
-            User,
-            Group
-        }
+    public enum SVIDTypes
+    {
+        User,
+        Group
+    }
 
-        public class SearchReturn
-        {
-            [JsonProperty("id")]
-            public string SVID;
-            [JsonProperty("name")]
-            public string Name;
-            [JsonProperty("credits")]
-            public decimal Credits;
-            [JsonProperty("image_Url")]
-            public string Pfp;
-        }
+    public enum StringInputs
+    {
+        Name,
+        SVID
+    }
+
+    public class SearchReturn
+    {
+        [JsonPropertyName("id")]
+        public string SVID { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+        [JsonPropertyName("credits")]
+        public decimal Credits { get; set; }
+        [JsonPropertyName("image_Url")]
+        public string Pfp { get; set; }
     }
 }

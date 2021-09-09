@@ -4,10 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared.Commands
+namespace Shared.Commands;
+class Search
 {
-    class Search
-    {
-        //use search to get a list of non exact matches and display them
-    }
+    //use search to get a list of non exact matches and display them
 }
