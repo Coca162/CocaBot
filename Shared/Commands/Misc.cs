@@ -7,7 +7,7 @@
 
     public static class Code
     {
-        public const string CodeMessage = "The code for this bot is at https://github.com/Coca162/CocaBot!";
+        public const string CodeMessage = "The code for this bot is at https://github.com/Coca162/CocaBot";
     }
 
     public static class Privacy
