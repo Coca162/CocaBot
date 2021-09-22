@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Humanizer" Version="2.11.10" />
+    <PackageReference Include="Humanizer.Core" Version="2.11.10" />
   </ItemGroup>
 
   <ItemGroup>
