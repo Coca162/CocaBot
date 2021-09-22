@@ -9,7 +9,6 @@ using SpookVooper.Api.Entities;
 using SpookVooper.Api.Entities.Groups;
 using static Discord.DiscordTools;
 using static Shared.Tools;
-using Microsoft.EntityFrameworkCore;
 using Shared;
 
 namespace Discord.Commands;

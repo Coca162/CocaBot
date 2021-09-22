@@ -13,7 +13,5 @@ class Program
 
         Bot bot = new();
         bot.RunAsync(config).GetAwaiter().GetResult();
-
-        Console.WriteLine("Hello World!");
     }
 }

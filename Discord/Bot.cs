@@ -19,8 +19,6 @@ public class Bot
 
         Client = new DiscordClient(config);
 
-        Client.Ready += OnClientReady; ;
-
         CommandsNextConfiguration commandsConfig = new()
         {
             StringPrefixes = ConfigJson.Prefix
@@ -28,20 +26,20 @@ public class Bot
 
         Commands = Client.UseCommandsNext(commandsConfig);
 
+        Commands.SetHelpFormatter<HelpFormatter>();
+
         //Commands here
 
-        Commands.RegisterCommands<Economy>();
-
+        Commands.RegisterCommands<Balance>();
+        Commands.RegisterCommands<Connectivity>();
+        Commands.RegisterCommands<Get>();
         Commands.RegisterCommands<Misc>();
-
-        Commands.RegisterCommands<Valour>();
-
+        Commands.RegisterCommands<Pay>();
         Commands.RegisterCommands<Stats>();
+        Commands.RegisterCommands<Valour>();
 
         await Client.ConnectAsync();
 
         await Task.Delay(-1);
     }
-
-    private Task OnClientReady(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs e) => Task.CompletedTask;
 }
