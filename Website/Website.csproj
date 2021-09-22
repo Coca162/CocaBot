@@ -4,10 +4,11 @@
     <TargetFramework>net6.0</TargetFramework>
     <LangVersion>preview</LangVersion>
     <ApplicationIcon>wwwroot\favicon.ico</ApplicationIcon>
+	<ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Humanizer" Version="2.11.10" />
+    <PackageReference Include="CsvHelper" Version="27.1.1" />
     <PackageReference Include="Humanizer.Core" Version="2.11.10" />
   </ItemGroup>
 

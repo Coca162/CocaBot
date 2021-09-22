@@ -2,11 +2,9 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http;
 using static Shared.Database;
-using static Shared.CocaBotWebContext;
 using static Shared.Main;
 using static Shared.Commands.Balance;
 using System;
-using Newtonsoft.Json;
 using Shared;
 using Microsoft.AspNetCore.Hosting;
 using Website;
@@ -26,6 +24,12 @@ using System.Reflection.Metadata;
 using System.Timers;
 using System.Diagnostics;
 using Humanizer;
+using SpookVooper.Api.Entities;
+using CsvHelper;
+using System.Globalization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using SpookVooper.Api;
 
 namespace Website;
 public static class Program
@@ -39,13 +43,21 @@ public static class Program
         await BeginCocaBot(config);
         string baseUrl = null;
 
+        CocaBotContext ds = new();
+        ds.Database.EnsureCreated();
+
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddEntityFrameworkMySql();
         builder.Services.AddDistributedMemoryCache();
         builder.Services.AddDbContextPool<CocaBotWebContext>((serviceProvider, options) =>
         {
-            options.UseMySql(ConnectionString, version);
+            options.UseMySql(CocaBotWebContext.ConnectionString, CocaBotWebContext.version);
+        });
+
+        builder.Services.AddDbContextPool<TraderBotContext>((serviceProvider, options) =>
+        {
+            options.UseMySql(TraderBotContext.ConnectionString, TraderBotContext.version);
         });
 
         builder.Services.AddHttpClient();
@@ -79,7 +91,7 @@ public static class Program
         {
             var response = await client.GetAsync($"https://spookvooper.com/oauth2/RequestToken?grant_type=authorization_code&code={code}&redirect_uri={baseUrl + "/callback"}&client_id={config.ClientId}&client_secret={config.ClientSecret}");
             if (!response.IsSuccessStatusCode) return "Spookvooper no work";
-            TokenReturn tokenReturn = JsonConvert.DeserializeObject<TokenReturn>(await response.Content.ReadAsStringAsync());
+            TokenReturn tokenReturn = await JsonSerializer.DeserializeAsync<TokenReturn>(await response.Content.ReadAsStreamAsync());
 
             Registers register = await db.Registers.FindAsync(state);
             if (register == null) return "Discord bot no work";
@@ -111,7 +123,26 @@ public static class Program
             else return "User does not exist!";
         });
 
-        await SetTotalMoneyAsync().ConfigureAwait(false);
+        app.MapGet("/deals", async (HttpContext http, TraderBotContext db) =>
+        {
+            var writer = new StringWriter();
+            var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
+            
+            foreach (var deal in db.Deals)
+            {
+                csv.WriteField(deal.From);
+                csv.WriteField(deal.To);
+                csv.WriteField(deal.Resource);
+                csv.WriteField(deal.Amount);
+                csv.WriteField(deal.Duration == null ? "" : ((DateTime)deal.Duration).ToString("dd/MM/yy", CultureInfo.InvariantCulture));
+
+                csv.NextRecord();
+            }
+
+            return writer.ToString(); ;
+        });
+
+        SetTotalMoneyAsync();
         System.Timers.Timer timer = new(TotalMoneyInterval);
         timer.Elapsed += async (object source, ElapsedEventArgs e) => await SetTotalMoneyAsync();
         timer.Enabled = true;
@@ -127,9 +158,10 @@ public static class Program
         List<string> svids = db.Users.Select(x => x.SVID).ToList();
         foreach (string svid in svids)
         {
-            SpookVooper.Api.Entities.Entity entity = new(svid);
-            decimal balance = await entity.GetBalanceAsync();
-            total += balance;
+            Entity entity = new(svid);
+            TaskResult<decimal> balance = await entity.GetBalanceAsync();
+            if (balance.Succeeded == false) return;
+            total += balance.Data;
         }
         double scale = Math.Pow(10, Math.Floor(Math.Log10((double)total)) + 1);
         double rounded = scale * Math.Round((double)total / scale, 2);
@@ -157,30 +189,20 @@ public static class Program
     }
 }
 
-public struct WebsiteConfig : IDefaultConfig
+public class WebsiteConfig : DefaultConfig
 {
-    [JsonProperty("clientsecret")]
-    public string ClientSecret { get; private set; }
-    [JsonProperty("clientid")]
-    public string ClientId { get; private set; }
-    [JsonProperty("server")]
-    public string Server { get; private set; }
-    [JsonProperty("userid")]
-    public string UserID { get; private set; }
-    [JsonProperty("password")]
-    public string Password { get; private set; }
-    [JsonProperty("database")]
-    public string Database { get; private set; }
-    [JsonProperty("oauth_secret")]
-    public string OauthSecret { get; private set; }
+    [JsonPropertyName("clientsecret")]
+    public string ClientSecret { get; set; }
+    [JsonPropertyName("clientid")]
+    public string ClientId { get; set; }
 }
 
 public class TokenReturn
 {
-    [JsonProperty("access_token")]
-    public string AccessToken { get; private set; }
-    [JsonProperty("svid")]
-    public string SVID { get; private set; }
-    [JsonProperty("expires_in")]
-    public int Expiry { get; private set; }
+    [JsonPropertyName("access_token")]
+    public string AccessToken { get; set; }
+    [JsonPropertyName("svid")]
+    public string SVID { get; set; }
+    [JsonPropertyName("expires_in")]
+    public int Expiry { get; set; }
 }
