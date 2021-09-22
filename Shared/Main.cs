@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Internal;
-using Newtonsoft.Json;
+using System.Text.Json;
 using System.IO;
 using System.Net.Http;
 using System.Text;
@@ -10,7 +10,7 @@ public class Main
 {
     public static HttpClient client { get; set; } = new();
     public static Platform platform { get; set; }
-    public static IDefaultConfig config { get; set; }
+    public static DefaultConfig config { get; set; }
     //public static Dictionary<ulong, string> IdSVIDs { get; set; }
     //public static Dictionary<ulong, string> IdTokens { get; set; }
 
@@ -18,16 +18,17 @@ public class Main
 
     public static async Task<T> GetConfig<T>()
     {
-        string json;
+        FileStream fs = File.OpenRead("secret.json");
+        T config = await JsonSerializer.DeserializeAsync<T>(fs, new JsonSerializerOptions()
+        {
+            AllowTrailingCommas = true,
+            PropertyNameCaseInsensitive = true
+        });
 
-        await using (FileStream fs = File.OpenRead("secret.json"))
-        using (StreamReader sr = new(fs, new UTF8Encoding(false)))
-            json = await sr.ReadToEndAsync().ConfigureAwait(false);
-
-        return JsonConvert.DeserializeObject<T>(json);
+        return config;
     }
 
-    public static async Task BeginCocaBot(IDefaultConfig secret)
+    public static async Task BeginCocaBot(DefaultConfig secret)
     {
         config = secret;
     }

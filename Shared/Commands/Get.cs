@@ -16,12 +16,12 @@ public static class Get
 
         var search = await SearchName(input);
 
-        if (search.Value.Item1.Count == 0 || search == null) return NoExactsMessage(search.Value.Item2);
-        else if (search.Value.Item1.Count == 1) return await GetMessage(search.Value.Item1.First());
+        if (search.Item1.Count == 0) return NoExactsMessage(search.Item2);
+        else if (search.Item1.Count == 1) return await GetMessage(search.Item1.First());
 
         string msg = "";
 
-        foreach (var item in search.Value.Item1)
+        foreach (var item in search.Item1)
         {
             msg += await GetMessage(item) + "\n";
         }

@@ -13,33 +13,47 @@ using static Shared.Commands.Shared;
 namespace Shared.Commands;
 public static class Payment
 {
-    public static async Task<string> Pay(decimal amount, string from, string to, CocaBotContext db)
+    public static async Task<string> PayAll(decimal amount, string from, string to, CocaBotContext db)
     {
         string toSVID;
 
         if (string.IsNullOrWhiteSpace(to)) return null;
-        if (!TrySVID(from, out _, out string fromName)) throw new Exception($"From is not a valid svid for pay. From: {from}");
+        if (!TrySVID(from, out string fromName)) throw new Exception($"From is not a valid svid for pay. From: {from}");
         if (TrySVID(to, out SVIDTypes toType, out string toName)) toSVID = to;
         else
         {
             var toSearch = await SearchName(to);
 
-            if (toSearch.Value.Item1.Count == 0 || toSearch == null) return NoExactsMessage(toSearch.Value.Item2);
-            else if (toSearch.Value.Item1.Count == 1)
+            if (toSearch.Item1.Count == 0) return NoExactsMessage(toSearch.Item2);
+            else if (toSearch.Item1.Count == 1)
             {
-                var entity = toSearch.Value.Item1.First();
+                var entity = toSearch.Item1.First();
                 toSVID = entity.SVID;
                 toName = entity.Name;
                 toType = SVIDToType(toSVID);
             }
-            else return await NameError(toSearch.Value.Item1.ToDictionary(x => SVIDToType(x.SVID), x => x.SVID), to);
+            else return await NameError(toSearch.Item1.ToDictionary(x => SVIDToType(x.SVID), x => x.SVID), to);
         }
 
+        return await Pay(amount, from, db, toSVID, fromName, toType, toName);
+    }
+
+    public static async Task<string> PaySVID(decimal amount, string from, string to, CocaBotContext db)
+    {
+        if (string.IsNullOrWhiteSpace(to)) return null;
+        if (!TrySVID(from, out string fromName)) throw new Exception($"From is not a valid svid for pay. From: {from}");
+        if (!TrySVID(to, out SVIDTypes toType, out string toName)) 
+            return "This is not a valid svid! Did you mean to use `c/pay [Amount] {Name}`?";
+
+        return await Pay(amount, from, db, to, fromName, toType, toName);
+    }
+
+    private static async Task<string> Pay(decimal amount, string from, CocaBotContext db, string toSVID, string fromName, SVIDTypes toType, string toName)
+    {
         string token = await GetToken(from, db);
         if (token == null) return "Your account is not linked! Do /register and follow the steps!";
 
         Entity fromEntity = new(from);
-        User fromsfsd = new(from);
         fromEntity.Auth_Key = token + "|" + config.OauthSecret;
 
         TaskResult results = await fromEntity.SendCreditsAsync(amount, toSVID, toType == SVIDTypes.User ? $"CocaBot {platform} User-User /pay" : "Corporate");
@@ -67,7 +81,7 @@ public static class Payment
             case PaymentErrors.NoValue:
                 return "You are either sending no money or the value is too small!";
             case PaymentErrors.LacksFunds:
-                return $"You cannot afford to send {amount}! You only have ¢{await BalanceMessage(fromName, fromEntity.Id)} in your balance.";
+                return $"You cannot afford to send {amount}! You only have ¢{Round((await fromEntity.GetBalanceAsync()).Data)} in your balance.";
             default:
                 Console.WriteLine($"An unknown payment error has occurred: {results.Info}\nAdd to payment error handler!");
                 return "Transaction failed. SVAPI Info:" + results.Info;
