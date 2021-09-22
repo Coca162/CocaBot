@@ -1,16 +1,16 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace Shared;
-public interface IDefaultConfig
+public class DefaultConfig
 {
-    [JsonProperty("server")]
-    public string Server { get; }
-    [JsonProperty("userid")]
-    public string UserID { get; }
-    [JsonProperty("password")]
-    public string Password { get; }
-    [JsonProperty("database")]
-    public string Database { get; }
-    [JsonProperty("oauth_secret")]
-    public string OauthSecret { get; }
+    [JsonPropertyName("server")]
+    public string Server { get; set; }
+    [JsonPropertyName("userid")]
+    public string UserID { get; set; }
+    [JsonPropertyName("password")]
+    public string Password { get; set; }
+    [JsonPropertyName("database")]
+    public string Database { get; set; }
+    [JsonPropertyName("oauth_secret")]
+    public string OauthSecret { get; set; }
 }

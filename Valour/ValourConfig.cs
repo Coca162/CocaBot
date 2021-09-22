@@ -1,24 +1,14 @@
-﻿using Newtonsoft.Json;
-using Shared;
+﻿using Shared;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Valour;
-public struct ValourConfig : IDefaultConfig
+public class ValourConfig : DefaultConfig
 {
-    [JsonProperty("botpassword")]
+    [JsonPropertyName("botpassword")]
     public string BotPassword { get; set; }
-    [JsonProperty("email")]
+    [JsonPropertyName("email")]
     public string Email { get; set; }
-    [JsonProperty("server")]
-    public string Server { get; private set; }
-    [JsonProperty("userid")]
-    public string UserID { get; private set; }
-    [JsonProperty("password")]
-    public string Password { get; private set; }
-    [JsonProperty("database")]
-    public string Database { get; private set; }
-    [JsonProperty("oauth_secret")]
-    public string OauthSecret { get; private set; }
-    [JsonProperty("prefix")]
-    public List<string> Prefix { get; private set; }
+    [JsonPropertyName("prefix")]
+    public List<string> Prefix { get; set; }
 }
