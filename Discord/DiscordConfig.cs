@@ -6,6 +6,8 @@ public class DiscordConfig : DefaultConfig
 {
     [JsonPropertyName("token")]
     public string Token { get; set; }
+    [JsonPropertyName("prod")]
+    public bool Production { get; set; }
     [JsonPropertyName("prefix")]
     public string[] Prefix { get; set; }
 }

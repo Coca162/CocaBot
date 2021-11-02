@@ -4,6 +4,11 @@ using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
+using static Shared.Tools;
+using System;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace Shared;
 public class Main
@@ -16,7 +21,7 @@ public class Main
 
     public static readonly string[] Districts = { "new yam", "voopmont", "san vooperisco", "medievala", "old yam", "new vooperis", "isle of servers past", "server past", "servers past", "los vooperis", "queensland", "netherlands", "vooperia city", "new spudland", "landing cove", "old king", "corgi" };
 
-    public static async Task<T> GetConfig<T>()
+    public static async Task<T> GetConfig<T>() where T : DefaultConfig
     {
         FileStream fs = File.OpenRead("secret.json");
         T config = await JsonSerializer.DeserializeAsync<T>(fs, new JsonSerializerOptions()
@@ -25,12 +30,29 @@ public class Main
             PropertyNameCaseInsensitive = true
         });
 
+        Main.config = config;
+
         return config;
     }
 
-    public static async Task BeginCocaBot(DefaultConfig secret)
+    public static async Task LoadSVIDNameCache()
     {
-        config = secret;
+        CocaBotContext db = new();
+
+        var people = db.Transactions.Where(x => x.Detail.Contains("Coca"))
+                                    .OrderByDescending(x => x.Count)
+                                    .Select(x => x.FromAccount)
+                                    .Distinct()
+                                    .Take(100);
+
+        foreach (var svid in people)
+        {
+            var name = await SpookVooper.Api.SpookVooperAPI.GetData($"Entity/GetName?svid={svid}");
+
+            await AddEntityCache(svid, name);
+        }
+
+        Console.WriteLine("Cache loaded");
     }
 
     public enum Platform

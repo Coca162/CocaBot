@@ -1,4 +1,6 @@
-﻿public class Resources
+﻿using System;
+
+public class Resources
 {
     public enum Resource
     {

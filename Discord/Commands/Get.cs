@@ -9,14 +9,15 @@ using Shared;
 namespace Discord.Commands;
 public class Get : BaseCommandModule
 {
+    public CocaBotWebContext db { private get; set; }
+
     [Command("get"), Aliases("g", "grab", "svid", "name")]
     [Description("Gets basic information about a entity")]
     [Priority(1)]
     public async Task GetDiscord(CommandContext ctx, [Description("A User (works with only id)")] DiscordUser discordUser)
     {
-        string discord;
-        using (CocaBotContext db = new())
-            discord = await DiscordToSVID(discordUser.Id, db);
+        string discord = await DiscordToSVID(discordUser.Id, db);
+
         if (discord != "") ctx.RespondAsync(await GetSVID(discord));
         else ctx.RespondAsync(await GetAll(discordUser.Username));
     }

@@ -9,6 +9,7 @@ using static Shared.Commands.Balance;
 namespace Discord.Commands;
 public class Balance : BaseCommandModule
 {
+    public CocaBotWebContext db { private get; set; }
 
     [Command("balance"), Aliases("balan", "bal", "b")]
     [Description("Gets a entities balance")]
@@ -16,8 +17,15 @@ public class Balance : BaseCommandModule
     public async Task BalanceDiscord(CommandContext ctx, [Description("A User (works with only id)")]
             DiscordUser discordUser)
     {
-        using CocaBotContext db = new();
-        ctx.RespondAsync(await BalanceMessage(await DiscordToSVID(discordUser.Id, db)));
+        string svid = await DiscordToSVID(discordUser.Id, db);
+
+        if (svid is null)
+        {
+            ctx.RespondAsync("The person does not have their account registered! Tell them to do `c/register`!");
+            return;
+        }
+
+        ctx.RespondAsync(await BalanceMessage(svid));
     }
 
     [Command("balance")]
@@ -25,9 +33,10 @@ public class Balance : BaseCommandModule
     public async Task BalanceString(CommandContext ctx,
     [RemainingText, Description("A Entity (Either SVID, Name or if empty just you)")] string input)
     {
-        if (input == null)
+        if (input is null)
         {
-            BalanceDiscord(ctx, ctx.User); return;
+            BalanceDiscord(ctx, ctx.User);
+            return;
         }
 
         ctx.RespondAsync(await BalanceAll(input));

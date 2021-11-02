@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http;
-using static Shared.Database;
 using static Shared.Main;
 using static Shared.Commands.Balance;
 using System;
@@ -30,6 +29,8 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SpookVooper.Api;
+using System.IO;
+using static Shared.Tools;
 
 namespace Website;
 public static class Program
@@ -40,7 +41,6 @@ public static class Program
     public static async Task Main(string[] args)
     {
         WebsiteConfig config = await GetConfig<WebsiteConfig>();
-        await BeginCocaBot(config);
         string baseUrl = null;
 
         CocaBotContext ds = new();
@@ -89,13 +89,14 @@ public static class Program
 
         app.Map("/callback", async (HttpContext http, HttpClient client, CocaBotWebContext db, string code, string state) =>
         {
+            if (string.IsNullOrEmpty(state)) return "You haven't done c/register!";
             var response = await client.GetAsync($"https://spookvooper.com/oauth2/RequestToken?grant_type=authorization_code&code={code}&redirect_uri={baseUrl + "/callback"}&client_id={config.ClientId}&client_secret={config.ClientSecret}");
             if (!response.IsSuccessStatusCode) return "Spookvooper no work";
             TokenReturn tokenReturn = await JsonSerializer.DeserializeAsync<TokenReturn>(await response.Content.ReadAsStreamAsync());
 
-            Registers register = await db.Registers.FindAsync(state);
+            Shared.Models.Register register = await db.Registers.FindAsync(state);
             if (register == null) return "Discord bot no work";
-            Users user = await db.Users.FindAsync(tokenReturn.SVID);
+            Shared.Models.User user = await db.Users.FindAsync(tokenReturn.SVID);
             if (user != null) db.Users.Remove(user);
 
             user = new();
@@ -112,21 +113,36 @@ public static class Program
             return "You can close this page!";
         });
 
-        app.MapGet("/getsvid", async (HttpContext http, CocaBotWebContext db, ulong id, string type) =>
+        app.MapGet("/discord/getsvid", async (CocaBotWebContext db, ulong id) => 
         {
-            Users user;
-            if (type == "d") user = db.Users.Where(x => x.Discord == id).FirstOrDefault();
-            else if (type == "v") user = db.Users.Where(x => x.Valour == id).FirstOrDefault();
-            else return "type is not an actual type!";
-
-            if (user != null) return user.SVID;
-            else return "User does not exist!";
+            string svid = await db.Users.Where(x => x.Discord == id).Select(x => x.SVID).SingleOrDefaultAsync();
+            return svid is not null ? svid : "";
         });
+
+        app.MapGet("/valour/getsvid", async (CocaBotWebContext db, ulong id) =>
+        {
+            string svid = await db.Users.Where(x => x.Valour == id).Select(x => x.SVID).SingleOrDefaultAsync();
+            return svid is not null ? svid : "";
+        });
+
+        app.MapGet("/Transactions/Get", async (CocaBotWebContext db, int amount) =>
+            db.Transactions.OrderByDescending(x => x.Count)
+                           .Take(amount));
+
+        app.MapGet("/Transactions/GetFrom", async (CocaBotWebContext db, string svid, int amount) =>
+            db.Transactions.Where(x => x.FromAccount == svid)
+                           .OrderByDescending(x => x.Count)
+                           .Take(amount));
+
+        app.MapGet("/Transactions/GetTo", async (CocaBotWebContext db, string svid, int amount) =>
+            db.Transactions.Where(x => x.ToAccount == svid)
+                           .OrderByDescending(x => x.Count)
+                           .Take(amount));
 
         app.MapGet("/deals", async (HttpContext http, TraderBotContext db) =>
         {
-            var writer = new StringWriter();
-            var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
+            StringWriter writer = new();
+            CsvWriter csv = new(writer, CultureInfo.InvariantCulture);
             
             foreach (var deal in db.Deals)
             {
@@ -143,7 +159,7 @@ public static class Program
         });
 
         SetTotalMoneyAsync();
-        System.Timers.Timer timer = new(TotalMoneyInterval);
+        Timer timer = new(TotalMoneyInterval);
         timer.Elapsed += async (object source, ElapsedEventArgs e) => await SetTotalMoneyAsync();
         timer.Enabled = true;
 
@@ -155,7 +171,7 @@ public static class Program
         CocaBotContext db = new();
 
         decimal total = 0;
-        List<string> svids = db.Users.Select(x => x.SVID).ToList();
+        var svids = db.Users.Select(x => x.SVID);
         foreach (string svid in svids)
         {
             Entity entity = new(svid);
@@ -167,25 +183,6 @@ public static class Program
         double rounded = scale * Math.Round((double)total / scale, 2);
 
         TotalMoney = Humanize(rounded);
-    }
-
-    public static string Humanize(this double number)
-    {
-        string[] suffix = { "f", "a", "p", "n", "μ", "m", string.Empty, " thousand", " million", " billion", " trillion", "P", "E" };
-
-        int mag;
-        if (number < 1)
-        {
-            mag = (int)Math.Floor(Math.Floor(Math.Log10(number)) / 3);
-        }
-        else
-        {
-            mag = (int)(Math.Floor(Math.Log10(number)) / 3);
-        }
-
-        var shortNumber = number / Math.Pow(10, mag * 3);
-
-        return $"{shortNumber:0.###}{suffix[mag + 6]}";
     }
 }
 

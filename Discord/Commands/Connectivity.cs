@@ -5,12 +5,14 @@ using System;
 using System.Threading.Tasks;
 using Shared;
 using System.Linq;
+using Shared.Models;
 
 namespace Discord.Commands;
 public class Connectivity : BaseCommandModule
 {
     private static Random random = new();
     private const string chars = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890-._~";
+    public CocaBotWebContext db { private get; set; }
 
     [Command("register"), Aliases("reg", "login")]
     [Description("Gives link for linking your SV account to your discord account")]
@@ -39,8 +41,7 @@ public class Connectivity : BaseCommandModule
         }
         await ctx.RespondAsync("Look at your DM!");
 
-        using CocaBotContext db = new();
-        Registers register = db.Registers.Where(x => x.Discord == ctx.User.Id).FirstOrDefault();
+        Register register = db.Registers.Where(x => x.Discord == ctx.User.Id).FirstOrDefault();
         if (register != null) db.Registers.Remove(register);
 
         register = new();

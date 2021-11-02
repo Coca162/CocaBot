@@ -14,14 +14,14 @@ using Shared;
 namespace Discord.Commands;
 public class Stats : BaseCommandModule
 {
+    public CocaBotWebContext db { private get; set; }
+
     [Command("statistics"), Aliases("stat", "stats", "statistic")]
     [Description("Gets basic information about a entity")]
     [Priority(1)]
     public async Task StatisticsDiscord(CommandContext ctx, [Description("A User (works with only id)")] DiscordUser discordUser)
     {
-        string discord;
-        using (CocaBotContext db = new())
-            discord = await DiscordToSVID(discordUser.Id, db);
+        string discord = await DiscordToSVID(discordUser.Id, db);
         List<string> svids = new();
         if (discord != "") svids.Add(discord);
         else svids = await ConvertToSVIDs(discordUser.Username);
@@ -99,7 +99,7 @@ public class Stats : BaseCommandModule
                     await message.RespondAsync(groupEmbed).ConfigureAwait(false);
                     break;
                 case SVIDTypes.User:
-                    User user = new(svid);
+                    SpookVooper.Api.Entities.User user = new(svid);
                     UserSnapshot userSnapshot = await user.GetSnapshotAsync();
                     string userName = await user.GetNameAsync();
                     string discordId = userSnapshot.DiscordID != null ? userSnapshot.DiscordID.ToString() : "none";

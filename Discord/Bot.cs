@@ -2,13 +2,25 @@
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using Discord.Commands;
+using System.Reflection;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using Shared;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Timers;
+using SpookVooper.Api;
+using SpookVooper.Api.Entities;
+using DSharpPlus.Entities;
+using static Discord.TimedEvents;
+using static Discord.Program;
 
 namespace Discord;
 public class Bot
 {
-    public DiscordClient Client { get; private set; }
-    public CommandsNextExtension Commands { get; private set; }
-    public async Task RunAsync(DiscordConfig ConfigJson)
+    public static DiscordClient Client { get; private set; }
+    public static CommandsNextExtension Commands { get; private set; }
+    public static async Task RunAsync(DiscordConfig ConfigJson)
     {
         DiscordConfiguration config = new()
         {
@@ -18,28 +30,29 @@ public class Bot
         };
 
         Client = new DiscordClient(config);
+        Client.Ready += OnClientReady;
 
         CommandsNextConfiguration commandsConfig = new()
         {
-            StringPrefixes = ConfigJson.Prefix
+            StringPrefixes = ConfigJson.Prefix,
+            Services = new ServiceCollection().AddDbContextPool<CocaBotWebContext>((serviceProvider, options) =>
+            {
+                options.UseMySql(CocaBotWebContext.ConnectionString, CocaBotWebContext.version);
+            }).BuildServiceProvider()
         };
 
         Commands = Client.UseCommandsNext(commandsConfig);
 
         Commands.SetHelpFormatter<HelpFormatter>();
 
-        //Commands here
-
-        Commands.RegisterCommands<Balance>();
-        Commands.RegisterCommands<Connectivity>();
-        Commands.RegisterCommands<Get>();
-        Commands.RegisterCommands<Misc>();
-        Commands.RegisterCommands<Pay>();
-        Commands.RegisterCommands<Stats>();
-        Commands.RegisterCommands<Valour>();
+        Commands.RegisterCommands(Assembly.GetExecutingAssembly());
 
         await Client.ConnectAsync();
+    }
 
-        await Task.Delay(-1);
+    private static async Task OnClientReady(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs e)
+    {
+        Console.WriteLine("CocaBot on!");
+        if (prod) await SetTimer();    
     }
 }
