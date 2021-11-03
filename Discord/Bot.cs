@@ -15,6 +15,8 @@ using DSharpPlus.Entities;
 using static Discord.TimedEvents;
 using static Discord.Program;
 using static SpookVooper.Api.SpookVooperAPI;
+using System.Text.Json.Serialization;
+using System.Collections.Generic;
 
 namespace Discord;
 public class Bot
@@ -31,6 +33,8 @@ public class Bot
         };
 
         Client = new DiscordClient(config);
+
+        Client.Intents.AddIntent(DiscordIntents.GuildMembers);
 
         Client.Ready += async (sender, e) =>
         {
@@ -50,6 +54,8 @@ public class Bot
             });
         };
 
+        Task task = Task.Run(async () => UpdateHourly(ConfigJson));
+
         CommandsNextConfiguration commandsConfig = new()
         {
             StringPrefixes = ConfigJson.Prefix,
@@ -67,4 +73,108 @@ public class Bot
 
         await Client.ConnectAsync();
     }
+
+    public static async Task UpdateHourly(DiscordConfig config)
+    {
+        while (true)
+        {
+            JacobUBIUserDataForHourlyUpdateData data = null;
+
+            try
+            {
+                data = await GetDataFromJson<JacobUBIUserDataForHourlyUpdateData>($"https://ubi.vtech.cf/all_user_data?key={config.JacobUBIKey}");
+            }
+            catch
+            {
+
+                // wait 5s before trying again
+
+                await Task.Delay(5000);
+
+                continue;
+            }
+            
+
+            DiscordGuild server = await Client.GetGuildAsync(798307000206360588);
+
+            List<DiscordRole> SVRoles = new List<DiscordRole>();
+
+            SVRoles.Add(server.GetRole(894632235326656552));
+            SVRoles.Add(server.GetRole(894632423776731157));
+            SVRoles.Add(server.GetRole(894632541552791632));
+            SVRoles.Add(server.GetRole(894632641477894155));
+            SVRoles.Add(server.GetRole(894632682330423377));
+
+            foreach (JacobUBIUserDataForHourlyUpdateItem item in data.Users)
+            {
+
+                DiscordMember member = await server.GetMemberAsync(item.Id);
+
+                if (member == null)
+                {
+                    continue;
+                }
+
+                // check if unranked
+
+                if (item.Rank == "Unranked")
+                {
+                    bool HasRole = false;
+                    DiscordRole RoleToRemove = null;
+                    foreach (DiscordRole role in SVRoles)
+                    {
+                        if (member.Roles.Contains(role))
+                        {
+                            HasRole = true;
+                            RoleToRemove = role;
+                            break;
+                        }
+                    }
+                    if (HasRole)
+                    {
+                        await member.RevokeRoleAsync(RoleToRemove);
+                    }
+                }
+
+                else
+                {
+                    foreach (DiscordRole role in SVRoles)
+                    {
+                        if (member.Roles.Contains(role) && role.Name != item.Rank)
+                        {
+                            await member.RevokeRoleAsync(role);
+                            break;
+                        }
+                    }
+
+                    DiscordRole ToHave = SVRoles.Find(x => x.Name == item.Rank);
+
+                    if (!member.Roles.Contains(ToHave))
+                    {
+                        await member.GrantRoleAsync(ToHave);
+                    }
+
+                }
+
+            }
+
+            // check every 30 minutes
+            await Task.Delay(60*30*1000);
+        }
+    }
+}
+
+public class JacobUBIUserDataForHourlyUpdateItem
+{
+    [JsonPropertyName("Id")]
+    public ulong Id { get; set; }
+
+    [JsonPropertyName("Rank")]
+    public string Rank { get; set; }
+}
+
+public class JacobUBIUserDataForHourlyUpdateData
+{
+    [JsonPropertyName("Users")]
+    public List<JacobUBIUserDataForHourlyUpdateItem> Users { get; set; }
 }
