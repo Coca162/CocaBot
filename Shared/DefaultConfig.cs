@@ -13,6 +13,5 @@ public class DefaultConfig
     public string Database { get; set; }
     [JsonPropertyName("oauth_secret")]
     public string OauthSecret { get; set; }
-    [JsonPropertyName("jacobubikey")]
-    public string JacobUBIKey { get; set; }
+
 }
