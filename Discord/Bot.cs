@@ -31,11 +31,23 @@ public class Bot
         };
 
         Client = new DiscordClient(config);
-        Client.Ready += OnClientReady;
+
+        Client.Ready += async (sender, e) =>
+        {
+            _ = Task.Run(async () =>
+            {
+                Console.WriteLine("CocaBot on!");
+                if (prod) await SetTimer();
+            });
+        };
 
         Client.MessageCreated += async (s, e) =>
         {
-            await GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ConfigJson.JacobUBIKey}");
+            _ = Task.Run(async () =>
+            {
+                await GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ConfigJson.JacobUBIKey}");
+
+            });
         };
 
         CommandsNextConfiguration commandsConfig = new()
@@ -54,11 +66,5 @@ public class Bot
         Commands.RegisterCommands(Assembly.GetExecutingAssembly());
 
         await Client.ConnectAsync();
-    }
-
-    private static async Task OnClientReady(DiscordClient sender, DSharpPlus.EventArgs.ReadyEventArgs e)
-    {
-        Console.WriteLine("CocaBot on!");
-        if (prod) await SetTimer();    
     }
 }

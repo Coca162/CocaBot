@@ -14,7 +14,7 @@ public class UBI : BaseCommandModule
 {
     public CocaBotWebContext db { private get; set; }
 
-    class JacobUBILeaderboardItem
+    public class JacobUBILeaderboardItem
     {
         [JsonPropertyName("Name")]
         public string Name { get; set; }
@@ -24,13 +24,13 @@ public class UBI : BaseCommandModule
         public string value { get; set; }
     }
 
-    class JacobUBILeaderboardData
+    public class JacobUBILeaderboardData
     {
         [JsonPropertyName("Users")]
         public List<JacobUBILeaderboardItem> Users { get; set; }
     }
 
-        class JacobUBIXPData
+    public class JacobUBIXPData
     {
         [JsonPropertyName("XP")]
         public int XP { get; set; }
@@ -46,7 +46,6 @@ public class UBI : BaseCommandModule
     }
 
     [Command("leaderboard"), Aliases("lb")]
-    [Priority(0)]
     public async Task LBString(CommandContext ctx)
     {
 
@@ -62,13 +61,9 @@ public class UBI : BaseCommandModule
         }
 
         await ctx.RespondAsync(Embed);
-
-
     }
 
-
     [Command("xp")]
-    [Priority(0)]
     public async Task XPString(CommandContext ctx)
     {
 
@@ -81,10 +76,8 @@ public class UBI : BaseCommandModule
         Embed.AddField("XP", data.XP.ToString());
         Embed.AddField("Messages Sent", data.MessagesSent.ToString());
         Embed.AddField("Current Rank", data.CurrentRank);
-        Embed.AddField("Daily UBI", $"¢{data.DailyUBI.ToString()}");
+        Embed.AddField("Daily UBI", $"¢{data.DailyUBI}");
 
         await ctx.RespondAsync(Embed);
-
-
     }
 }
