@@ -14,6 +14,7 @@ using SpookVooper.Api.Entities;
 using DSharpPlus.Entities;
 using static Discord.TimedEvents;
 using static Discord.Program;
+using static SpookVooper.Api.SpookVooperAPI;
 
 namespace Discord;
 public class Bot
@@ -31,6 +32,11 @@ public class Bot
 
         Client = new DiscordClient(config);
         Client.Ready += OnClientReady;
+
+        Client.MessageCreated += async (s, e) =>
+        {
+            await GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ConfigJson.JacobUBIKey}");
+        };
 
         CommandsNextConfiguration commandsConfig = new()
         {
