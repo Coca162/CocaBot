@@ -22,13 +22,14 @@ public class TimedEvents
     private static Timer timer = new(1000 * 60 * 15);
 
     private static Entity coca;
+    private static bool UBIRoleCheck = true;
 
     private static DiscordChannel CBTChannel;
     private static DiscordChannel ServerChannel;
     private static DiscordChannel WeeklyChannel;
     private static DiscordChannel DailyChannel;
 
-    public static async Task SetTimer()
+    public static async Task SetTimer(DiscordConfig ConfigJson)
     {
         CBTChannel = await Client.GetChannelAsync(894634546824376391);
         //ServerChannel = await Client.GetChannelAsync(896605140428128296);
@@ -39,17 +40,26 @@ public class TimedEvents
         string svid = "u-e1616412-c384-4b00-b443-b8940423df67";
         coca = new(svid, db.Users.Find(svid).Token + "|" + config.OauthSecret);
 
-        await OnTimedEvent();
+        await OnTimedEvent(ConfigJson.JacobUBIKey);
         // Hook up the Elapsed event for the timer. 
-        timer.Elapsed += async (object source, ElapsedEventArgs e) => await OnTimedEvent();
+        timer.Elapsed += async (object source, ElapsedEventArgs e) => await OnTimedEvent(ConfigJson.JacobUBIKey);
         timer.Enabled = true;
     }
 
-    private static async Task OnTimedEvent()
+    private static async Task OnTimedEvent(string UBIKey)
     {
         CocaBotContext db = new();
 
         await Client.UpdateStatusAsync(new DiscordActivity($"{db.Users.Count()} Users!", ActivityType.Watching));
+
+        await CheckTransactionLogger(db);
+
+        if (UBIRoleCheck)
+        {
+            UBIRoles.UpdateHourly(UBIKey);
+            UBIRoleCheck = false;
+        }
+        else UBIRoleCheck = true;
 
         //ServerChannel.ModifyAsync(x => x.Name = "Servers: " + Client.Guilds.Count);
 
@@ -72,8 +82,6 @@ public class TimedEvents
         //WeeklyChannel.ModifyAsync(x => x.Name = "Weekly: " + Humanize((double)weeklyTransactions));
 
         //DailyChannel.ModifyAsync(x => x.Name = "Daily: " + Humanize((double)dailyTransactions));
-
-        await CheckTransactionLogger(db);
     }
 
     private static async Task CheckTransactionLogger(CocaBotContext db)

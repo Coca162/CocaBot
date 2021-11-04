@@ -1,0 +1,91 @@
+﻿using DSharpPlus.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using static SpookVooper.Api.SpookVooperAPI;
+using Discord;
+using static Discord.Bot;
+
+public static class UBIRoles
+{
+    public static async Task UpdateHourly(string UBIKey)
+    {
+        List<JacobHourlyUserData> users = null;
+
+        while (true)
+        {
+            try
+            {
+                users = await GetDataFromJson<List<JacobHourlyUserData>>($"https://ubi.vtech.cf/all_user_data?key={UBIKey}");
+                break;
+            }
+            catch
+            {
+
+                // wait 5s before trying again
+                Console.WriteLine("Jacob did a stupid! ubi.vtech.cf is down!");
+                await Task.Delay(5000);
+                continue;
+            }
+        }
+
+        DiscordGuild server = await Client.GetGuildAsync(798307000206360588);
+
+        List<DiscordRole> SVRoles = new()
+        {
+            server.GetRole(894632235326656552),
+            server.GetRole(894632423776731157),
+            server.GetRole(894632541552791632),
+            server.GetRole(894632641477894155),
+            server.GetRole(894632682330423377)
+        };
+
+        foreach (var item in users)
+        {
+            DiscordMember member = await server.GetMemberAsync(item.Id);
+
+            if (member == null)
+            {
+                continue;
+            }
+
+            // check if unranked
+
+            if (item.Rank == "Unranked")
+            {
+                bool HasRole = false;
+                DiscordRole RoleToRemove = null;
+                foreach (var role in SVRoles.Where(role => member.Roles.Contains(role)))
+                {
+                    HasRole = true;
+                    RoleToRemove = role;
+                    break;
+                }
+
+                if (HasRole) await member.RevokeRoleAsync(RoleToRemove);
+            }
+
+            foreach (var role in SVRoles.Where(role => member.Roles.Contains(role) && role.Name != item.Rank))
+            {
+                await member.RevokeRoleAsync(role);
+                break;
+            }
+
+            DiscordRole ToHave = SVRoles.Find(x => x.Name == item.Rank);
+
+            if (!member.Roles.Contains(ToHave)) await member.GrantRoleAsync(ToHave);
+        }
+    }
+}
+
+public class JacobHourlyUserData
+{
+    [JsonPropertyName("Id")]
+    public ulong Id { get; set; }
+
+    [JsonPropertyName("Rank")]
+    public string Rank { get; set; }
+}
