@@ -53,7 +53,7 @@ public class Bot
                 {
                     // send role data too for senator/gov pay & for district level UBI
 
-                    DiscordGuild server = await Client.GetGuildAsync(715441576708538418);//798307000206360588);
+                    DiscordGuild server = await Client.GetGuildAsync(798307000206360588);
 
                     DiscordMember member = await server.GetMemberAsync(e.Author.Id);
 
