@@ -13,13 +13,13 @@ public static class UBIRoles
 {
     public static async Task UpdateHourly(string UBIKey)
     {
-        List<JacobHourlyUserData> users = null;
+        JacobHourlyUserData data = null;
 
         while (true)
         {
             try
             {
-                users = await GetDataFromJson<List<JacobHourlyUserData>>($"https://ubi.vtech.cf/all_user_data?key={UBIKey}");
+                data = await GetDataFromJson<JacobHourlyUserData>($"https://ubi.vtech.cf/all_user_data?key={UBIKey}");
                 break;
             }
             catch
@@ -43,7 +43,7 @@ public static class UBIRoles
             server.GetRole(894632682330423377)
         };
 
-        foreach (var item in users)
+        foreach (var item in data.Users)
         {
             DiscordMember member = await server.GetMemberAsync(item.Id);
 
@@ -66,26 +66,35 @@ public static class UBIRoles
                 }
 
                 if (HasRole) await member.RevokeRoleAsync(RoleToRemove);
+                continue;
             }
-
-            foreach (var role in SVRoles.Where(role => member.Roles.Contains(role) && role.Name != item.Rank))
+            else
             {
-                await member.RevokeRoleAsync(role);
-                break;
+                foreach (var role in SVRoles.Where(role => member.Roles.Contains(role) && role.Name != item.Rank))
+                {
+                    await member.RevokeRoleAsync(role);
+                    break;
+                }
+
+                DiscordRole ToHave = SVRoles.Find(x => x.Name == item.Rank);
+
+                if (!member.Roles.Contains(ToHave)) await member.GrantRoleAsync(ToHave);
             }
-
-            DiscordRole ToHave = SVRoles.Find(x => x.Name == item.Rank);
-
-            if (!member.Roles.Contains(ToHave)) await member.GrantRoleAsync(ToHave);
         }
     }
 }
 
-public class JacobHourlyUserData
+public class JacobHourlyUser
 {
     [JsonPropertyName("Id")]
     public ulong Id { get; set; }
 
     [JsonPropertyName("Rank")]
     public string Rank { get; set; }
+}
+
+public class JacobHourlyUserData
+{
+    [JsonPropertyName("Users")]
+    public List<JacobHourlyUser> Users { get; set; }
 }

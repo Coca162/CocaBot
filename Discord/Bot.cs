@@ -49,8 +49,10 @@ public class Bot
         {
             _ = Task.Run(async () =>
             {
-                await GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ConfigJson.JacobUBIKey}");
-
+                if (!e.Author.IsBot)
+                {
+                    await GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ConfigJson.JacobUBIKey}");
+                }
             });
         };
 

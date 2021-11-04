@@ -49,7 +49,7 @@ public class UBI : BaseCommandModule
     public async Task LBString(CommandContext ctx)
     {
 
-        JacobUBILeaderboardData data = await GetDataFromJson<JacobUBILeaderboardData>($"https://ubi.vtech.cf/leaderboard");
+        JacobUBILeaderboardData data = await GetDataFromJson<JacobUBILeaderboardData>($"https://ubi.vtech.cf/api/leaderboard");
 
         DiscordEmbedBuilder Embed = new();
 
