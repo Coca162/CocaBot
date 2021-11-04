@@ -60,24 +60,32 @@ public class UBI : BaseCommandModule
             Embed.AddField(item.Name, item.value);
         }
 
-        await ctx.RespondAsync(Embed);
+        ctx.RespondAsync(Embed);
     }
 
     [Command("xp")]
-    public async Task XPString(CommandContext ctx)
+    [Priority(1)]
+    public async Task XPString(CommandContext ctx, DiscordUser user)
     {
 
-        JacobUBIXPData data = await GetDataFromJson<JacobUBIXPData>($"https://ubi.vtech.cf/get_xp_info?id={ctx.User.Id}");
+        JacobUBIXPData data = await GetDataFromJson<JacobUBIXPData>($"https://ubi.vtech.cf/get_xp_info?id={user.Id}");
 
         DiscordEmbedBuilder Embed = new();
 
-        Embed.Title = $"{ctx.User.Username}'s xp";
+        Embed.Title = $"{user.Username}'s xp";
 
         Embed.AddField("XP", data.XP.ToString());
         Embed.AddField("Messages Sent", data.MessagesSent.ToString());
         Embed.AddField("Current Rank", data.CurrentRank);
         Embed.AddField("Daily UBI", $"¢{data.DailyUBI}");
 
-        await ctx.RespondAsync(Embed);
+        ctx.RespondAsync(Embed);
+    }
+
+    [Command("xp")]
+    [Priority(0)]
+    public async Task XPString(CommandContext ctx)
+    {
+        XPString(ctx, ctx.User);
     }
 }

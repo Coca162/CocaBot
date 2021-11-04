@@ -13,5 +13,4 @@ public class DefaultConfig
     public string Database { get; set; }
     [JsonPropertyName("oauth_secret")]
     public string OauthSecret { get; set; }
-
 }
