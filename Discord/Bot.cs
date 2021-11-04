@@ -51,7 +51,35 @@ public class Bot
             {
                 if (!e.Author.IsBot)
                 {
-                    await GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ConfigJson.JacobUBIKey}");
+                    // send role data too for senator/gov pay & for district level UBI
+
+                    DiscordGuild server = await Client.GetGuildAsync(715441576708538418);//798307000206360588);
+
+                    DiscordMember member = await server.GetMemberAsync(e.Author.Id);
+
+                    if (member != null) 
+                    {
+
+                        string end = "";
+
+                        foreach(string rolename in member.Roles.Select(x => x.Name))
+                        {
+                            end += $"{rolename}|";
+                        }
+
+                        // removes the last "|" symbol
+
+                        end = end.Substring(0, end.Length - 1);
+
+                        await GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ConfigJson.JacobUBIKey}&roledata={end}");
+                    }
+
+                    else
+                    {
+                        await GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ConfigJson.JacobUBIKey}");
+                    }
+
+                    
                 }
             });
         };
