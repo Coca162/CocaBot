@@ -45,7 +45,7 @@ public class UBI : BaseCommandModule
         public int DailyUBI { get; set; }
     }
 
-    [Command("leaderboard"), Aliases("lb")]
+    [Command("leaderboard"), Aliases("lb"), GeneralBlacklist()]
     public async Task LBString(CommandContext ctx)
     {
 
