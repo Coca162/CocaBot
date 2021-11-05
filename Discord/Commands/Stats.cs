@@ -17,7 +17,7 @@ public class Stats : BaseCommandModule
     public CocaBotWebContext db { private get; set; }
 
     [Command("statistics"), Aliases("stat", "stats", "statistic")]
-    [Description("Gets basic information about a entity")]
+    [Description("Gets basic information about a entity"), GeneralBlacklist()]
     [Priority(1)]
     public async Task StatisticsDiscord(CommandContext ctx, [Description("A User (works with only id)")] DiscordUser discordUser)
     {
