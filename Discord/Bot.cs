@@ -17,6 +17,7 @@ using static Discord.Program;
 using static SpookVooper.Api.SpookVooperAPI;
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
+using DSharpPlus.EventArgs;
 
 namespace Discord;
 public class Bot
@@ -45,44 +46,7 @@ public class Bot
             });
         };
 
-        Client.MessageCreated += async (s, e) =>
-        {
-            _ = Task.Run(async () =>
-            {
-                if (!e.Author.IsBot)
-                {
-                    // send role data too for senator/gov pay & for district level UBI
-
-                    DiscordGuild server = await Client.GetGuildAsync(798307000206360588);
-
-                    DiscordMember member = await server.GetMemberAsync(e.Author.Id);
-
-                    if (member != null) 
-                    {
-
-                        string end = "";
-
-                        foreach(string rolename in member.Roles.Select(x => x.Name))
-                        {
-                            end += $"{rolename}|";
-                        }
-
-                        // removes the last "|" symbol
-
-                        end = end.Substring(0, end.Length - 1);
-
-                        await GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ConfigJson.JacobUBIKey}&roledata={end}");
-                    }
-
-                    else
-                    {
-                        await GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ConfigJson.JacobUBIKey}");
-                    }
-
-                    
-                }
-            });
-        };
+        Client.MessageCreated += async (s, e) => HandleMessage(ConfigJson.JacobUBIKey, e);
 
         CommandsNextConfiguration commandsConfig = new()
         {
@@ -100,5 +64,34 @@ public class Bot
         Commands.RegisterCommands(Assembly.GetExecutingAssembly());
 
         await Client.ConnectAsync();
+    }
+
+    private static async Task HandleMessage(string ubiKey, MessageCreateEventArgs e)
+    {
+        if (prod || e.Author.IsBot) return;
+
+        // send role data too for senator/gov pay & for district level UBI
+
+        DiscordGuild server = await Client.GetGuildAsync(798307000206360588);
+
+        DiscordMember member = await server.GetMemberAsync(e.Author.Id);
+
+        if (member is null)
+        {
+            GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ubiKey}");
+            return;
+        }
+
+        string end = "";
+
+        foreach (string rolename in member.Roles.Select(x => x.Name))
+        {
+            end += $"{rolename}|";
+        }
+
+        // removes the last "|" symbol
+        end = end[0..^1];
+
+        GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ubiKey}&roledata={end}");
     }
 }
