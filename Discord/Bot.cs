@@ -68,7 +68,7 @@ public class Bot
 
     private static async Task HandleMessage(string ubiKey, MessageCreateEventArgs e)
     {
-        if (prod || e.Author.IsBot) return;
+        if (!prod || e.Author.IsBot) return;
 
         // send role data too for senator/gov pay & for district level UBI
 
