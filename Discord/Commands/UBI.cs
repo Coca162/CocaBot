@@ -51,16 +51,17 @@ public class UBI : BaseCommandModule
 
         JacobUBILeaderboardData data = await GetDataFromJson<JacobUBILeaderboardData>($"https://ubi.vtech.cf/api/leaderboard");
 
-        DiscordEmbedBuilder Embed = new();
+        DiscordEmbedBuilder embed = new();
 
-        Embed.Title = $"Leaderboard";
+        embed.Title = "Leaderboard";
+        embed.Description = "[Full List](https://ubi.vtech.cf/leaderboard)";
 
         foreach(JacobUBILeaderboardItem item in data.Users)
         {
-            Embed.AddField(item.Name, item.value);
+            embed.AddField(item.Name, item.value);
         }
 
-        ctx.RespondAsync(Embed);
+        ctx.RespondAsync(embed);
     }
 
     [Command("xp")]
