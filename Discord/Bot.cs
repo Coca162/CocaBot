@@ -71,58 +71,16 @@ public class Bot
 
     private static async Task HandleMessageRemoveReaction(string ubiKey, MessageReactionRemoveEventArgs e)
     {
-        //if (!prod || e.User.IsBot) return;
-
-        if (e.Emoji.Name != "⭐")
-        {
-            return;
-        }
-
-        if (e.Guild.Id != 798307000206360588)
-        {
-            return;
-        }
-
-        if (e.Message.Author == null)
-        {
-            return;
-        }
-
-        if (e.User.Id == e.Message.Author.Id)
-        {
-            return;
-        }
+        if (!prod || e.User.IsBot || e.Guild.Id != 798307000206360588 || e.Message.Author is null || e.User.Id == e.Message.Author.Id || e.Emoji.Name != "⭐") return;
 
         GetData($"https://ubi.vtech.cf/remove_star?id={e.Message.Author.Id}&key={ubiKey}");
-
     }
 
     private static async Task HandleMessageAddReaction(string ubiKey, MessageReactionAddEventArgs e)
     {
-        //if (!prod || e.User.IsBot) return;
-
-        if (e.Message.Author == null)
-        {
-            return;
-        }
-
-        if (e.User.Id == e.Message.Author.Id)
-        {
-            return;
-        }
-
-        if (e.Emoji.Name != "⭐")
-        {
-            return;
-        }
-
-        if (e.Guild.Id != 798307000206360588)
-        {
-            return;
-        }
+        if (!prod || e.User.IsBot || e.Guild.Id != 798307000206360588 || e.Message.Author is null || e.User.Id == e.Message.Author.Id || e.Emoji.Name != "⭐") return;
 
         GetData($"https://ubi.vtech.cf/new_star?id={e.Message.Author.Id}&key={ubiKey}");
-
     }
 
     private static async Task HandleMessage(string ubiKey, MessageCreateEventArgs e)
