@@ -48,6 +48,9 @@ public class Bot
 
         Client.MessageCreated += async (s, e) => HandleMessage(ConfigJson.JacobUBIKey, e);
 
+        Client.MessageReactionAdded += async (s, e) => HandleMessageAddReaction(ConfigJson.JacobUBIKey, e);
+        Client.MessageReactionRemoved += async (s, e) => HandleMessageRemoveReaction(ConfigJson.JacobUBIKey, e);
+
         CommandsNextConfiguration commandsConfig = new()
         {
             StringPrefixes = ConfigJson.Prefix,
@@ -64,6 +67,62 @@ public class Bot
         Commands.RegisterCommands(Assembly.GetExecutingAssembly());
 
         await Client.ConnectAsync();
+    }
+
+    private static async Task HandleMessageRemoveReaction(string ubiKey, MessageReactionRemoveEventArgs e)
+    {
+        //if (!prod || e.User.IsBot) return;
+
+        if (e.Emoji.Name != "⭐")
+        {
+            return;
+        }
+
+        if (e.Guild.Id != 798307000206360588)
+        {
+            return;
+        }
+
+        if (e.Message.Author == null)
+        {
+            return;
+        }
+
+        if (e.User.Id == e.Message.Author.Id)
+        {
+            return;
+        }
+
+        GetData($"https://ubi.vtech.cf/remove_star?id={e.Message.Author.Id}&key={ubiKey}");
+
+    }
+
+    private static async Task HandleMessageAddReaction(string ubiKey, MessageReactionAddEventArgs e)
+    {
+        //if (!prod || e.User.IsBot) return;
+
+        if (e.Message.Author == null)
+        {
+            return;
+        }
+
+        if (e.User.Id == e.Message.Author.Id)
+        {
+            return;
+        }
+
+        if (e.Emoji.Name != "⭐")
+        {
+            return;
+        }
+
+        if (e.Guild.Id != 798307000206360588)
+        {
+            return;
+        }
+
+        GetData($"https://ubi.vtech.cf/new_star?id={e.Message.Author.Id}&key={ubiKey}");
+
     }
 
     private static async Task HandleMessage(string ubiKey, MessageCreateEventArgs e)
