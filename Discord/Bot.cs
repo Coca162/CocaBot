@@ -18,6 +18,8 @@ using static SpookVooper.Api.SpookVooperAPI;
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
 using DSharpPlus.EventArgs;
+using System.Net;
+using System.IO;
 
 namespace Discord;
 public class Bot
@@ -42,6 +44,11 @@ public class Bot
             _ = Task.Run(async () =>
             {
                 Console.WriteLine("CocaBot on!");
+                ServiceWrapper wrapper = new ServiceWrapper();
+                _ = Task.Run(async () =>
+                {
+                    wrapper._ServiceWrapper(Client);
+                });
                 if (prod) await SetTimer(ConfigJson);
             });
         };
@@ -111,4 +118,37 @@ public class Bot
 
         GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ubiKey}&roledata={end}");
     }
+}
+
+public class StreamData
+
+public class ServiceWrapper
+{
+    WebClient wc { get; set; }
+
+    DiscordChannel channel { get; set; }
+
+    public async Task _ServiceWrapper(DiscordClient client)
+    {
+        wc = new WebClient();
+        wc.OpenReadAsync(new Uri("https://nvse.vtech.cf/stream_cocabot"));
+        wc.OpenReadCompleted += async (s, a) => ServerEventOccursAsync(s,a);
+        channel = await client.GetChannelAsync(908560388923220018);
+    }
+
+    private async Task ServerEventOccursAsync(object sender, OpenReadCompletedEventArgs args)
+    {
+        using (var sr = new StreamReader(args.Result))
+        {
+            string message = await sr.ReadToEndAsync();
+
+            channel.SendMessageAsync(message);
+
+        }
+
+        wc = new WebClient();
+        wc.OpenReadAsync(new Uri("https://nvse.vtech.cf/stream_cocabot"));
+    }
+
+	//usual code for declaring and raising ServerEventOccurred event 
 }

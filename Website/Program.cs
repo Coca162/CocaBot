@@ -31,6 +31,7 @@ using System.Text.Json.Serialization;
 using SpookVooper.Api;
 using System.IO;
 using static Shared.Tools;
+using Shared.Models;
 
 namespace Website;
 public static class Program
@@ -139,6 +140,16 @@ public static class Program
                            .OrderByDescending(x => x.Count)
                            .Take(amount));
 
+        app.MapGet("/Transactions/Filter", async (CocaBotWebContext db, int? amount, string? to, string? from, string? detail, int? tax, long? start, long? end) =>
+        {
+            return await GetTransactionsFilter(db, amount, to, from, detail, tax, start, end).ToListAsync();
+        });
+
+        app.MapGet("/Transactions/SumFilter", async (CocaBotWebContext db, int? amount, string? to, string? from, string? detail, int? tax, long? start, long? end) =>
+        {
+            return await GetTransactionsFilter(db, amount, to, from, detail, tax, start, end).SumAsync(x => x.Amount);
+        });
+
         app.MapGet("/deals", async (HttpContext http, TraderBotContext db) =>
         {
             StringWriter writer = new();
@@ -164,6 +175,24 @@ public static class Program
         timer.Enabled = true;
 
         app.Run();
+    }
+
+    static IQueryable<Transaction> GetTransactionsFilter(CocaBotWebContext db, int? amount, string? to, string? from, string? detail, int? tax, long? start, long? end)
+    {
+        IQueryable<Transaction> search = db.Transactions.AsQueryable();
+
+        if (to != null) search = search.Where(x => x.ToAccount == to);
+        if (from != null) search = search.Where(x => x.FromAccount == from);
+        if (tax != null) search = search.Where(x => ((int)x.Tax) == (int)tax);
+        if (detail != null) search = search.Where(x => x.Detail.Contains(detail));
+        if (start != null) search = search.Where(x => x.Timestamp > start);
+        if (end != null) search = search.Where(x => x.Timestamp < end);
+
+        int a = 100;
+        if (amount > 100000) amount = 100000;
+        if (amount != null) a = (int)amount;
+     
+        return search.OrderByDescending(x => x.Count).Take(a);
     }
 
     static async Task SetTotalMoneyAsync()
