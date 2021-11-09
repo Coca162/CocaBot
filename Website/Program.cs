@@ -179,10 +179,11 @@ public static class Program
             if (balance.Succeeded == false) return;
             total += balance.Data;
         }
-        double scale = Math.Pow(10, Math.Floor(Math.Log10((double)total)) + 1);
-        double rounded = scale * Math.Round((double)total / scale, 2);
 
-        TotalMoney = Humanize(rounded);
+        double scale = Math.Pow(10, Math.Floor(Math.Log10((double)Math.Abs(total))) + 1);
+        double final = scale * Math.Round((double)total / scale, 2); //change that number
+
+        TotalMoney = "¢" + string.Format("{0:n0}", final);
     }
 }
 

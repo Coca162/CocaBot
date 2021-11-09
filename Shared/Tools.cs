@@ -14,25 +14,6 @@ using System.Text.Json;
 namespace Shared;
 public static class Tools
 {
-    public static string Humanize(double number)
-    {
-        string[] suffix = { "f", "a", "p", "n", "μ", "m", string.Empty, " thousand", " million", " billion", " trillion", "P", "E" };
-
-        int mag;
-        if (number < 1)
-        {
-            mag = (int)Math.Floor(Math.Floor(Math.Log10(number)) / 3);
-        }
-        else
-        {
-            mag = (int)(Math.Floor(Math.Log10(number)) / 3);
-        }
-
-        var shortNumber = number / Math.Pow(10, mag * 3);
-
-        return $"{shortNumber:0,###}{suffix[mag + 6]}";
-    }
-
     public static Dictionary<string, string> EntityCache { get; set; } = new();
 
     public static async Task AddEntityCache(string svid, string name)
@@ -69,7 +50,7 @@ public static class Tools
         List<string> svids = new();
 
         string gsvid = await Group.GetSVIDFromNameAsync(name);
-        string usvid = await SpookVooper.Api.Entities.User.GetSVIDFromUsernameAsync(name);
+        string usvid = await User.GetSVIDFromUsernameAsync(name);
 
         bool isgroup = gsvid.StartsWith('g');
         bool isuser = usvid.StartsWith('u');
