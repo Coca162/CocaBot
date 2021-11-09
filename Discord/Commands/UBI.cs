@@ -45,6 +45,48 @@ public class UBI : BaseCommandModule
         public int DailyUBI { get; set; }
     }
 
+    public class LeaderboardUserGet
+    {
+        [JsonPropertyName("position")]
+        public int Ranking { get; set; }
+
+        [JsonPropertyName("user")]
+        public User User { get; set; }
+    }
+
+    public class User
+    {
+        [JsonPropertyName("xp")]
+        public int XP { get; set; }
+
+        [JsonPropertyName("LastSent")]
+        public double LastSent { get; set; }
+
+        [JsonPropertyName("XP")]
+        public string SVID { get; set; }
+
+        [JsonPropertyName("rank")]
+        public string Rank { get; set; }
+
+        [JsonPropertyName("messages")]
+        public int Messages { get; set; }
+
+        [JsonPropertyName("stars")]
+        public int Stars { get; set; }
+
+        [JsonPropertyName("discordid")]
+        public long DiscordId { get; set; }
+
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("roles")]
+        public List<string> Roles { get; set; }
+
+        [JsonPropertyName("messagexp")]
+        public int MessageXP { get; set; }
+    }
+
     [Command("leaderboard"), Aliases("lb"), GeneralBlacklist()]
     public async Task LBString(CommandContext ctx)
     {
