@@ -181,16 +181,16 @@ public static class Program
     {
         IQueryable<Transaction> search = db.Transactions.AsQueryable();
 
-        if (to != null) search = search.Where(x => x.ToAccount == to);
-        if (from != null) search = search.Where(x => x.FromAccount == from);
-        if (tax != null) search = search.Where(x => ((int)x.Tax) == (int)tax);
-        if (detail != null) search = search.Where(x => x.Detail.Contains(detail));
-        if (start != null) search = search.Where(x => x.Timestamp > start);
-        if (end != null) search = search.Where(x => x.Timestamp < end);
+        if (to is not null) search = search.Where(x => x.ToAccount == to);
+        if (from is not null) search = search.Where(x => x.FromAccount == from);
+        if (tax is not null) search = search.Where(x => ((int)x.Tax) == (int)tax);
+        if (detail is not null) search = search.Where(x => x.Detail.Contains(detail));
+        if (start is not null) search = search.Where(x => x.Timestamp > start);
+        if (end is not null) search = search.Where(x => x.Timestamp < end);
 
         int a = 100;
         if (amount > 100000) amount = 100000;
-        if (amount != null) a = (int)amount;
+        if (amount is not null) a = (int)amount;
      
         return search.OrderByDescending(x => x.Count).Take(a);
     }
