@@ -120,8 +120,6 @@ public class Bot
     }
 }
 
-public class StreamData
-
 public class ServiceWrapper
 {
     WebClient wc { get; set; }
