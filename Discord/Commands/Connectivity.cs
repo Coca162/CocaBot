@@ -11,7 +11,7 @@ namespace Discord.Commands;
 public class Connectivity : BaseCommandModule
 {
     private static Random random = new();
-    private const string chars = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890-._~";
+    private const string chars = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890-_~";
     public CocaBotWebContext db { private get; set; }
 
     [Command("register"), Aliases("reg", "login")]
