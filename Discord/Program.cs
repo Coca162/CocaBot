@@ -12,7 +12,7 @@ class Program
     {
         DiscordConfig config = await GetConfig<DiscordConfig>();
         prod = config.Production;
-        if (config.Production) await LoadSVIDNameCache();
+        if (config.Production) LoadSVIDNameCache();
         platform = Platform.Discord;
 
         await Bot.RunAsync(config);
