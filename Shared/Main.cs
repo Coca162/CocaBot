@@ -41,13 +41,13 @@ public class Main
 
         var people = db.Transactions.Where(x => x.Detail.Contains("Coca"))
                                     .OrderByDescending(x => x.Count)
-                                    .Select(x => x.FromAccount)
+                                    .Select(x => x.ToAccount)
                                     .Distinct()
                                     .Take(100);
 
         foreach (var svid in people)
         {
-            var name = await SpookVooper.Api.SpookVooperAPI.GetData($"Entity/GetName?svid={svid}");
+            string name = await SpookVooper.Api.SpookVooperAPI.GetData($"Entity/GetName?svid={svid}");
 
             await AddEntityCache(svid, name);
         }
