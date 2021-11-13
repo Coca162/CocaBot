@@ -45,12 +45,15 @@ public class Bot
             _ = Task.Run(async () =>
             {
                 Console.WriteLine("CocaBot on!");
-                ServiceWrapper wrapper = new ServiceWrapper();
-                _ = Task.Run(async () =>
+                ServiceWrapper wrapper = new();
+                if (prod)
                 {
-                    wrapper._ServiceWrapper(Client);
-                });
-                if (prod) await SetTimer(ConfigJson);
+                    _ = Task.Run(async () =>
+                    {
+                        wrapper._ServiceWrapper(Client);
+                    });
+                    await SetTimer(ConfigJson);
+                }
             });
         };
 
