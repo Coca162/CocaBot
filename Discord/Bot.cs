@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using DSharpPlus.EventArgs;
 using System.Net;
 using System.IO;
+using System.Net.Http;
 
 namespace Discord;
 public class Bot
@@ -122,31 +123,32 @@ public class Bot
 
 public class ServiceWrapper
 {
-    WebClient wc { get; set; }
+    HttpClient httpclient { get; set; }
 
     DiscordChannel channel { get; set; }
 
     public async Task _ServiceWrapper(DiscordClient client)
     {
-        wc = new WebClient();
-        wc.OpenReadAsync(new Uri("https://nvse.vtech.cf/stream_cocabot"));
-        wc.OpenReadCompleted += async (s, a) => ServerEventOccursAsync(s,a);
+        httpclient = new HttpClient();
         channel = await client.GetChannelAsync(908560388923220018);
+        while (true)
+        {
+            await ServerEventOccursAsync(await httpclient.GetStreamAsync(new Uri("https://nvse.vtech.cf/stream_cocabot")));
+        }
     }
 
-    private async Task ServerEventOccursAsync(object sender, OpenReadCompletedEventArgs args)
-    {
-        using (var sr = new StreamReader(args.Result))
+    private async Task ServerEventOccursAsync(Stream s)
+    { 
+        using (var sr = new StreamReader(s))
         {
-            string message = await sr.ReadToEndAsync();
+            string message = await sr.ReadLineAsync();
 
-            channel.SendMessageAsync(message);
+            if (!message.Contains("ping"))
+            {
+                message = message.Replace("data: ", "");
+                channel.SendMessageAsync(message);
+            }
 
         }
-
-        wc = new WebClient();
-        wc.OpenReadAsync(new Uri("https://nvse.vtech.cf/stream_cocabot"));
     }
-
-	//usual code for declaring and raising ServerEventOccurred event 
 }
