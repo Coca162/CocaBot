@@ -37,7 +37,7 @@ public static class Balance
 
     public static async Task<string> BalanceMessage(string name, string svid) => BalanceMessage(name, (await new Entity(svid).GetBalanceAsync()).Data);
 
-    private static string BalanceMessage(string name, decimal credits) => $"{name}'s Balance: ¢{Round(credits)}";
+    private static string BalanceMessage(string name, decimal credits) => $"{name}'s Balance: ¢{string.Format("0,###.###", Round(credits))}";
 
     public static decimal Round(decimal credits) => Math.Round(credits, 2, MidpointRounding.ToZero);
 }
