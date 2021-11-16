@@ -41,7 +41,7 @@ public class Connectivity : BaseCommandModule
         }
         await ctx.RespondAsync("Look at your DM!");
 
-        Register register = db.Registers.Where(x => x.Discord == ctx.User.Id).FirstOrDefault();
+        Register register = db.Registers.Where(x => x.Discord == ctx.User.Id).SingleOrDefault();
         if (register != null) db.Registers.Remove(register);
 
         register = new();

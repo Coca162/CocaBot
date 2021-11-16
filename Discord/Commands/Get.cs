@@ -27,11 +27,7 @@ public class Get : BaseCommandModule
     public async Task GetString(CommandContext ctx,
         [RemainingText, Description("A Entity (Either SVID, Name or if empty just you)")] string input)
     {
-        if (input == null)
-        {
-            GetDiscord(ctx, ctx.User); return;
-        }
-
+        if (input == null){ GetDiscord(ctx, ctx.User); return; }
         ctx.RespondAsync(await GetAll(input));
     }
 }
