@@ -11,7 +11,7 @@ public class Transaction
     public decimal Amount { get; set; }
     public string Detail { get; set; }
     public bool Force { get; set; }
-    public bool IsCompleted { get; set; }
+    public bool? Success { get; set; }
     public ApplicableTax Tax { get; set; }
     public long Timestamp { get; set; }
 }

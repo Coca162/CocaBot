@@ -28,7 +28,7 @@ static async void HandleTransaction(Transaction transaction)
         ToAccount = transaction.ToAccount,
         Detail = transaction.Detail,
         Force = transaction.Force,
-        IsCompleted = transaction.IsCompleted,
+        Success = transaction.Result.Succeeded,
         Tax = transaction.Tax,
         Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
     };
