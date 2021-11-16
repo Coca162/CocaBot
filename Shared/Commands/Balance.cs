@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Shared.Tools;
 using static Shared.Commands.Shared;
-using static Shared.Main;
+using static Shared.Cache;
 
 namespace Shared.Commands;
 public static class Balance
@@ -30,14 +30,14 @@ public static class Balance
     public static async Task<string> BalanceMessage(string svid)
     {
         Entity entity = new(svid);
-        return BalanceMessage(await entity.GetNameAsync(), (await entity.GetBalanceAsync()).Data);
+        return BalanceMessage(await GetName(entity), (await entity.GetBalanceAsync()).Data);
     }
 
-    public static string BalanceMessage(SearchReturn entity) => $"{SVIDTypeToString(SVIDToType(entity.SVID))}: ¢{Round(entity.Credits)}";
+    public static string BalanceMessage(SearchReturn entity) => BalanceMessage(entity.Name, entity.Credits);
 
     public static async Task<string> BalanceMessage(string name, string svid) => BalanceMessage(name, (await new Entity(svid).GetBalanceAsync()).Data);
 
-    private static string BalanceMessage(string name, decimal credits) => $"{name}'s Balance: ¢{string.Format("0,###.###", Round(credits))}";
+    private static string BalanceMessage(string name, decimal credits) => $"{name}'s Balance: ¢{Round(credits)}";
 
-    public static decimal Round(decimal credits) => Math.Round(credits, 2, MidpointRounding.ToZero);
+    public static string Round(decimal credits) => string.Format("{0:n2}", Math.Round(credits, 2, MidpointRounding.ToZero));
 }

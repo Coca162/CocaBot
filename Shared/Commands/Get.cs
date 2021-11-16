@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Shared.Tools;
 using static Shared.Commands.Shared;
-using static Shared.Main;
+using static Shared.Cache;
 
 namespace Shared.Commands;
 public static class Get
@@ -15,24 +15,21 @@ public static class Get
 
         if (isSVID) return GetMessage(name, input);
 
-        var search = await SearchName(input);
+        var (exact, nonExact) = await GetSVIDs(input);
 
-        if (!search.Item1.Any()) return NoExactsMessage(input, search.Item2);
-        else if (search.Item1.Count == 1) return GetMessage(search.Item1.First());
+        if (!exact.Any()) return NoExactsMessage(input, nonExact.Select(x => x.name));
+        else if (exact.Count == 1) return GetMessage(input, exact.First());
 
         string msg = "";
 
-        foreach (var item in search.Item1)
+        foreach (string svid in exact)
         {
-            msg += GetMessage(item.Name, item.SVID) + "\n";
+            msg += GetMessage(input, svid) + "\n";
         }
         return msg[0..^1];
     }
 
-    public static async Task<string> GetSVID(string svid) => GetMessage(await new Entity(svid).GetNameAsync(), svid);
-
-    private static string GetMessage(BasicEntity search) => GetMessage(search.Name, search.SVID);
-
+    public static async Task<string> GetSVID(string svid) => GetMessage(await GetName(svid), svid);
     private static string GetMessage(string name, string svid) => 
         $"{SVIDTypeToString(SVIDToType(svid))}:\nSVID - {svid}\nName - {name}";
 }

@@ -10,38 +10,11 @@ using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using System.IO;
 using System.Text.Json;
+using static Shared.Cache;
 
 namespace Shared;
 public static class Tools
 {
-    public static Dictionary<string, string> EntityCache { get; set; } = new();
-
-    public static async Task AddEntityCache(string svid, string name)
-    {
-        EntityCache.Add(svid, name);
-
-        SVIDTypes type = SVIDToType(svid);
-
-        if (type == SVIDTypes.User)
-        {
-            var group = await SpookVooper.Api.SpookVooperAPI.GetData($"group/GetSVIDFromName?name={name}");
-
-            if (!group.StartsWith("HTTP E"))
-            {
-                EntityCache.Add(group, name);
-            }
-        }
-        else if (type == SVIDTypes.Group)
-        {
-            var user = await SpookVooper.Api.SpookVooperAPI.GetData($"user/GetSVIDFromUsername?username={name}");
-
-            if (!user.StartsWith("HTTP E"))
-            {
-                EntityCache.Add(user, name);
-            }
-        }
-    }
-
     public static async Task<List<string>> NameToSVIDs(string name)
     {
         if (name == "Old King")
@@ -82,35 +55,13 @@ public static class Tools
 
     public static async Task<(bool, string)> TryName(string svid)
     {
-        if (EntityCache.TryGetValue(svid, out string name)) return (true, name);
-
         if (!(svid.StartsWith('u') || svid.StartsWith('g'))) return (false, null);
 
-        Entity entity = new(svid);
-        string result = await entity.GetNameAsync();
-        if (!result.StartsWith("Could not find entity"))
-        {
-            await AddEntityCache(svid, result);
-            return (true, result);
-        }
-        return (false, null);
+        string result = await GetName(svid);
+        return result is not null ? (true, result) : (false, null);
     }
 
-    public static async Task<bool> TestSVID(string svid)
-    {
-        if (EntityCache.ContainsKey(svid)) return true;
-
-        if (!(svid.StartsWith('u') || svid.StartsWith('g'))) return true;
-
-        Entity entity = new(svid);
-        string result = await entity.GetNameAsync();
-        if (!result.Contains("Could not find entity"))
-        {
-            await AddEntityCache(svid, result);
-            return true;
-        }
-        return false;
-    }
+    public static async Task<bool> TestSVID(string svid) => (svid.StartsWith('u') || svid.StartsWith('g')) && await Contains(svid);
 
     public static SVIDTypes SVIDToType(string svid)
     {
@@ -131,9 +82,31 @@ public static class Tools
         {
             if (string.Equals(entity.Name, input, StringComparison.OrdinalIgnoreCase))
             {
+                EntityCache.TryAdd(entity.SVID, entity.Name);
                 exact.Add(entity);
             }
             else notExact.Add(entity);
+        }
+
+        return (exact, notExact);
+    }
+
+    public static async Task<(List<string> exact, List<(string, string)> notExact)> SearchNameToSVIDs(string input)
+    {
+        List<string> exact = new();
+        List<(string name, string svid)> notExact = new();
+
+        Stream response = await client.GetStreamAsync($"https://api.spookvooper.com/Entity/Search?name={input}");
+        SearchReturn[] entities = await JsonSerializer.DeserializeAsync<SearchReturn[]>(response);
+
+        foreach (SearchReturn entity in entities)
+        {
+            if (string.Equals(entity.Name, input, StringComparison.OrdinalIgnoreCase))
+            {
+                EntityCache.TryAdd(entity.SVID, entity.Name);
+                exact.Add(entity.SVID);
+            }
+            else notExact.Add((entity.Name, entity.SVID));
         }
 
         return (exact, notExact);
@@ -169,19 +142,15 @@ public static class Tools
         SVID
     }
 
-    public class SearchReturn : BasicEntity
-    {
-        [JsonPropertyName("image_Url")]
-        public string Pfp { get; set; }
-        [JsonPropertyName("credits")]
-        public decimal Credits { get; set; }
-    }
-
-    public class BasicEntity
+    public class SearchReturn
     {
         [JsonPropertyName("id")]
         public string SVID { get; set; }
         [JsonPropertyName("name")]
         public string Name { get; set; }
+        [JsonPropertyName("image_Url")]
+        public string Pfp { get; set; }
+        [JsonPropertyName("credits")]
+        public decimal Credits { get; set; }
     }
 }

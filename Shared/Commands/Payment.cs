@@ -8,14 +8,14 @@ using static Shared.Main;
 using static Shared.Tools;
 using static Shared.Commands.Balance;
 using static Shared.Commands.Shared;
-using static Shared.Main;
+using static Shared.Cache;
 
 namespace Shared.Commands;
 public static class Payment
 {
     public static async Task<string> PayAll(decimal amount, string from, string to, string token)
     {
-        string toSVID;
+        string toSVID = null;
         string toName;
 
         if (string.IsNullOrWhiteSpace(to)) return null;
@@ -27,28 +27,16 @@ public static class Payment
         if (toIsSVID) toSVID = to;
         else
         {
-            var cache = EntityCache.Where(x => x.Value == to);
-            int count = cache.Count();
-            if (count != 0 && count == 1)
-            {
-                var entity = cache.First();
-                toSVID = entity.Key;
-                toName = entity.Value;
-            }
-            else if (count != 0) return await NameError(cache.Select(x => x.Key), to);
+            (List<string> exact, List<(string _, string svid)> nonExact) = await GetSVIDs(to);
 
-            // Get From Server
-            (var exact, var notExact) = await SearchName(to);
-
-            if (!exact.Any()) return NoExactsMessage(to, notExact);
-            else if (exact.Count == 1)
+            int count = exact.Count;
+            if (count == 1)
             {
-                var entity = exact.First();
-                toSVID = entity.SVID;
-                toName = entity.Name;
-                AddEntityCache(toSVID, toName);
+                var entity = exact.Single();
+                toSVID = entity;
+                toName = to;
             }
-            else return await NameError(exact.Select(x => x.SVID), to);
+            else if (count != 0) return await NameError(nonExact.Select(x => x.svid), to);
         }
 
         return await Pay(amount, from, toSVID, fromName, toName, token);
@@ -77,7 +65,7 @@ public static class Payment
         TaskResult results = await fromEntity.SendCreditsAsync(amount, toSVID, $"CocaBot {platform} /pay");
 
         if (results.Succeeded)
-            return $"Successfully sent ¢{amount} from {fromName} to {SVIDTypeToString(toType)} {toName}";
+            return $"Successfully sent ¢{Round(amount)} from {fromName} to {SVIDTypeToString(toType)} {toName}";
         
         return results.Info switch
         {

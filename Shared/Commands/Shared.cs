@@ -6,13 +6,14 @@ using static Shared.Tools;
 namespace Shared.Commands;
 public class Shared
 {
-    public static string NoExactsMessage(string search, IEnumerable<SearchReturn> nonExacts)
-    {
-        if (!nonExacts.Any()) return "This is not a valid name or svid!";
+    public static string NoExactsMessage(string search, IEnumerable<SearchReturn> nonExacts) 
+        => NoExactsMessage(search, nonExacts.Select(x => x.Name));
 
-        IEnumerable<string> names = nonExacts.Select(x => x.Name)
-                                             .OrderBy(x => StringDifference(search, x))
-                                             .Take(5);
+    public static string NoExactsMessage(string search, IEnumerable<string> names)
+    {
+        if (!names.Any()) return "This is not a valid name or svid!";
+
+        names = names.OrderBy(x => StringDifference(search, x)).Take(5);
 
         string NotExactMessage = "This is not a valid name or svid!\nDid you mean?";
 

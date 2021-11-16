@@ -99,7 +99,7 @@ public class Stats : BaseCommandModule
                     await message.RespondAsync(groupEmbed).ConfigureAwait(false);
                     break;
                 case SVIDTypes.User:
-                    SpookVooper.Api.Entities.User user = new(svid);
+                    User user = new(svid);
                     UserSnapshot userSnapshot = await user.GetSnapshotAsync();
                     string userName = await user.GetNameAsync();
                     string discordId = userSnapshot.DiscordID != null ? userSnapshot.DiscordID.ToString() : "none";
