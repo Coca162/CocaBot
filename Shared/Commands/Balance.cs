@@ -1,4 +1,4 @@
-﻿using SpookVooper.Api.Entities;
+using SpookVooper.Api.Entities;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,7 +12,7 @@ public static class Balance
     public static async Task<string> BalanceAll(string input)
     {
         (bool isSVID, string name) = await TryName(input);
-        if (isSVID) return await BalanceMessage(name, input);
+        if (isSVID) return await BalanceMessage(SVIDToType(input), name, input);
 
         var search = await SearchName(input);
 
@@ -23,21 +23,21 @@ public static class Balance
         foreach (var item in search.Item1)
         {
             msg += "\n" + BalanceMessage(item);
-}
+        }
         return msg[..^1];
     }
 
     public static async Task<string> BalanceMessage(string svid)
     {
         Entity entity = new(svid);
-        return BalanceMessage(await GetName(entity), (await entity.GetBalanceAsync()).Data);
+        return BalanceMessage(SVIDToType(svid), await GetName(entity), (await entity.GetBalanceAsync()).Data);
     }
 
-    public static string BalanceMessage(SearchReturn entity) => BalanceMessage(entity.Name, entity.Credits);
+    public static string BalanceMessage(SearchReturn entity) => BalanceMessage(SVIDToType(entity.SVID), entity.Name, entity.Credits);
 
-    public static async Task<string> BalanceMessage(string name, string svid) => BalanceMessage(name, (await new Entity(svid).GetBalanceAsync()).Data);
+    public static async Task<string> BalanceMessage(SVIDTypes type, string name, string svid) => BalanceMessage(type, name, (await new Entity(svid).GetBalanceAsync()).Data);
 
-    private static string BalanceMessage(string name, decimal credits) => $"{name}'s Balance: ¢{Round(credits)}";
+    private static string BalanceMessage(SVIDTypes type, string name, decimal credits) => $"{name} ({type})'s Balance: ¢{Round(credits)}";
 
     public static string Round(decimal credits) => string.Format("{0:n2}", Math.Round(credits, 2, MidpointRounding.ToZero));
 }
