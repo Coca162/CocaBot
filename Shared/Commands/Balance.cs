@@ -23,7 +23,7 @@ public static class Balance
         foreach (var item in search.Item1)
         {
             msg += "\n" + BalanceMessage(item);
-}
+        }
         return msg[..^1];
     }
 

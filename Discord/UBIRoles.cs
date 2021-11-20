@@ -24,7 +24,6 @@ public static class UBIRoles
             }
             catch
             {
-
                 // wait 5s before trying again
                 Console.WriteLine("Jacob did a stupid! ubi.vtech.cf is down!");
                 await Task.Delay(5000);

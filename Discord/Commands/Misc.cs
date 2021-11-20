@@ -35,8 +35,9 @@ public class Misc : BaseCommandModule
     [Description("Kills the bot incase of a emergency. Coca only command for obiovus reasons!")]
     public async Task Kill(CommandContext ctx)
     {
+        if (ctx.User.Id != 388454632835514380) return;
         ctx.RespondAsync("Goodbye world...");
-        if (ctx.User.Id == 388454632835514380) Environment.Exit(666);
+        Environment.Exit(666);
     }
 
     [Command("uptime")]
