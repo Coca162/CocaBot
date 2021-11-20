@@ -49,7 +49,7 @@ public static class Program
 
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddEntityFrameworkMySql();
+        builder.Services.AddCors();
         builder.Services.AddDistributedMemoryCache();
         builder.Services.AddDbContextPool<CocaBotWebContext>((serviceProvider, options) =>
         {
@@ -71,6 +71,13 @@ public static class Program
         {
             app.UseDeveloperExceptionPage();
         }
+
+        // global cors policy
+        app.UseCors(x => x
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .SetIsOriginAllowed(origin => true) // allow any origin
+            .AllowCredentials()); // allow credentials
 
         app.UseStaticFiles();
 
