@@ -8,22 +8,27 @@ using System.Linq;
 using Shared.Models;
 
 namespace Discord.Commands;
+
+[Group("register")]
 public class Connectivity : BaseCommandModule
 {
     private static Random random = new();
     private const string chars = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890-_~";
     public CocaBotWebContext db { private get; set; }
 
-    [Command("register"), Aliases("reg", "login")]
+    [GroupCommand, Aliases("reg", "login")]
     [Description("Gives link for linking your SV account to your discord account")]
-    public async Task Register(CommandContext ctx)
+    public async Task Register(CommandContext ctx) => Sudo(ctx, ctx.Member);
+
+    [Command("sudo"), Description("Executes a command as another user."), Hidden, DevOnly]
+    public async Task Sudo(CommandContext ctx, [Description("Member to execute as.")] DiscordMember member)
     {
         string key = new(Enumerable.Repeat(chars, 20).Select(s => s[random.Next(s.Length)]).ToArray());
 
         DiscordDmChannel dms;
         try
         {
-            dms = await ctx.Member.CreateDmChannelAsync();
+            dms = await member.CreateDmChannelAsync();
         }
         catch (NullReferenceException)
         {
@@ -41,12 +46,12 @@ public class Connectivity : BaseCommandModule
         }
         await ctx.RespondAsync("Look at your DM!");
 
-        Register register = db.Registers.Where(x => x.Discord == ctx.User.Id).SingleOrDefault();
+        Register register = db.Registers.Where(x => x.Discord == member.Id).SingleOrDefault();
         if (register != null) db.Registers.Remove(register);
 
         register = new();
         register.VerifKey = key;
-        register.Discord = ctx.User.Id;
+        register.Discord = member.Id;
 
         await db.Registers.AddAsync(register);
         await db.SaveChangesAsync();
