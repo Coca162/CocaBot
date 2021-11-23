@@ -30,7 +30,7 @@ static async void HandleTransaction(Transaction transaction)
         Force = transaction.Force,
         Success = transaction.Result.Succeeded,
         Tax = transaction.Tax,
-        Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+        Timestamp = transaction.Timestamp
     };
 
     await db.Transactions.AddAsync(dBTransaction);
