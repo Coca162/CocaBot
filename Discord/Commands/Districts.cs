@@ -46,6 +46,7 @@ public class Districts : BaseCommandModule
                 sv.GetRole(840303044037836870), //Old King Peninsula
                 sv.GetRole(840303026979864617), //Avalon
                 sv.GetRole(840303020855918602), //Novastella
+                sv.GetRole(840303037162455090), //Thesonica
             };
         }
 
