@@ -7,12 +7,14 @@ namespace Discord;
 class Program
 {
     public static bool prod;
+    public static string UBIKey;
 
     public static async Task Main(string[] args)
     {
         DiscordConfig config = await GetConfig<DiscordConfig>();
         prod = config.Production;
-        if (config.Production) LoadSVIDNameCache();
+        UBIKey = config.JacobUBIKey;
+        if (prod) LoadSVIDNameCache();
         platform = Platform.Discord;
 
         await Bot.RunAsync(config);

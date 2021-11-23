@@ -14,15 +14,15 @@ public static class Balance
         (bool isSVID, string name) = await TryName(input);
         if (isSVID) return await BalanceMessage(name, input);
 
-        var search = await SearchName(input);
+        var (exact, nonExact) = await GetBalance(input);
 
-        if (!search.Item1.Any()) return NoExactsMessage(input, search.Item2);
-        if (search.Item1.Count == 1) return BalanceMessage(search.Item1.First());
+        if (!exact.Any()) return NoExactsMessage(input, nonExact.Select(x => x.name));
+        else if (exact.Count == 1) return BalanceMessage(input, exact.First().balance);
 
-        string msg = $"{search.Item1.First().Name} Balances:";
-        foreach (var item in search.Item1)
+        string msg = $"{input} Balances:";
+        foreach ((string _, decimal balance) in exact)
         {
-            msg += "\n" + BalanceMessage(item);
+            msg += "\n" + BalanceMessage(input, balance);
         }
         return msg[..^1];
     }
@@ -30,10 +30,10 @@ public static class Balance
     public static async Task<string> BalanceMessage(string svid)
     {
         Entity entity = new(svid);
-        return BalanceMessage(await GetName(entity), (await entity.GetBalanceAsync()).Data);
+        return BalanceMessage(await GetName(entity.Id), (await entity.GetBalanceAsync()).Data);
     }
 
-    public static string BalanceMessage(SearchReturn entity) => BalanceMessage(entity.Name, entity.Credits);
+    public static string BalanceMessage((string name, decimal balance) user) => BalanceMessage(user.name, user.balance);
 
     public static async Task<string> BalanceMessage(string name, string svid) => BalanceMessage(name, (await new Entity(svid).GetBalanceAsync()).Data);
 

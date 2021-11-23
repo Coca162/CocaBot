@@ -29,7 +29,7 @@ public class TimedEvents
     private static DiscordChannel WeeklyChannel;
     private static DiscordChannel DailyChannel;
 
-    public static async Task SetTimer(DiscordConfig ConfigJson)
+    public static async Task SetTimer()
     {
         CBTChannel = await Client.GetChannelAsync(894634546824376391);
         //ServerChannel = await Client.GetChannelAsync(896605140428128296);
@@ -40,13 +40,13 @@ public class TimedEvents
         string svid = "u-e1616412-c384-4b00-b443-b8940423df67";
         coca = new(svid, db.Users.Find(svid).Token + "|" + config.OauthSecret);
 
-        await OnTimedEvent(ConfigJson.JacobUBIKey);
+        await OnTimedEvent();
         // Hook up the Elapsed event for the timer. 
-        timer.Elapsed += async (object source, ElapsedEventArgs e) => await OnTimedEvent(ConfigJson.JacobUBIKey);
+        timer.Elapsed += async (object source, ElapsedEventArgs e) => await OnTimedEvent();
         timer.Enabled = true;
     }
 
-    private static async Task OnTimedEvent(string UBIKey)
+    private static async Task OnTimedEvent()
     {
         CocaBotContext db = new();
 
@@ -56,7 +56,7 @@ public class TimedEvents
 
         if (UBIRoleCheck)
         {
-            UBIRoles.UpdateHourly(UBIKey);
+            UBIRoles.UpdateHourly();
             UBIRoleCheck = false;
         }
         else UBIRoleCheck = true;

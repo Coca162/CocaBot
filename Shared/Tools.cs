@@ -82,7 +82,7 @@ public static class Tools
         {
             if (string.Equals(entity.Name, input, StringComparison.OrdinalIgnoreCase))
             {
-                EntityCache.TryAdd(entity.SVID, entity.Name);
+                EntityCache.TryAdd(entity.SVID, (entity.Name, entity.Credits));
                 exact.Add(entity);
             }
             else notExact.Add(entity);
@@ -103,8 +103,29 @@ public static class Tools
         {
             if (string.Equals(entity.Name, input, StringComparison.OrdinalIgnoreCase))
             {
-                EntityCache.TryAdd(entity.SVID, entity.Name);
+                EntityCache.TryAdd(entity.SVID, (entity.Name, entity.Credits));
                 exact.Add(entity.SVID);
+            }
+            else notExact.Add((entity.Name, entity.SVID));
+        }
+
+        return (exact, notExact);
+    }
+
+    public static async Task<(List<(string svid, decimal balance)>, List<(string, string)> notExact)> SearchNameToBalances(string input)
+    {
+        List<(string svid, decimal balance)> exact = new();
+        List<(string name, string svid)> notExact = new();
+
+        Stream response = await client.GetStreamAsync($"https://api.spookvooper.com/Entity/Search?name={input}");
+        SearchReturn[] entities = await JsonSerializer.DeserializeAsync<SearchReturn[]>(response);
+
+        foreach (SearchReturn entity in entities)
+        {
+            if (string.Equals(entity.Name, input, StringComparison.OrdinalIgnoreCase))
+            {
+                EntityCache.TryAdd(entity.SVID, (entity.Name, entity.Credits));
+                exact.Add((entity.SVID, entity.Credits));
             }
             else notExact.Add((entity.Name, entity.SVID));
         }

@@ -8,10 +8,11 @@ using System.Threading.Tasks;
 using static SpookVooper.Api.SpookVooperAPI;
 using Discord;
 using static Discord.Bot;
+using static Discord.Program;
 
 public static class UBIRoles
 {
-    public static async Task UpdateHourly(string UBIKey)
+    public static async Task UpdateHourly()
     {
         JacobHourlyUserData data = null;
 

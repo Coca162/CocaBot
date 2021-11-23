@@ -9,6 +9,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using static Shared.Cache;
+using SpookVooper.Api.Economy;
 
 namespace Shared;
 public class Main
@@ -45,12 +46,13 @@ public class Main
                                     .Distinct()
                                     .Take(100);
 
-        foreach (var svid in people)
-        {
-            string name = await SpookVooper.Api.SpookVooperAPI.GetData($"Entity/GetName?svid={svid}");
+        // Create transaction hub object
+        TransactionHub tHub = new();
 
-            await AddEntityCache(svid, name);
-        }
+        // Hook transaction event to method
+        tHub.OnTransaction += (Transaction transaction) => BalanceUpdater(transaction);
+
+        foreach (var svid in people) AddEntityCache(svid);
 
         Console.WriteLine("Cache loaded");
     }

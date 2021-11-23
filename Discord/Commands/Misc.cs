@@ -31,6 +31,14 @@ public class Misc : BaseCommandModule
     [Description("pong!")]
     public async Task Ping(CommandContext ctx) => ctx.RespondAsync(ctx.Client.Ping.ToString() + " ms");
 
+    [Command("reset"), DevOnly]
+    [Description("Reset Eco Cache")]
+    public async Task Reset(CommandContext ctx)
+    {
+        await Shared.Cache.RefreshCacheBalances();
+        ctx.RespondAsync("Eco Cache Reset!");
+    }
+
     [Command("kill"), Hidden()]
     [Description("Kills the bot incase of a emergency. Coca only command for obiovus reasons!")]
     public async Task Kill(CommandContext ctx)

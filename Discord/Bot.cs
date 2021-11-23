@@ -48,19 +48,16 @@ public class Bot
                 ServiceWrapper wrapper = new();
                 if (prod)
                 {
-                    _ = Task.Run(async () =>
-                    {
-                        wrapper._ServiceWrapper(Client);
-                    });
-                    await SetTimer(ConfigJson);
+                    _ = Task.Run(() => wrapper._ServiceWrapper(Client));
+                    await SetTimer();
                 }
             });
         };
 
         Client.MessageCreated += async (s, e) => HandleMessage(ConfigJson.JacobUBIKey, e);
 
-        Client.MessageReactionAdded += async (s, e) => HandleMessageAddReaction(ConfigJson.JacobUBIKey, e);
-        Client.MessageReactionRemoved += async (s, e) => HandleMessageRemoveReaction(ConfigJson.JacobUBIKey, e);
+        //Client.MessageReactionAdded += async (s, e) => HandleMessageAddReaction(ConfigJson.JacobUBIKey, e);
+        //Client.MessageReactionRemoved += async (s, e) => HandleMessageRemoveReaction(ConfigJson.JacobUBIKey, e);
 
         CommandsNextConfiguration commandsConfig = new()
         {
@@ -80,19 +77,19 @@ public class Bot
         await Client.ConnectAsync();
     }
 
-    private static async Task HandleMessageRemoveReaction(string ubiKey, MessageReactionRemoveEventArgs e)
-    {
-        if (!prod || e.User.IsBot || e.Guild.Id != 798307000206360588 || e.Message.Author is null || e.User.Id == e.Message.Author.Id || e.Emoji.Name != "⭐") return;
+    //private static async Task HandleMessageRemoveReaction(string ubiKey, MessageReactionRemoveEventArgs e)
+    //{
+    //    if (!prod || e.User.IsBot || e.Guild.Id != 798307000206360588 || e.Message.Author is null || e.User.Id == e.Message.Author.Id || e.Emoji.Name != "⭐") return;
 
-        GetData($"https://ubi.vtech.cf/remove_star?id={e.Message.Author.Id}&key={ubiKey}");
-    }
+    //    GetData($"https://ubi.vtech.cf/remove_star?id={e.Message.Author.Id}&key={ubiKey}");
+    //}
 
-    private static async Task HandleMessageAddReaction(string ubiKey, MessageReactionAddEventArgs e)
-    {
-        if (!prod || e.User.IsBot || e.Guild.Id != 798307000206360588 || e.Message.Author is null || e.User.Id == e.Message.Author.Id || e.Emoji.Name != "⭐") return;
+    //private static async Task HandleMessageAddReaction(string ubiKey, MessageReactionAddEventArgs e)
+    //{
+    //    if (!prod || e.User.IsBot || e.Guild.Id != 798307000206360588 || e.Message.Author is null || e.User.Id == e.Message.Author.Id || e.Emoji.Name != "⭐") return;
 
-        GetData($"https://ubi.vtech.cf/new_star?id={e.Message.Author.Id}&key={ubiKey}");
-    }
+    //    GetData($"https://ubi.vtech.cf/new_star?id={e.Message.Author.Id}&key={ubiKey}");
+    //}
 
     private static async Task HandleMessage(string ubiKey, MessageCreateEventArgs e)
     {
