@@ -8,6 +8,9 @@ using static Shared.Commands.Balance;
 using System.Text.Json.Serialization;
 using static SpookVooper.Api.SpookVooperAPI;
 using System.Collections.Generic;
+using System;
+using System.Linq;
+using static Discord.Program;
 
 namespace Discord.Commands;
 public class UBI : BaseCommandModule
@@ -19,9 +22,14 @@ public class UBI : BaseCommandModule
         [JsonPropertyName("Name")]
         public string Name { get; set; }
 
-        // hehe lowercase
-        [JsonPropertyName("value")]
-        public string value { get; set; }
+        [JsonPropertyName("xp")]
+        public int XP { get; set; }
+
+        [JsonPropertyName("messages")]
+        public int Messages { get; set; }
+
+        [JsonPropertyName("messagexp")]
+        public int MessageXP { get; set; }
     }
 
     public class JacobUBILeaderboardData
@@ -37,6 +45,8 @@ public class UBI : BaseCommandModule
 
         [JsonPropertyName("Messages Sent")]
         public int MessagesSent { get; set; }
+        [JsonPropertyName("messagexp")]
+        public int MessageXP { get; set; }
 
         [JsonPropertyName("Current Rank")]
         public string CurrentRank { get; set; }
@@ -90,45 +100,92 @@ public class UBI : BaseCommandModule
     [Command("leaderboard"), Aliases("lb"), GeneralBlacklist()]
     public async Task LBString(CommandContext ctx)
     {
-
         JacobUBILeaderboardData data = await GetDataFromJson<JacobUBILeaderboardData>($"https://ubi.vtech.cf/api/leaderboard");
 
-        DiscordEmbedBuilder embed = new();
-
-        embed.Title = "Leaderboard";
-        embed.Description = "[Full List](https://ubi.vtech.cf/leaderboard)";
+        DiscordEmbedBuilder embed = new()
+        {
+            Title = "Leaderboard",
+            Description = "[Full List](https://ubi.vtech.cf/leaderboard)",
+            Color = new DiscordColor("2CC26C")
+        };
 
         foreach(JacobUBILeaderboardItem item in data.Users)
         {
-            embed.AddField(item.Name, item.value);
+            embed.AddField(item.Name, $"{item.XP} XP ({CalculateRatio(item.MessageXP, item.Messages)} : 1)");
         }
 
         ctx.RespondAsync(embed);
     }
 
-    [Command("xp")]
-    [Priority(1)]
-    public async Task XPString(CommandContext ctx, DiscordUser user)
+
+    [Group("xp")]
+    public class XP : BaseCommandModule
     {
+        [GroupCommand, Priority(1), Description("Get's xp"), Aliases("do")]
+        public async Task XPString(CommandContext ctx, DiscordUser user)
+        {
+            JacobUBIXPData data = await GetDataFromJson<JacobUBIXPData>($"https://ubi.vtech.cf/get_xp_info?id={user.Id}");
 
-        JacobUBIXPData data = await GetDataFromJson<JacobUBIXPData>($"https://ubi.vtech.cf/get_xp_info?id={user.Id}");
+            LeaderboardUserGet ratioData = await GetDataFromJson<LeaderboardUserGet>($"https://ubi.vtech.cf/api/leaderboard/getuser?id={user.Id}");
 
-        DiscordEmbedBuilder Embed = new();
+            decimal ratioMessagesRounded = CalculateRatio(ratioData.User.MessageXP, ratioData.User.Messages);
 
-        Embed.Title = $"{user.Username}'s xp";
+            DiscordEmbedBuilder embed = new()
+            {
+                Title = $"{data.XP} XP (Rank {ratioData.Ranking} {data.CurrentRank})",
+                Color = new DiscordColor("2CC26C")
+            };
 
-        Embed.AddField("XP", data.XP.ToString());
-        Embed.AddField("Messages Sent", data.MessagesSent.ToString());
-        Embed.AddField("Current Rank", data.CurrentRank);
-        Embed.AddField("Daily UBI", $"¢{data.DailyUBI}");
+            embed.AddField("Messages", $"{data.MessagesSent}");
+            embed.AddField("XP To Message", $"{ratioMessagesRounded} : 1");
+            embed.AddField("Daily UBI", $"¢{data.DailyUBI}");
 
-        ctx.RespondAsync(Embed);
+            ctx.RespondAsync(embed);
+        }
+
+        [GroupCommand, Priority(0)]
+        public async Task XPString(CommandContext ctx) => XPString(ctx, ctx.User);
+
+        //[Command("avarage"), Description("Get the avarages for xp data")]
+        //public async Task XPAvarage(CommandContext ctx)
+        //{
+        //    var ids = (await GetDataFromJson<JacobHourlyUserData>($"https://ubi.vtech.cf/all_user_data?key={UBIKey}")).Users.Select(x => x.Id);
+        //    var everyone = ids.Select(x => );
+
+        //    DiscordEmbedBuilder embed = new()
+        //    {
+        //        Title = $"Avarage of {ids.Count} People",
+        //        Color = new DiscordColor("2CC26C")
+        //    };
+
+        //    embed.AddField("XP", $"{data.MessagesSent}");
+        //    embed.AddField("Messages", $"{data.MessagesSent}");
+        //    embed.AddField("XP To Message", $"{ratioMessagesRounded}%");
+        //    embed.AddField("Daily UBI", $"¢{data.DailyUBI}");
+
+        //}
     }
 
-    [Command("xp")]
-    [Priority(0)]
-    public async Task XPString(CommandContext ctx)
+    private static decimal CalculateRatio(int messageXP, int messages)
     {
-        XPString(ctx, ctx.User);
+#pragma warning disable IDE0004
+        decimal Ratio_Messages = (decimal)(messages) / (decimal)(messageXP);
+#pragma warning restore IDE0004
+        decimal multiplier = (decimal)Math.Pow(10, Convert.ToDouble(2));
+        decimal ratioMessagesRounded = Math.Ceiling(Ratio_Messages * multiplier) / multiplier;
+        return ratioMessagesRounded;
+    }
+
+    public static double Median<T>(IEnumerable<T> source)
+    {
+        int count = source.Count();
+
+        source = source.OrderBy(n => n);
+
+        int midpoint = count / 2;
+        if (count % 2 == 0)
+            return (Convert.ToDouble(source.ElementAt(midpoint - 1)) + Convert.ToDouble(source.ElementAt(midpoint))) / 2.0;
+        else
+            return Convert.ToDouble(source.ElementAt(midpoint));
     }
 }
