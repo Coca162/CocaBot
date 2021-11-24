@@ -111,7 +111,7 @@ public class UBI : BaseCommandModule
 
         foreach(JacobUBILeaderboardItem item in data.Users)
         {
-            embed.AddField(item.Name, $"{item.XP} XP ({CalculateRatio(item.MessageXP, item.Messages)} : 1)");
+            embed.AddField(item.Name, $"{item.XP} XP (1 : {CalculateRatio(item.MessageXP, item.Messages)})");
         }
 
         ctx.RespondAsync(embed);
@@ -137,7 +137,7 @@ public class UBI : BaseCommandModule
             };
 
             embed.AddField("Messages", $"{data.MessagesSent}");
-            embed.AddField("XP To Message", $"{ratioMessagesRounded} : 1");
+            embed.AddField("Message To XP Ratio", $"1 : {ratioMessagesRounded}");
             embed.AddField("Daily UBI", $"¢{data.DailyUBI}");
 
             ctx.RespondAsync(embed);
@@ -169,7 +169,7 @@ public class UBI : BaseCommandModule
     private static decimal CalculateRatio(int messageXP, int messages)
     {
 #pragma warning disable IDE0004
-        decimal Ratio_Messages = (decimal)(messages) / (decimal)(messageXP);
+        decimal Ratio_Messages = (decimal)(messageXP) / (decimal)(messages);
 #pragma warning restore IDE0004
         decimal multiplier = (decimal)Math.Pow(10, Convert.ToDouble(2));
         decimal ratioMessagesRounded = Math.Ceiling(Ratio_Messages * multiplier) / multiplier;
