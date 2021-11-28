@@ -57,16 +57,18 @@ public class Districts : BaseCommandModule
         };
 
         var members = await sv.GetAllMembersAsync();
+
         IOrderedEnumerable<(string Name, int Count)> fields = 
             districts.Select(role => (role.Name, members.Where(X => X.Roles.Contains(role)).Count()))
                      .OrderByDescending(x => x.Item2);
 
         int i = 0;
+        int realI = 0;
         int count = 0;
         foreach (var (Name, Count) in fields) 
         {
-            if (count != Count)
-                i++;
+            realI++;
+            if (count != Count) i = realI;
             count = Count;
 
             embed.AddField($"{i}. {Name}", Count.ToString());

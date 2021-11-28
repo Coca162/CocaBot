@@ -11,7 +11,7 @@ public class Shared
 
     public static string NoExactsMessage(string search, IEnumerable<string> names)
     {
-        if (!names.Any()) return "This is not a valid name or svid!";
+        if (names is null || !names.Any()) return "This is not a valid name or svid!";
 
         names = names.OrderBy(x => StringDifference(search, x)).Take(5);
 

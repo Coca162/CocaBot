@@ -42,32 +42,23 @@ public static class Cache
         AddEntityCache(entity, name);
     }
 
-    public static async Task AddEntityCache(string svid, string name) => AddEntityCache(new Entity(svid), name);
+    public static void AddEntityCache(string svid, string name) => AddEntityCache(new Entity(svid), name);
 
-    public static async Task AddEntityCache(Entity entity, string name)
+    public static async Task AddEntityCache(Entity entity, string name) => AddEntityCache(entity, name, (await entity.GetBalanceAsync()).Data);
+
+    public static async Task AddEntityCache(Entity entity, string name, decimal balance)
     {
-        EntityCache.TryAdd(entity.Id, (name, (await entity.GetBalanceAsync()).Data));
+        EntityCache.TryAdd(entity.Id, (name, balance));
 
         SVIDTypes type = SVIDToType(entity.Id);
-        if (type == SVIDTypes.User)
-        {
-            var alt = await GetData($"group/GetSVIDFromName?name={name}");
+        string alt = "";
+        if (type == SVIDTypes.User) alt = await GetData($"group/GetSVIDFromName?name={name}");
+        else if (type == SVIDTypes.Group) alt = await GetData($"user/GetSVIDFromUsername?username={name}");
 
-            if (!alt.StartsWith("HTTP E"))
-            {
-                Entity altEntitiy = new(alt);
-                EntityCache.TryAdd(alt, (name, (await altEntitiy.GetBalanceAsync()).Data));
-            }
-        }
-        else if (type == SVIDTypes.Group)
+        if (!alt.StartsWith("HTTP E"))
         {
-            var alt = await GetData($"user/GetSVIDFromUsername?username={name}");
-
-            if (!alt.StartsWith("HTTP E"))
-            {
-                Entity altEntitiy = new(alt);
-                EntityCache.TryAdd(alt, (name, (await altEntitiy.GetBalanceAsync()).Data));
-            }
+            Entity altEntitiy = new(alt);
+            EntityCache.TryAdd(alt, (name, (await altEntitiy.GetBalanceAsync()).Data));
         }
     }
 
@@ -80,10 +71,26 @@ public static class Cache
         return !cache.Any() ? await SearchNameToSVIDs(name) : (cache.ToList(), new List<(string name, string svid)>());
     }
 
-    public static async Task<(List<(string svid, decimal balance)> exact, List<(string name, string svid)> nonExact)> GetBalance(string name)
+    public static async Task<(List<(string svid, decimal balance)> exact, List<(string name, string svid)> nonExact)> NameToBalance(string name)
     {
         var cache = EntityCache.Where(x => string.Equals(x.Value.Name, name, StringComparison.OrdinalIgnoreCase)).Select(x => (x.Key, x.Value.Balance));
         return !cache.Any() ? await SearchNameToBalances(name) : (cache.ToList(), new List<(string name, string svid)>());
+    }
+
+    public static async Task<(string name, decimal balance)> GetBalance(string svid)
+    {
+        if (!EntityCache.TryGetValue(svid, out var values))
+        {
+            Entity entity = new(svid);
+            var result = await entity.GetBalanceAsync();
+            if (result.Succeeded)
+            {
+                var name = await entity.GetNameAsync();
+                values = (name, result.Data);
+                AddEntityCache(entity, name, result.Data);
+            }
+        }
+        return values;
     }
 
     public static async Task<string> GetName(string svid)

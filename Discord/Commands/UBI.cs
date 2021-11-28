@@ -45,7 +45,7 @@ public class UBI : BaseCommandModule
 
         [JsonPropertyName("Messages Sent")]
         public int MessagesSent { get; set; }
-        [JsonPropertyName("messagexp")]
+        [JsonPropertyName("Message Xp")]
         public int MessageXP { get; set; }
 
         [JsonPropertyName("Current Rank")]
@@ -111,33 +111,31 @@ public class UBI : BaseCommandModule
 
         foreach(JacobUBILeaderboardItem item in data.Users)
         {
-            embed.AddField(item.Name, $"{item.XP} XP (1 : {CalculateRatio(item.MessageXP, item.Messages)})");
+            embed.AddField(item.Name, $"{item.XP} XP (1 : {Math.Round(CalculateRatio(item.MessageXP, item.Messages), 2)})");
         }
 
         ctx.RespondAsync(embed);
     }
 
 
-    [Group("xp")]
+    [Group("xp"), Description("Get's xp"), Aliases("do")]
     public class XP : BaseCommandModule
     {
-        [GroupCommand, Priority(1), Description("Get's xp"), Aliases("do")]
+        [GroupCommand, Priority(1)]
         public async Task XPString(CommandContext ctx, DiscordUser user)
         {
             JacobUBIXPData data = await GetDataFromJson<JacobUBIXPData>($"https://ubi.vtech.cf/get_xp_info?id={user.Id}");
 
-            LeaderboardUserGet ratioData = await GetDataFromJson<LeaderboardUserGet>($"https://ubi.vtech.cf/api/leaderboard/getuser?id={user.Id}");
-
-            decimal ratioMessagesRounded = CalculateRatio(ratioData.User.MessageXP, ratioData.User.Messages);
+            int ranking = (await GetDataFromJson<LeaderboardUserGet>($"https://ubi.vtech.cf/api/leaderboard/getuser?id={user.Id}")).Ranking;
 
             DiscordEmbedBuilder embed = new()
             {
-                Title = $"{data.XP} XP (Rank {ratioData.Ranking} {data.CurrentRank})",
+                Title = $"{data.XP} XP (Rank {ranking} {data.CurrentRank})",
                 Color = new DiscordColor("2CC26C")
             };
 
             embed.AddField("Messages", $"{data.MessagesSent}");
-            embed.AddField("Message To XP Ratio", $"1 : {ratioMessagesRounded}");
+            embed.AddField("Message To XP Ratio", $"1 : {Math.Round(CalculateRatio(data.MessageXP, data.MessagesSent), 2)}");
             embed.AddField("Daily UBI", $"¢{data.DailyUBI}");
 
             ctx.RespondAsync(embed);
@@ -146,35 +144,30 @@ public class UBI : BaseCommandModule
         [GroupCommand, Priority(0)]
         public async Task XPString(CommandContext ctx) => XPString(ctx, ctx.User);
 
-        //[Command("avarage"), Description("Get the avarages for xp data")]
-        //public async Task XPAvarage(CommandContext ctx)
-        //{
-        //    var ids = (await GetDataFromJson<JacobHourlyUserData>($"https://ubi.vtech.cf/all_user_data?key={UBIKey}")).Users.Select(x => x.Id);
-        //    var everyone = ids.Select(x => );
+        [Command("average"), Description("Get the averages for xp data")]
+        public async Task XPAvarage(CommandContext ctx)
+        {
+            var everyone = (await GetDataFromJson<JacobHourlyUserData>($"https://ubi.vtech.cf/all_user_data?key={UBIKey}")).Users;
 
-        //    DiscordEmbedBuilder embed = new()
-        //    {
-        //        Title = $"Avarage of {ids.Count} People",
-        //        Color = new DiscordColor("2CC26C")
-        //    };
+            DiscordEmbedBuilder embed = new()
+            {
+                Title = $"Average of {everyone.Count} People",
+                Color = new DiscordColor("2CC26C")
+            };
 
-        //    embed.AddField("XP", $"{data.MessagesSent}");
-        //    embed.AddField("Messages", $"{data.MessagesSent}");
-        //    embed.AddField("XP To Message", $"{ratioMessagesRounded}%");
-        //    embed.AddField("Daily UBI", $"¢{data.DailyUBI}");
-
-        //}
+            embed.AddField("XP", $"{Math.Round(everyone.Average(x => x.Xp))}");
+            embed.AddField("Messages", $"{Math.Round(everyone.Average(x => x.Messages))}");
+            embed.AddField("XP To Message", $"1 : {Math.Round(everyone.Average(x => CalculateRatio(x.MessageXp, x.Messages)), 2)}");
+            embed.AddField("Daily UBI", $"¢{Math.Round(everyone.Average(x => x.DailyUBI), 2)}");
+            
+            ctx.RespondAsync(embed);
+        }
     }
 
-    private static decimal CalculateRatio(int messageXP, int messages)
-    {
+    private static decimal CalculateRatio(int messageXP, int messages) =>
 #pragma warning disable IDE0004
-        decimal Ratio_Messages = (decimal)(messageXP) / (decimal)(messages);
+        (decimal)(messageXP) / (decimal)(messages + 1);
 #pragma warning restore IDE0004
-        decimal multiplier = (decimal)Math.Pow(10, Convert.ToDouble(2));
-        decimal ratioMessagesRounded = Math.Ceiling(Ratio_Messages * multiplier) / multiplier;
-        return ratioMessagesRounded;
-    }
 
     public static double Median<T>(IEnumerable<T> source)
     {

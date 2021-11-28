@@ -91,6 +91,18 @@ public class JacobHourlyUser
 
     [JsonPropertyName("Rank")]
     public string Rank { get; set; }
+
+    [JsonPropertyName("Xp")]
+    public int Xp { get; set; }
+
+    [JsonPropertyName("Message Xp")]
+    public int MessageXp { get; set; }
+
+    [JsonPropertyName("Messages")]
+    public int Messages { get; set; }
+
+    [JsonPropertyName("Daily UBI")]
+    public int DailyUBI { get; set; }
 }
 
 public class JacobHourlyUserData
