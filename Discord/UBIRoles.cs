@@ -45,7 +45,16 @@ public static class UBIRoles
 
         foreach (var item in data.Users)
         {
-            DiscordMember member = await server.GetMemberAsync(item.Id);
+            Console.WriteLine(item.Id);
+            DiscordMember member = null;
+            try
+            {
+                member = await server.GetMemberAsync(item.Id);
+            }
+            catch (DSharpPlus.Exceptions.NotFoundException e)
+            {
+                continue;
+            }
 
             if (member == null)
             {
@@ -65,6 +74,7 @@ public static class UBIRoles
                     break;
                 }
 
+                Console.WriteLine(member.DisplayName);
                 if (HasRole) await member.RevokeRoleAsync(RoleToRemove);
                 continue;
             }
@@ -77,7 +87,7 @@ public static class UBIRoles
                 }
 
                 DiscordRole ToHave = SVRoles.Find(x => x.Name == item.Rank);
-
+                Console.WriteLine(member.DisplayName + item.Rank);
                 if (!member.Roles.Contains(ToHave)) await member.GrantRoleAsync(ToHave);
             }
         }
