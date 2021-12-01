@@ -74,7 +74,6 @@ public static class UBIRoles
                     break;
                 }
 
-                Console.WriteLine(member.DisplayName);
                 if (HasRole) await member.RevokeRoleAsync(RoleToRemove);
                 continue;
             }
@@ -87,7 +86,6 @@ public static class UBIRoles
                 }
 
                 DiscordRole ToHave = SVRoles.Find(x => x.Name == item.Rank);
-                Console.WriteLine(member.DisplayName + item.Rank);
                 if (!member.Roles.Contains(ToHave)) await member.GrantRoleAsync(ToHave);
             }
         }
