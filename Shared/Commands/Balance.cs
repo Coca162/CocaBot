@@ -17,12 +17,12 @@ public static class Balance
         var (exact, nonExact) = await NameToBalance(input);
         var first = exact.FirstOrDefault();
         if (first == default) return NoExactsMessage(input, nonExact.Select(x => x.name));
-        else if (exact.Count == 1) return BalanceMessage(first.svid, input, first.balance);
+        else if (exact.Count == 1) return await BalanceMessage(first.svid, first.balance);
 
         string msg = $"{input} Balances:";
         foreach ((string svid, decimal balance) in exact)
         {
-            msg += "\n" + BalanceMessage(svid, input, balance);
+            msg += "\n" + await BalanceMessage(svid, balance);
         }
         return msg[..^1];
     }
@@ -38,14 +38,14 @@ public static class Balance
     public static async Task<string> BalanceMessage(string svid)
     {
         Entity entity = new(svid);
-        return BalanceMessage(svid, await GetName(entity.Id), (await entity.GetBalanceAsync()).Data);
+        return await BalanceMessage(svid, (await entity.GetBalanceAsync()).Data);
     }
 
     public static async Task<string> BalanceMessage(string name, string svid) => 
-        BalanceMessage(svid, name, (await new Entity(svid).GetBalanceAsync()).Data);
+        await BalanceMessage(svid, (await new Entity(svid).GetBalanceAsync()).Data);
 
-    private static string BalanceMessage(string svid, string name, decimal credits) => 
-        $"{SVIDToTypeString(svid)} {name} Balance: ¢{Round(credits)}";
+    private async static Task<string> BalanceMessage(string svid, decimal credits) => 
+        $"{SVIDToTypeString(svid)} {await GetName(svid)} Balance: ¢{Round(credits)}";
 
     public static string Round(decimal credits) => string.Format("{0:n2}", Math.Round(credits, 2, MidpointRounding.ToZero));
 }

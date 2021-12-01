@@ -92,7 +92,6 @@ public static class Program
         {
             if (baseUrl == null) baseUrl = http.Request.Scheme + "://" + http.Request.Host.ToString();
             http.Response.Redirect($"https://spookvooper.com/oauth2/authorize?response_type=code&client_id={config.ClientId}&scope=view,eco&redirect_uri={baseUrl + "/callback"}&state={key}");
-            http.Response.Redirect($"https://spookvooper.com/oauth2/authorize?response_type=code&client_id={config.ClientId}&scope=view,eco&redirect_uri={baseUrl + "/callback"}&state={key}");
         });
 
         app.Map("/callback", async (HttpContext http, HttpClient client, CocaBotWebContext db, string code, string state) =>
@@ -102,7 +101,7 @@ public static class Program
             if (!response.IsSuccessStatusCode) return "Spookvooper no work";
             TokenReturn tokenReturn = await JsonSerializer.DeserializeAsync<TokenReturn>(await response.Content.ReadAsStreamAsync());
 
-            Shared.Models.Register register = await db.Registers.FindAsync(state);
+            Register register = await db.Registers.FindAsync(state);
             if (register == null) return "Discord bot no work";
             Shared.Models.User user = await db.Users.FindAsync(tokenReturn.SVID);
             if (user != null) db.Users.Remove(user);
