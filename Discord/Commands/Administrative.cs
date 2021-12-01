@@ -5,10 +5,23 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
 namespace Discord.Commands;
-public class Sudo : BaseCommandModule
+public class Administrative : BaseCommandModule
 {
+    [Command("leave"), Hidden, RequireOwner, DevOnly, DevModeOnly]
+    public async Task Leave(CommandContext ctx, ulong id)
+    {
+        var guild = await ctx.Client.GetGuildAsync(id);
+        await guild.LeaveAsync();
+    }
+
+    [Command("guilds"), Hidden, RequireOwner, DevOnly, DevModeOnly]
+    public async Task Guilds(CommandContext ctx)
+    {
+        foreach (var item in ctx.Client.Guilds) Console.WriteLine(item.Value.Name + " " + item.Key);
+    }
+
     [Command("sudo"), Description("Executes a command as another user."), Hidden, RequireOwner, DevOnly, DevModeOnly]
-    public async Task Command(CommandContext ctx, 
+    public async Task Sudo(CommandContext ctx, 
         [Description("Member to execute as.")] DiscordMember member, 
         [RemainingText, Description("Command text to execute.")] string command)
     {
