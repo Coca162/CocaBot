@@ -11,4 +11,7 @@ public class ValourConfig : DefaultConfig
     public string Email { get; set; }
     [JsonPropertyName("prefix")]
     public List<string> Prefix { get; set; }
+    [JsonPropertyName("prod")]
+    public bool Production { get; set; }
+
 }

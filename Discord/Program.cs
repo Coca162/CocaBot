@@ -9,7 +9,7 @@ class Program
     public static bool prod;
     public static string UBIKey;
 
-    public static async Task Main(string[] args)
+    public static async Task Main()
     {
         DiscordConfig config = await GetConfig<DiscordConfig>();
         prod = config.Production;
