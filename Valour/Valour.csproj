@@ -6,15 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Humanizer.Core" Version="2.11.10" />
-    <PackageReference Include="Owoify.Net" Version="1.1.0" />
-    <PackageReference Include="Profanity.Detector" Version="0.1.8" />
-    <PackageReference Include="Valour.Net" Version="0.4.0" />
+    <PackageReference Include="Humanizer.Core" Version="2.13.14" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.csproj" />
-    <ProjectReference Include="..\SVAPI\SpookVooper.Api\SpookVooper.Api.csproj" />
+	<ProjectReference Include="..\ValourGit\Valour\API\Valour.Api.csproj" />
+	<ProjectReference Include="..\SVAPI\SpookVooper.Api\SpookVooper.Api.csproj" />
   </ItemGroup>
 
 </Project>

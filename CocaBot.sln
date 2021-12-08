@@ -18,6 +18,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TransactionLogger", "Transa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoanBroker", "LoanBroker\LoanBroker.csproj", "{C2B89EE9-AE7E-4744-8746-3DE7C8636907}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valour.Api", "ValourGit\Valour\API\Valour.Api.csproj", "{46D8A1B9-FF0D-467F-99CC-7F386FAB23A4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valour.Shared", "ValourGit\Valour\Shared\Valour.Shared.csproj", "{2949B0AB-5889-4B38-9C10-EC69DB09A010}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +60,14 @@ Global
 		{C2B89EE9-AE7E-4744-8746-3DE7C8636907}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2B89EE9-AE7E-4744-8746-3DE7C8636907}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C2B89EE9-AE7E-4744-8746-3DE7C8636907}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46D8A1B9-FF0D-467F-99CC-7F386FAB23A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46D8A1B9-FF0D-467F-99CC-7F386FAB23A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46D8A1B9-FF0D-467F-99CC-7F386FAB23A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46D8A1B9-FF0D-467F-99CC-7F386FAB23A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2949B0AB-5889-4B38-9C10-EC69DB09A010}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2949B0AB-5889-4B38-9C10-EC69DB09A010}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2949B0AB-5889-4B38-9C10-EC69DB09A010}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2949B0AB-5889-4B38-9C10-EC69DB09A010}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
