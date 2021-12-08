@@ -1,4 +1,4 @@
-using DSharpPlus.CommandsNext;
+﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using System;
 using System.Threading.Tasks;
@@ -35,9 +35,11 @@ public class Misc : BaseCommandModule
     [Command("search"), GeneralBlacklist]
     public async Task SearchCommand(CommandContext ctx, [RemainingText, Description("A name")] string input) => ctx.RespondAsync(await SearchMessage(input));
 
+    [Command("reset"), Aliases("restart"), DevOnly]
     [Description("Reset Eco Cache")]
     public async Task Reset(CommandContext ctx)
     {
+        await ctx.TriggerTypingAsync();
         await Shared.Cache.RefreshCacheBalances();
         ctx.RespondAsync("Eco Cache Reset!");
     }

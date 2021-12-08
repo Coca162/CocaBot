@@ -7,6 +7,18 @@ using DSharpPlus.Entities;
 namespace Discord.Commands;
 public class Administrative : BaseCommandModule
 {
+    [Command("nick"), Hidden, DevOnly]
+    public async Task Nick(CommandContext ctx, [RemainingText, Description("The nickname to give to that user.")] string new_nickname)
+    {
+        var member = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
+
+        await member.ModifyAsync(x =>
+        {
+            x.Nickname = new_nickname;
+            x.AuditLogReason = $"Changed by {ctx.User.Username} ({ctx.User.Id}).";
+        });
+    }
+
     [Command("leave"), Hidden, RequireOwner, DevOnly, DevModeOnly]
     public async Task Leave(CommandContext ctx, ulong id)
     {
@@ -14,7 +26,7 @@ public class Administrative : BaseCommandModule
         await guild.LeaveAsync();
     }
 
-    [Command("guilds"), Hidden, RequireOwner, DevOnly, DevModeOnly]
+    [Command("guilds"), Hidden, DevOnly]
     public async Task Guilds(CommandContext ctx)
     {
         foreach (var item in ctx.Client.Guilds) Console.WriteLine(item.Value.Name + " " + item.Key);
