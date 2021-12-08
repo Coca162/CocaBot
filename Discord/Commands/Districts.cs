@@ -28,7 +28,7 @@ public class Districts : BaseCommandModule
     {
         if (districts is null)
         {
-            sv = await Client.GetGuildAsync(798307000206360588);
+            sv = await ctx.Client.GetGuildAsync(798307000206360588);
 
             districts = new()
             {

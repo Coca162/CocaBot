@@ -26,7 +26,6 @@ namespace Discord;
 public class Bot
 {
     public static DiscordClient Client { get; private set; }
-    public static CommandsNextExtension Commands { get; private set; }
     public static async Task RunAsync(DiscordConfig ConfigJson)
     {
         DiscordConfiguration config = new()
@@ -68,11 +67,11 @@ public class Bot
             }).BuildServiceProvider()
         };
 
-        Commands = Client.UseCommandsNext(commandsConfig);
+        var commandsNext = Client.UseCommandsNext(commandsConfig);
 
-        Commands.SetHelpFormatter<HelpFormatter>();
+        commandsNext.SetHelpFormatter<HelpFormatter>();
 
-        Commands.RegisterCommands(Assembly.GetExecutingAssembly());
+        commandsNext.RegisterCommands(Assembly.GetExecutingAssembly());
 
         await Client.ConnectAsync();
     }

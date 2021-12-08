@@ -32,7 +32,7 @@ public static class UBIRoles
             }
         }
 
-        DiscordGuild server = await Client.GetGuildAsync(798307000206360588);
+        DiscordGuild server = await Bot.Client.GetGuildAsync(798307000206360588);
 
         List<DiscordRole> SVRoles = new()
         {

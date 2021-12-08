@@ -31,7 +31,7 @@ public class TimedEvents
 
     public static async Task SetTimer()
     {
-        CBTChannel = await Client.GetChannelAsync(894634546824376391);
+        CBTChannel = await Bot.Client.GetChannelAsync(894634546824376391);
         //ServerChannel = await Client.GetChannelAsync(896605140428128296);
         //WeeklyChannel = await Client.GetChannelAsync(896654987013259324);
         //DailyChannel = await Client.GetChannelAsync(896655216085192784);
@@ -50,7 +50,7 @@ public class TimedEvents
     {
         CocaBotContext db = new();
 
-        await Client.UpdateStatusAsync(new DiscordActivity($"{db.Users.Count()} Users!", ActivityType.Watching));
+        await Bot.Client.UpdateStatusAsync(new DiscordActivity($"{db.Users.Count()} Users!", ActivityType.Watching));
 
         await CheckTransactionLogger(db);
 
