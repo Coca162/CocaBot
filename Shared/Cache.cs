@@ -16,14 +16,15 @@ public static class Cache
 
     public static async Task BalanceUpdater(Transaction transaction)
     {
+        if (!transaction.Result.Succeeded) return;
         Entity from = new(transaction.FromAccount);
         Entity to = new(transaction.ToAccount);
 
-        EntityCache.AddOrUpdate(from.Id, (await from.GetNameAsync(), (await from.GetBalanceAsync()).Data),
-            (string _, (string name, decimal balance) old) => (old.name, old.balance -= transaction.Amount));
+        if (EntityCache.TryGetValue(from.Id, out var oldfrom)) EntityCache[from.Id] = (oldfrom.Name, oldfrom.Balance -= transaction.Amount);
+        else EntityCache.TryAdd(from.Id, (await from.GetNameAsync(), (await from.GetBalanceAsync()).Data));
 
-        EntityCache.AddOrUpdate(to.Id, (await to.GetNameAsync(), (await to.GetBalanceAsync()).Data),
-            (string _, (string name, decimal balance) old) => (old.name, old.balance += transaction.Amount));
+        if (EntityCache.TryGetValue(to.Id, out var oldto)) EntityCache[to.Id] = (oldto.Name, oldto.Balance += transaction.Amount);
+        else EntityCache.TryAdd(to.Id, (await to.GetNameAsync(), (await to.GetBalanceAsync()).Data));
     }
 
     public static async Task RefreshCacheBalances()
