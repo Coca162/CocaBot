@@ -16,7 +16,7 @@ public static class Balance
 
         var (exact, nonExact) = await NameToBalance(input);
         var first = exact.FirstOrDefault();
-        if (first == default) return NoExactsMessage(input, nonExact.Select(x => x.name));
+        if (first == default) return NoExacts(input, nonExact.Select(x => x.name));
         else if (exact.Count == 1) return await BalanceMessage(first.svid, first.balance);
 
         string msg = $"{input} Balances:";

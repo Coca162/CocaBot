@@ -17,7 +17,7 @@ public static class Get
 
         var (exact, nonExact) = await GetSVIDs(input);
 
-        if (!exact.Any()) return NoExactsMessage(input, nonExact.Select(x => x.name));
+        if (!exact.Any()) return NoExacts(input, nonExact.Select(x => x.name));
         else if (exact.Count == 1) return GetMessage(input, exact.First());
 
         string msg = "";

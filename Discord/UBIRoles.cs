@@ -45,7 +45,6 @@ public static class UBIRoles
 
         foreach (var item in data.Users)
         {
-            Console.WriteLine(item.Id);
             DiscordMember member = null;
             try
             {

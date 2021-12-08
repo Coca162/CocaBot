@@ -4,18 +4,20 @@ using System.Linq;
 using static Shared.Tools;
 
 namespace Shared.Commands;
-public class Shared
+public static class Shared
 {
-    public static string NoExactsMessage(string search, IEnumerable<SearchReturn> nonExacts) 
-        => NoExactsMessage(search, nonExacts.Select(x => x.Name));
+    public const string NoExactsMessage = "This is not a valid name or svid!";
 
-    public static string NoExactsMessage(string search, IEnumerable<string> names)
+    public static string NoExacts(string search, IEnumerable<SearchReturn> nonExacts) 
+        => NoExacts(search, nonExacts.Select(x => x.Name));
+
+    public static string NoExacts(string search, IEnumerable<string> names)
     {
-        if (names is null || !names.Any()) return "This is not a valid name or svid!";
+        if (names is null || !names.Any()) return NoExactsMessage;
 
         names = names.OrderBy(x => StringDifference(search, x)).Take(5);
 
-        string NotExactMessage = "This is not a valid name or svid!\nDid you mean?";
+        string NotExactMessage = NoExactsMessage + "\nDid you mean?";
 
         foreach (string name in names)
         {
