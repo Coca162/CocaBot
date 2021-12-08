@@ -1,9 +1,10 @@
-﻿using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using System;
 using System.Threading.Tasks;
 using static Shared.Commands.Privacy;
 using static Shared.Commands.Code;
+using static Shared.Commands.Search;
 using System.Diagnostics;
 using Humanizer;
 
@@ -31,7 +32,9 @@ public class Misc : BaseCommandModule
     [Description("pong!")]
     public async Task Ping(CommandContext ctx) => ctx.RespondAsync(ctx.Client.Ping.ToString() + " ms");
 
-    [Command("reset"), DevOnly]
+    [Command("search"), GeneralBlacklist]
+    public async Task SearchCommand(CommandContext ctx, [RemainingText, Description("A name")] string input) => ctx.RespondAsync(await SearchMessage(input));
+
     [Description("Reset Eco Cache")]
     public async Task Reset(CommandContext ctx)
     {
