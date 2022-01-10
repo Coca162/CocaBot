@@ -23,12 +23,12 @@ public class Pay : BaseCommandModule
         [Description("Money to send")] decimal amount,
         [Description("The user to send the money to (works with ID as well)")] DiscordUser discordUser)
     {
-        User user = await DiscordToUserToken(ctx.User.Id, db);
+        var (svid, token) = await DiscordToUserToken(ctx.User.Id, db);
 
-        string message = user != default(User) ? await PayAll(amount, user.SVID, await DiscordToSVID(discordUser.Id, db), user.Token) 
-                                               : "You need to do `c/register` to use `c/pay`!";
+        string message = svid is not null ? await PayAll(amount, svid, await DiscordToSVID(discordUser.Id, db), token) 
+                                          : "You need to do `c/register` to use `c/pay`!";
 
-        ctx.RespondAsync(message);
+        await ctx.RespondAsync(message);
     }
 
     [Command("pay")]
@@ -37,12 +37,12 @@ public class Pay : BaseCommandModule
         [Description("The user to send the money to (works with ID as well)")] DiscordUser discordUser,
         [Description("Money to send")] decimal amount)
     {
-        User user = await DiscordToUserToken(ctx.User.Id, db);
+        var (svid, token) = await DiscordToUserToken(ctx.User.Id, db);
 
-        string message = user != default(User) ? await PayAll(amount, user.SVID, await DiscordToSVID(discordUser.Id, db), user.Token) 
-                                               : "You need to do `c/register` to use `c/pay`!";
+        string message = svid is not null ? await PayAll(amount, svid, await DiscordToSVID(discordUser.Id, db), token) 
+                                          : "You need to do `c/register` to use `c/pay`!";
 
-        ctx.RespondAsync(message);
+        await ctx.RespondAsync(message);
     }
 
     [Command("pay")]
@@ -51,12 +51,12 @@ public class Pay : BaseCommandModule
         [Description("The SVID to send the money to")] string to,
         [Description("Money to send")] decimal amount)
     {
-        User user = await DiscordToUserToken(ctx.User.Id, db);
+        var (svid, token) = await DiscordToUserToken(ctx.User.Id, db);
 
-        string message = user != default(User) ? await PayAll(amount, user.SVID, to, user.Token) 
-                                               : "You need to do `c/register` to use `c/pay`!";
+        string message = svid is not null ? await PayAll(amount, svid, to, token) 
+                                          : "You need to do `c/register` to use `c/pay`!";
 
-        ctx.RespondAsync(message);
+        await ctx.RespondAsync(message);
     }
 
     [Command("pay")]
@@ -65,12 +65,12 @@ public class Pay : BaseCommandModule
         [Description("Money to send")] decimal amount,
         [RemainingText, Description("The Entity to send the money to (Either SVID or Name)")] string to)
     {
-        User user = await DiscordToUserToken(ctx.User.Id, db);
+        var (svid, token) = await DiscordToUserToken(ctx.User.Id, db);
 
-        string message = user != default(User) ? await PayAll(amount, user.SVID, to, user.Token) 
-                                               : "You need to do `c/register` to use `c/pay`!";
+        string message = svid is not null ? await PayAll(amount, svid, to, token) 
+                                          : "You need to do `c/register` to use `c/pay`!";
 
-        ctx.RespondAsync(message);
+        await ctx.RespondAsync(message);
     }
 
     [Command("pay")]
@@ -78,7 +78,11 @@ public class Pay : BaseCommandModule
     public async Task PayAmountSecond(CommandContext ctx,
     [RemainingText, Description("The Entity to send the money to (Either SVID or Name) and the amount at the end")] string input)
     {
-        if (string.IsNullOrWhiteSpace(input)) return;
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            await Administrative.ExecuteCommand(ctx, ctx.Member, "help pay");
+            return;
+        }
 
         IEnumerable<string> array = input.Split(" ");
 
@@ -87,6 +91,6 @@ public class Pay : BaseCommandModule
 
         string message = $"Did you mean to do?\n`c/pay {amount} {string.Join(" ", array.SkipLast(1))}`";
 
-        ctx.RespondAsync(message);
+        await ctx.RespondAsync(message);
     }
 }

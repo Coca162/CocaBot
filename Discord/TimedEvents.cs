@@ -50,7 +50,7 @@ public class TimedEvents
     {
         CocaBotContext db = new();
 
-        await Bot.Client.UpdateStatusAsync(new DiscordActivity($"{db.Users.Count()} Users!", ActivityType.Watching));
+        await Client.UpdateStatusAsync(new DiscordActivity($"{db.Users.Count()} Users! | ;help", ActivityType.Watching));
 
         await CheckTransactionLogger(db);
 

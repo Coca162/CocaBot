@@ -110,6 +110,9 @@ public class JacobHourlyUser
 
     [JsonPropertyName("Daily UBI")]
     public int DailyUBI { get; set; }
+
+    [JsonPropertyName("Roles")]
+    public List<string> Roles { get; set; }
 }
 
 public class JacobHourlyUserData

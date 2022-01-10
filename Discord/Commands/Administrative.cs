@@ -42,6 +42,11 @@ public class Administrative : BaseCommandModule
         // note the [RemainingText] attribute on the argument.
         // it will capture all the text passed to the command
 
+        await ExecuteCommand(ctx, member, command);
+    }
+
+    public static async Task ExecuteCommand(CommandContext ctx, DiscordMember member, string command)
+    {
         // let's trigger a typing indicator to let
         // users know we're working
         await ctx.TriggerTypingAsync();

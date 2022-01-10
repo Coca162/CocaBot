@@ -41,22 +41,22 @@ public class Bot
 
         Client.Ready += async (sender, e) =>
         {
-            _ = Task.Run(async () =>
+            Task.Run(async () =>
             {
                 Console.WriteLine("CocaBot on!");
                 ServiceWrapper wrapper = new();
                 if (prod)
                 {
-                    _ = Task.Run(() => wrapper._ServiceWrapper(Client));
+                    Task.Run(async () => wrapper._ServiceWrapper(Client));
                     await SetTimer();
                 }
             });
         };
 
-        Client.MessageCreated += async (s, e) => HandleMessage(ConfigJson.JacobUBIKey, e);
-
-        //Client.MessageReactionAdded += async (s, e) => HandleMessageAddReaction(ConfigJson.JacobUBIKey, e);
-        //Client.MessageReactionRemoved += async (s, e) => HandleMessageRemoveReaction(ConfigJson.JacobUBIKey, e);
+        if (prod)
+        {
+            Client.MessageCreated += (s, e) => Task.Run(async () => HandleMessage(ConfigJson.JacobUBIKey, e));
+        }
 
         CommandsNextConfiguration commandsConfig = new()
         {
@@ -92,13 +92,17 @@ public class Bot
 
     private static async Task HandleMessage(string ubiKey, MessageCreateEventArgs e)
     {
-        if (!prod || e.Author.IsBot) return;
+        if (e.Author.IsBot) return;
 
         // send role data too for senator/gov pay & for district level UBI
 
         DiscordGuild server = await Client.GetGuildAsync(798307000206360588);
 
         DiscordMember member = await server.GetMemberAsync(e.Author.Id);
+
+        await Task.Delay(10000);
+
+        await e.Channel.GetMessageAsync(e.Message.Id);
 
         if (member is null)
         {

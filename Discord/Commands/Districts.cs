@@ -4,12 +4,15 @@ using DSharpPlus.Entities;
 using System.Collections.Generic;
 using Shared;
 using System.Linq;
+using System.IO;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
 using static Discord.Bot;
 using static Shared.Commands.Balance;
 using System.Text.Json.Serialization;
 using static SpookVooper.Api.SpookVooperAPI;
 using System.Collections.Generic;
+using System;
 
 namespace Discord.Commands;
 
@@ -50,17 +53,26 @@ public class Districts : BaseCommandModule
             };
         }
 
-        DiscordEmbedBuilder embed = new()
-        {
-            Title = "Discord District Populations",
-            Color = new DiscordColor("2CC26C")
-        };
-
         var members = await sv.GetAllMembersAsync();
 
         IOrderedEnumerable<(string Name, int Count)> fields = 
             districts.Select(role => (role.Name, members.Where(X => X.Roles.Contains(role)).Count()))
                      .OrderByDescending(x => x.Item2);
+
+        DiscordEmbedBuilder embed = new()
+        {
+            Title = $"Discord District Populations ({(int)fields.Average(x => x.Count)} Average)",
+            Color = new DiscordColor("2CC26C")
+        };
+
+        var array = fields.Select(x => (double)x.Count).ToArray();
+        var median = fields.ElementAt(7).Count;
+        var lower = Percentile(array, 75);
+        var upper = Percentile(array, 25);
+        embed.Footer = new DiscordEmbedBuilder.EmbedFooter()
+        {
+            Text = $"Lower Quartile: {lower}\nUpper Quartile: {upper}"
+        };
 
         int i = 0;
         int realI = 0;
@@ -71,9 +83,46 @@ public class Districts : BaseCommandModule
             if (count != Count) i = realI;
             count = Count;
 
-            embed.AddField($"{i}. {Name}", Count.ToString());
+            embed.AddField($"{i}. {Name}" + (median == Count ? " (Median)" : ""), Count.ToString());
+        }
+        ctx.RespondAsync(embed);
+
+        var nsadsa = new DiscordMessageBuilder();
+        nsadsa.WithFile("districts.png", File.OpenRead(@"C:\Users\Kompot\Documents\ShareX\Screenshots\2021-12\Discord_KPWfgxcRA4.png"));
+        ctx.RespondAsync(nsadsa);
+    }
+
+    /// <summary>
+    /// Calculate percentile of a sorted data set
+    /// </summary>
+    /// <param name="sortedData"></param>
+    /// <param name="p"></param>
+    /// <returns></returns>
+    internal static double Percentile(double[] sortedData, double p)
+    {
+        // algo derived from Aczel pg 15 bottom
+        if (p >= 100.0d) return sortedData[sortedData.Length - 1];
+
+        double position = (sortedData.Length + 1) * p / 100.0;
+        double leftNumber = 0.0d, rightNumber = 0.0d;
+
+        double n = p / 100.0d * (sortedData.Length - 1) + 1.0d;
+
+        if (position >= 1)
+        {
+            leftNumber = sortedData[(int)Math.Floor(n) - 1];
+            rightNumber = sortedData[(int)Math.Floor(n)];
+        }
+        else
+        {
+            leftNumber = sortedData[0]; // first data
+            rightNumber = sortedData[1]; // first data
         }
 
-        ctx.RespondAsync(embed);
-    }
+        //if (leftNumber == rightNumber)
+        if (Equals(leftNumber, rightNumber))
+            return leftNumber;
+        double part = n - Math.Floor(n);
+        return leftNumber + part * (rightNumber - leftNumber);
+    } // end of internal function percentile
 }

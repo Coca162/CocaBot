@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using static Discord.Program;
+using static System.Math;
 
 namespace Discord.Commands;
 public class UBI : BaseCommandModule
@@ -111,7 +112,7 @@ public class UBI : BaseCommandModule
 
         foreach(JacobUBILeaderboardItem item in data.Users)
         {
-            embed.AddField(item.Name, $"{item.XP} XP (1 : {Math.Round(CalculateRatio(item.MessageXP, item.Messages), 2)})");
+            embed.AddField(item.Name, $"{item.XP} XP (1 : {Round(CalculateRatio(item.MessageXP, item.Messages), 2)})");
         }
 
         ctx.RespondAsync(embed);
@@ -135,7 +136,7 @@ public class UBI : BaseCommandModule
             };
 
             embed.AddField("Messages", $"{data.MessagesSent}");
-            embed.AddField("Message To XP Ratio", $"1 : {Math.Round(CalculateRatio(data.MessageXP, data.MessagesSent), 2)}");
+            embed.AddField("Message To XP Ratio", $"1 : {Round(CalculateRatio(data.MessageXP, data.MessagesSent), 2)}");
             embed.AddField("Daily UBI", $"¢{data.DailyUBI}");
 
             ctx.RespondAsync(embed);
@@ -155,11 +156,30 @@ public class UBI : BaseCommandModule
                 Color = new DiscordColor("2CC26C")
             };
 
-            embed.AddField("XP", $"{Math.Round(everyone.Average(x => x.Xp))}");
-            embed.AddField("Messages", $"{Math.Round(everyone.Average(x => x.Messages))}");
-            embed.AddField("XP To Message", $"1 : {Math.Round(everyone.Average(x => CalculateRatio(x.MessageXp, x.Messages)), 2)}");
-            embed.AddField("Daily UBI", $"¢{Math.Round(everyone.Average(x => x.DailyUBI), 2)}");
+            embed.AddField("XP", $"{Round(everyone.Average(x => x.Xp))}");
+            embed.AddField("Messages", $"{Round(everyone.Average(x => x.Messages))}");
+            embed.AddField("XP To Message", $"1 : {Round(everyone.Average(x => CalculateRatio(x.MessageXp, x.Messages)), 2)}");
+            embed.AddField("Daily UBI", $"¢{Round(everyone.Average(x => x.DailyUBI), 2)}");
             
+            ctx.RespondAsync(embed);
+        }
+
+        [Command("median"), Description("Get the median for xp data")]
+        public async Task XPMedian(CommandContext ctx)
+        {
+            var everyone = (await GetDataFromJson<JacobHourlyUserData>($"https://ubi.vtech.cf/all_user_data?key={UBIKey}")).Users;
+
+            DiscordEmbedBuilder embed = new()
+            {
+                Title = $"Median of {everyone.Count} People",
+                Color = new DiscordColor("2CC26C")
+            };
+
+            embed.AddField("XP", $"{Round(Median(everyone.Select(x=>x.Xp)))}");
+            embed.AddField("Messages", $"{Round(Median(everyone.Select(x => x.Messages)))}");
+            embed.AddField("XP To Message", $"1 : {Median(everyone.Select(x => CalculateRatio(x.MessageXp, x.Messages)))}");
+            embed.AddField("Daily UBI", $"¢{Median(everyone.Select(x => x.DailyUBI))}");
+
             ctx.RespondAsync(embed);
         }
     }
