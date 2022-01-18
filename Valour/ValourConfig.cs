@@ -13,5 +13,6 @@ public class ValourConfig : DefaultConfig
     public List<string> Prefix { get; set; }
     [JsonPropertyName("prod")]
     public bool Production { get; set; }
-
+    [JsonPropertyName("jacobubikey")]
+    public string JacobUBIKey { get; set; }
 }
