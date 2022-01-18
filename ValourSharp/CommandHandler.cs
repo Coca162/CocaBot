@@ -69,35 +69,40 @@ public static class CommandHandler
 
                 mentions.RemoveAt(0);
 
-                switch (mention.Type)
-                {
-                    //User
-                    case MentionType.Member when parameter.ParameterType == typeof(User):
-                        args.Add(await (await PlanetMember.FindAsync(mention.Target_Id)).GetUserAsync());
-                        break;
-                    //Member
-                    case MentionType.Member when parameter.ParameterType == typeof(PlanetMember):
-                        args.Add(await PlanetMember.FindAsync(mention.Target_Id));
-                        break;
-                    case MentionType.Category when parameter.ParameterType == typeof(PlanetCategory):
-                        args.Add(await PlanetCategory.FindAsync(mention.Target_Id));
-                        break;
-                    case MentionType.Channel when parameter.ParameterType == typeof(PlanetChatChannel):
-                        args.Add(await PlanetChatChannel.FindAsync(mention.Target_Id));
-                        break;
-                    case MentionType.Role when parameter.ParameterType == typeof(PlanetRole):
-                        args.Add(await PlanetRole.FindAsync(mention.Target_Id));
-                        break;
-                }
+                await ConvertMention(args, parameter, mention);
                 continue;
             }
 
             TypeConverter typeConverter = TypeDescriptor.GetConverter(parameter.ParameterType);
             args.Add(typeConverter.ConvertFrom(rawargs));
 
-            length = +rawargs.Length + 1;
+            length =+ rawargs.Length + 1;
         }
 
         command.Invoke(null, args.ToArray());
+    }
+
+    private static async Task ConvertMention(List<object> args, ParameterInfo parameter, Mention mention)
+    {
+        switch (mention.Type)
+        {
+            //User
+            case MentionType.Member when parameter.ParameterType == typeof(User):
+                args.Add(await (await PlanetMember.FindAsync(mention.Target_Id)).GetUserAsync());
+                break;
+            //Member
+            case MentionType.Member when parameter.ParameterType == typeof(PlanetMember):
+                args.Add(await PlanetMember.FindAsync(mention.Target_Id));
+                break;
+            case MentionType.Category when parameter.ParameterType == typeof(PlanetCategory):
+                args.Add(await PlanetCategory.FindAsync(mention.Target_Id));
+                break;
+            case MentionType.Channel when parameter.ParameterType == typeof(PlanetChatChannel):
+                args.Add(await PlanetChatChannel.FindAsync(mention.Target_Id));
+                break;
+            case MentionType.Role when parameter.ParameterType == typeof(PlanetRole):
+                args.Add(await PlanetRole.FindAsync(mention.Target_Id));
+                break;
+        }
     }
 }

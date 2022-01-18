@@ -8,7 +8,7 @@ public static class Start
     public static string[] Prefixes = null;
     public static async Task Initialize(string email, string password, params string[] prefixes)
     {
-        prefixes = Prefixes;
+        Prefixes = prefixes;
 
         await ValourClient.InitializeBot(email, password);
 

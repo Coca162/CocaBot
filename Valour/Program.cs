@@ -41,12 +41,12 @@ class Program
         UBIKey = config.JacobUBIKey;
         //if (prod) LoadSVIDNameCache();
 
-        await InitializeBot(config.Email, config.BotPassword);
-
-        OnMessageRecieved += async (message) =>
-            await MessageHandler(message);
-
         Registration.RegisterCommands();
+
+        await Start.Initialize(config.Email, config.BotPassword, prefixes.ToArray());
+
+        //OnMessageRecieved += async (message) =>
+        //    await MessageHandler(message);
 
         await Task.Delay(-1);
     }
