@@ -69,7 +69,7 @@ public static class CommandHandler
 
                 mentions.RemoveAt(0);
 
-                await ConvertMention(args, parameter, mention);
+                await mention.ConvertMention(args, parameter);
                 continue;
             }
 
@@ -82,7 +82,7 @@ public static class CommandHandler
         command.Invoke(null, args.ToArray());
     }
 
-    private static async Task ConvertMention(List<object> args, ParameterInfo parameter, Mention mention)
+    private static async Task ConvertMention(this Mention mention, List<object> args, ParameterInfo parameter)
     {
         switch (mention.Type)
         {
