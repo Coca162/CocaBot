@@ -86,10 +86,6 @@ public class Districts : BaseCommandModule
             embed.AddField($"{i}. {Name}" + (median == Count ? " (Median)" : ""), Count.ToString());
         }
         ctx.RespondAsync(embed);
-
-        var nsadsa = new DiscordMessageBuilder();
-        nsadsa.WithFile("districts.png", File.OpenRead(@"C:\Users\Kompot\Documents\ShareX\Screenshots\2021-12\Discord_KPWfgxcRA4.png"));
-        ctx.RespondAsync(nsadsa);
     }
 
     /// <summary>
