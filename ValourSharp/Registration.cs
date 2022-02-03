@@ -5,8 +5,13 @@ namespace ValourSharp;
 
 public static class Registration
 {
-    public static void RegisterCommand(MethodInfo command, params string[] names) =>
-        Commands.Add(names, command);
+    public static void RegisterCommand(MethodInfo command, params string[] names)
+    {
+        foreach (string name in names)
+        {
+            Commands.TryAdd(name, command);
+        }
+    }
 
     public static void RegisterCommands()
     {
@@ -18,7 +23,7 @@ public static class Registration
         foreach (var method in methods)
         {
             var attribute = method.GetCustomAttributes(typeof(Command)).Single() as Command;
-            Commands.Add(attribute.Names, method);
+            RegisterCommand(method, attribute.Names);
             //TODO make it so it checks if you used the remainder incorrectly
         }
     }
