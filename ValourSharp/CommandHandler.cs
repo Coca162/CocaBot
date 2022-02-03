@@ -6,13 +6,14 @@ using Valour.Api.Items.Users;
 using Valour.Api.Items.Messages;
 using Valour.Api.Items.Planets.Members;
 using Valour.Api.Items.Planets.Channels;
+using System.Collections.Concurrent;
 using static ValourSharp.Start;
 
 namespace ValourSharp;
 
 public static class CommandHandler
 {
-    public static Dictionary<string[], MethodInfo> Commands = new();
+    public static ConcurrentDictionary<string, MethodInfo> Commands = new(StringComparer.InvariantCultureIgnoreCase);
     public static async Task MessageHandler(PlanetMessage ctx)
     {
         var sender = await (await ctx.GetAuthorAsync()).GetUserAsync();
@@ -28,9 +29,9 @@ public static class CommandHandler
         string commandname = stringArgs[0].ToLowerInvariant();
         stringArgs.RemoveAt(0);
 
-        var command = Commands.SingleOrDefault(cmd => cmd.Key.Contains(commandname)).Value;
+        bool isCommand = Commands.TryGetValue(commandname, out MethodInfo command);
 
-        if (command is null ||
+        if (isCommand ||
            (sender.Bot && command.GetCustomAttribute(typeof(AllowBots)) is not null) ||
            (ValourClient.Self == sender && command.GetCustomAttribute(typeof(AllowSelf)) is not null)) return;
 
