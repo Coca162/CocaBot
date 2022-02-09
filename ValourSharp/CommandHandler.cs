@@ -30,13 +30,14 @@ public static class CommandHandler
         stringArgs.RemoveAt(0);
 
         bool isCommand = Commands.TryGetValue(commandname, out CommandInfo command);
+        command.Parameters.SkipWhile(x => x.ParameterType == typeof(PlanetMessage)).TryGetNonEnumeratedCount(out int paramCount);
 
         if (!isCommand ||
-           command.Parameters.SkipWhile(x => x.ParameterType == typeof(PlanetMessage)).Count() != stringArgs.Count ||
+           paramCount != stringArgs.Count ||
            (sender.Bot && command.AllowBots) ||
            (ValourClient.Self == sender && command.AllowSelf)) return;
 
-        List<object> args = new(command.Parameters.Length);
+        object[] args = new object[command.Parameters.Length];
 
         int length = prefixLength + commandname.Length + 1;
         List<Mention> mentions = ctx.Mentions;
@@ -48,7 +49,7 @@ public static class CommandHandler
             if (parameter.ParameterType == typeof(PlanetMessage))
             {
                 contexts++;
-                args.Add(ctx);
+                args[i] = ctx;
                 continue;
             }
 
@@ -57,54 +58,42 @@ public static class CommandHandler
 
             if (parameter.ParameterType == typeof(string) && parameter.GetCustomAttribute(typeof(Remainder), false) is not null)
             {
-                args.Add(string.Join(' ', stringArgs.GetRange(position, stringArgs.Count - position)));
+                args[i] = string.Join(' ', stringArgs.GetRange(position, stringArgs.Count - position));
             }
-            else if (IsValourType(parameter))
+            else if (parameter.IsValourType())
             {
                 var mention = mentions.FirstOrDefault();
 
                 if (mention is null || mention.Position != length + 3) continue;
 
-                mentions.RemoveAt(0);
+                args[i] = await mention.ConvertToClass(parameter);
 
-                await mention.ConvertMention(args, parameter);
+                mentions.RemoveAt(0);
             }
             else
             {
                 TypeConverter typeConverter = TypeDescriptor.GetConverter(parameter.ParameterType);
-                args.Add(typeConverter.ConvertFrom(rawargs));
+                args[i] = typeConverter.ConvertFrom(rawargs);
             }
 
             length += rawargs.Length + 1;
         }
 
-        command.Method.Invoke(null, args.ToArray());
+        command.Method.Invoke(null, args);
     }
 
-    private static bool IsValourType(ParameterInfo parameter) => 
+    private static bool IsValourType(this ParameterInfo parameter) => 
         parameter.ParameterType == typeof(User) || parameter.ParameterType == typeof(PlanetMember) || parameter.ParameterType == typeof(PlanetCategory) || parameter.ParameterType == typeof(PlanetChatChannel) || parameter.ParameterType == typeof(PlanetRole);
 
-    private static async Task ConvertMention(this Mention mention, List<object> args, ParameterInfo parameter)
+    private static async Task<object> ConvertToClass(this Mention mention, ParameterInfo parameter) => mention.Type switch
     {
-        switch (mention.Type)
-        {
-            //User
-            case MentionType.Member when parameter.ParameterType == typeof(User):
-                args.Add(await (await PlanetMember.FindAsync(mention.Target_Id)).GetUserAsync());
-                break;
-            //Member
-            case MentionType.Member when parameter.ParameterType == typeof(PlanetMember):
-                args.Add(await PlanetMember.FindAsync(mention.Target_Id));
-                break;
-            case MentionType.Category when parameter.ParameterType == typeof(PlanetCategory):
-                args.Add(await PlanetCategory.FindAsync(mention.Target_Id));
-                break;
-            case MentionType.Channel when parameter.ParameterType == typeof(PlanetChatChannel):
-                args.Add(await PlanetChatChannel.FindAsync(mention.Target_Id));
-                break;
-            case MentionType.Role when parameter.ParameterType == typeof(PlanetRole):
-                args.Add(await PlanetRole.FindAsync(mention.Target_Id));
-                break;
-        }
-    }
+        //User
+        MentionType.Member when parameter.ParameterType == typeof(User) => await (await PlanetMember.FindAsync(mention.Target_Id)).GetUserAsync(),
+        //Member
+        MentionType.Member when parameter.ParameterType == typeof(PlanetMember) => await PlanetMember.FindAsync(mention.Target_Id),
+        MentionType.Category when parameter.ParameterType == typeof(PlanetCategory) => await PlanetCategory.FindAsync(mention.Target_Id),
+        MentionType.Channel when parameter.ParameterType == typeof(PlanetChatChannel) => await PlanetChatChannel.FindAsync(mention.Target_Id),
+        MentionType.Role when parameter.ParameterType == typeof(PlanetRole) => await PlanetRole.FindAsync(mention.Target_Id),
+        _ => throw new NotSupportedException("Unrecognized mention and paramater pair"),
+    };
 }
