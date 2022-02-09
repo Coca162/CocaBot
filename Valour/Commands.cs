@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -38,8 +38,9 @@ public static class Commands
     }
 
     [Command("member")]
-    public static async Task Member(PlanetMessage ctx, Api.Items.Users.User member)
+    public static async Task Member(PlanetMessage ctx, Api.Items.Users.User member, Api.Items.Users.User member2)
     {
         await ctx.ReplyAsync(member.Id + member.Name);
+        await ctx.ReplyAsync(member2.Id + member2.Name);
     }
 }

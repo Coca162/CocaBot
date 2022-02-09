@@ -9,7 +9,7 @@ public static class Registration
     {
         foreach (string name in names)
         {
-            Commands.TryAdd(name, command);
+            Commands.TryAdd(name, new CommandInfo(command));
         }
     }
 

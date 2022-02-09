@@ -13,7 +13,7 @@ namespace ValourSharp;
 
 public static class CommandHandler
 {
-    public static ConcurrentDictionary<string, MethodInfo> Commands = new(StringComparer.InvariantCultureIgnoreCase);
+    public static ConcurrentDictionary<string, CommandInfo> Commands = new(StringComparer.InvariantCultureIgnoreCase);
     public static async Task MessageHandler(PlanetMessage ctx)
     {
         var sender = await (await ctx.GetAuthorAsync()).GetUserAsync();
@@ -24,27 +24,26 @@ public static class CommandHandler
 
         int prefixLength = matches.Max().Length;
 
-        List<string> stringArgs = ctx.Content[prefixLength..].Split(' ').ToList();
+        List<string> stringArgs = ctx.Content[prefixLength..].Split(null).ToList();
 
         string commandname = stringArgs[0].ToLowerInvariant();
         stringArgs.RemoveAt(0);
 
-        bool isCommand = Commands.TryGetValue(commandname, out MethodInfo command);
+        bool isCommand = Commands.TryGetValue(commandname, out CommandInfo command);
 
-        if (isCommand ||
-           (sender.Bot && command.GetCustomAttribute(typeof(AllowBots)) is not null) ||
-           (ValourClient.Self == sender && command.GetCustomAttribute(typeof(AllowSelf)) is not null)) return;
+        if (!isCommand ||
+           command.Parameters.SkipWhile(x => x.ParameterType == typeof(PlanetMessage)).Count() != stringArgs.Count ||
+           (sender.Bot && command.AllowBots) ||
+           (ValourClient.Self == sender && command.AllowSelf)) return;
 
-        var parms = command.GetParameters();
-
-        List<object> args = new(parms.Length);
+        List<object> args = new(command.Parameters.Length);
 
         int length = prefixLength + commandname.Length + 1;
         List<Mention> mentions = ctx.Mentions;
         int contexts = 0;
-        for (int i = 0; i < parms.Length; i++)
+        for (int i = 0; i < command.Parameters.Length; i++)
         {
-            ParameterInfo parameter = parms[i];
+            ParameterInfo parameter = command.Parameters[i];
 
             if (parameter.ParameterType == typeof(PlanetMessage))
             {
@@ -59,29 +58,31 @@ public static class CommandHandler
             if (parameter.ParameterType == typeof(string) && parameter.GetCustomAttribute(typeof(Remainder), false) is not null)
             {
                 args.Add(string.Join(' ', stringArgs.GetRange(position, stringArgs.Count - position)));
-                continue;
             }
-
-            if (parameter.ParameterType == typeof(User) || parameter.ParameterType == typeof(PlanetMember) || parameter.ParameterType == typeof(PlanetCategory) || parameter.ParameterType == typeof(PlanetChatChannel) || parameter.ParameterType == typeof(PlanetRole))
+            else if (IsValourType(parameter))
             {
-                var mention = ctx.Mentions.FirstOrDefault();
+                var mention = mentions.FirstOrDefault();
 
                 if (mention is null || mention.Position != length + 3) continue;
 
                 mentions.RemoveAt(0);
 
                 await mention.ConvertMention(args, parameter);
-                continue;
+            }
+            else
+            {
+                TypeConverter typeConverter = TypeDescriptor.GetConverter(parameter.ParameterType);
+                args.Add(typeConverter.ConvertFrom(rawargs));
             }
 
-            TypeConverter typeConverter = TypeDescriptor.GetConverter(parameter.ParameterType);
-            args.Add(typeConverter.ConvertFrom(rawargs));
-
-            length =+ rawargs.Length + 1;
+            length += rawargs.Length + 1;
         }
 
-        command.Invoke(null, args.ToArray());
+        command.Method.Invoke(null, args.ToArray());
     }
+
+    private static bool IsValourType(ParameterInfo parameter) => 
+        parameter.ParameterType == typeof(User) || parameter.ParameterType == typeof(PlanetMember) || parameter.ParameterType == typeof(PlanetCategory) || parameter.ParameterType == typeof(PlanetChatChannel) || parameter.ParameterType == typeof(PlanetRole);
 
     private static async Task ConvertMention(this Mention mention, List<object> args, ParameterInfo parameter)
     {

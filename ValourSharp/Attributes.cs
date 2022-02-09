@@ -1,6 +1,6 @@
 ﻿namespace ValourSharp;
 
-[AttributeUsage(AttributeTargets.Method)]
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 public class Command : Attribute
 {
     public string[] Names { get; set; }
@@ -24,7 +24,7 @@ public class Group : Attribute
 }
 
 //TODO
-[AttributeUsage(AttributeTargets.Method)]
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 public class Priority : Attribute
 {
     public int Ranking { get; set; }
@@ -35,19 +35,19 @@ public class Priority : Attribute
     }
 }
 
-[AttributeUsage(AttributeTargets.Parameter)]
+[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]
 public class Remainder : Attribute
 {
     public Remainder() { }
 }
 
-[AttributeUsage(AttributeTargets.Method)]
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 public class AllowBots : Attribute
 {
     public AllowBots() { }
 }
 
-[AttributeUsage(AttributeTargets.Method)]
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 public class AllowSelf : Attribute
 {
     public AllowSelf() { }
