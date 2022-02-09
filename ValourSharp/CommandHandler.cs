@@ -30,10 +30,9 @@ public static class CommandHandler
         stringArgs.RemoveAt(0);
 
         bool isCommand = Commands.TryGetValue(commandname, out CommandInfo command);
-        command.Parameters.SkipWhile(x => x.ParameterType == typeof(PlanetMessage)).TryGetNonEnumeratedCount(out int paramCount);
 
         if (!isCommand ||
-           paramCount != stringArgs.Count ||
+           command.Parameters.SkipWhile(x => x.ParameterType == typeof(PlanetMessage)).Count() != stringArgs.Count ||
            (sender.Bot && command.AllowBots) ||
            (ValourClient.Self == sender && command.AllowSelf)) return;
 
@@ -66,7 +65,7 @@ public static class CommandHandler
 
                 if (mention is null || mention.Position != length + 3) continue;
 
-                args[i] = await mention.ConvertToClass(parameter);
+                args[i] = await mention.ConvertToObject(parameter);
 
                 mentions.RemoveAt(0);
             }
@@ -85,7 +84,7 @@ public static class CommandHandler
     private static bool IsValourType(this ParameterInfo parameter) => 
         parameter.ParameterType == typeof(User) || parameter.ParameterType == typeof(PlanetMember) || parameter.ParameterType == typeof(PlanetCategory) || parameter.ParameterType == typeof(PlanetChatChannel) || parameter.ParameterType == typeof(PlanetRole);
 
-    private static async Task<object> ConvertToClass(this Mention mention, ParameterInfo parameter) => mention.Type switch
+    private static async Task<object> ConvertToObject(this Mention mention, ParameterInfo parameter) => mention.Type switch
     {
         //User
         MentionType.Member when parameter.ParameterType == typeof(User) => await (await PlanetMember.FindAsync(mention.Target_Id)).GetUserAsync(),
