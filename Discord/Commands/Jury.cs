@@ -46,7 +46,7 @@ public class Jury : BaseCommandModule
         foreach (var item in everyone)
         {
             if (item.Roles.Contains("Jury"))
-                filtered.Add((item.Id, item.Xp));
+                filtered.Add((item.Id, (int)Pow(item.Xp, 0.5)));
         }
 
         if (filtered.Count < amount) throw new Exception("Too big jury request!");

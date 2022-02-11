@@ -12,7 +12,8 @@ using System.Timers;
 using SpookVooper.Api;
 using SpookVooper.Api.Entities;
 using DSharpPlus.Entities;
-using static Discord.TimedEvents;
+using static Discord.Events.MessageEvents;
+using static Discord.Events.TimedEvents;
 using static Discord.Program;
 using static SpookVooper.Api.SpookVooperAPI;
 using System.Text.Json.Serialization;
@@ -21,16 +22,17 @@ using DSharpPlus.EventArgs;
 using System.Net;
 using System.IO;
 using System.Net.Http;
+using System.Text.Json;
 
 namespace Discord;
 public class Bot
 {
     public static DiscordClient Client { get; private set; }
-    public static async Task RunAsync(DiscordConfig ConfigJson)
+    public static async Task RunAsync(string token, string[] prefixes)
     {
         DiscordConfiguration config = new()
         {
-            Token = ConfigJson.Token,
+            Token = token,
             TokenType = TokenType.Bot,
             MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Debug
         };
@@ -39,88 +41,65 @@ public class Bot
 
         Client.Intents.AddIntent(DiscordIntents.GuildMembers);
 
-        Client.Ready += async (sender, e) =>
-        {
-            Task.Run(async () =>
-            {
-                Console.WriteLine("CocaBot on!");
-                ServiceWrapper wrapper = new();
-                if (prod)
-                {
-                    Task.Run(async () => wrapper._ServiceWrapper(Client));
-                    await SetTimer();
-                }
-            });
-        };
+        SetUpEvents();
 
-        if (prod)
-        {
-            Client.MessageCreated += (s, e) => Task.Run(async () => HandleMessage(ConfigJson.JacobUBIKey, e));
-        }
+        //CommandsNextConfiguration commandsConfig = new()
+        //{
+        //    StringPrefixes = prefixes,
+        //    Services = new ServiceCollection().AddDbContextPool<CocaBotWebContext>((serviceProvider, options) =>
+        //    {
+        //        options.UseMySql(CocaBotWebContext.ConnectionString, CocaBotWebContext.version);
+        //    }).BuildServiceProvider()
+        //};
 
-        CommandsNextConfiguration commandsConfig = new()
-        {
-            StringPrefixes = ConfigJson.Prefix,
-            Services = new ServiceCollection().AddDbContextPool<CocaBotWebContext>((serviceProvider, options) =>
-            {
-                options.UseMySql(CocaBotWebContext.ConnectionString, CocaBotWebContext.version);
-            }).BuildServiceProvider()
-        };
+        //var commandsNext = Client.UseCommandsNext(commandsConfig);
 
-        var commandsNext = Client.UseCommandsNext(commandsConfig);
+        //commandsNext.SetHelpFormatter<HelpFormatter>();
 
-        commandsNext.SetHelpFormatter<HelpFormatter>();
-
-        commandsNext.RegisterCommands(Assembly.GetExecutingAssembly());
+        //commandsNext.RegisterCommands(Assembly.GetExecutingAssembly());
 
         await Client.ConnectAsync();
     }
 
-    //private static async Task HandleMessageRemoveReaction(string ubiKey, MessageReactionRemoveEventArgs e)
-    //{
-    //    if (!prod || e.User.IsBot || e.Guild.Id != 798307000206360588 || e.Message.Author is null || e.User.Id == e.Message.Author.Id || e.Emoji.Name != "⭐") return;
-
-    //    GetData($"https://ubi.vtech.cf/remove_star?id={e.Message.Author.Id}&key={ubiKey}");
-    //}
-
-    //private static async Task HandleMessageAddReaction(string ubiKey, MessageReactionAddEventArgs e)
-    //{
-    //    if (!prod || e.User.IsBot || e.Guild.Id != 798307000206360588 || e.Message.Author is null || e.User.Id == e.Message.Author.Id || e.Emoji.Name != "⭐") return;
-
-    //    GetData($"https://ubi.vtech.cf/new_star?id={e.Message.Author.Id}&key={ubiKey}");
-    //}
-
-    private static async Task HandleMessage(string ubiKey, MessageCreateEventArgs e)
+    private static void SetUpEvents()
     {
-        if (e.Author.IsBot) return;
-
-        // send role data too for senator/gov pay & for district level UBI
-
-        DiscordGuild server = await Client.GetGuildAsync(798307000206360588);
-
-        DiscordMember member = await server.GetMemberAsync(e.Author.Id);
-
-        await Task.Delay(10000);
-
-        await e.Channel.GetMessageAsync(e.Message.Id);
-
-        if (member is null)
+        Client.Ready += async (sender, e) =>
         {
-            GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ubiKey}");
-            return;
-        }
+            Console.WriteLine("CocaBot on!");
 
-        string end = "";
+            var guild = await sender.GetGuildAsync(798307000206360588);
+            var members = await guild.GetAllMembersAsync();
+            var filtered = members.Select(x => (x.Username, x.Discriminator)).ToList();
+            JsonSerializer.SerializeAsync(File.Create("results.json"), filtered.Select(x => new { Username = x.Username, Discriminator = x.Discriminator }));
+            Console.WriteLine(filtered.Average(x => x.Username.Length));
+        };
 
-        foreach (string rolename in member.Roles.Select(x => x.Name))
+        if (!prod) return;
+
+        Client.Ready += (s, e) =>
         {
-            end += $"{rolename}|";
-        }
+            Task.Run(async () =>
+            {
+                ServiceWrapper wrapper = new();
+                Task.Run(async () => await wrapper._ServiceWrapper(s));
+                await SetTimer();
+            });
+            return Task.CompletedTask;
+        };
 
-        // removes the last "|" symbol
-        end = end[0..^1];
+        Client.MessageCreated += (s, args) =>
+        {
+            Task.Run(async () => await HandleMessage(UBIKey, args));
+            return Task.CompletedTask;
+        };
 
-        GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ubiKey}&roledata={end}");
+        if (!File.Exists("moi.json")) return;
+
+        Client.GuildMemberAdded += (s, args) =>
+        {
+            Task.Run(async () => await Events.MemberJoinEvents.HandleSVJoin(args));
+            return Task.CompletedTask;
+        };
     }
 }
 
@@ -141,17 +120,14 @@ public class ServiceWrapper
     }
 
     private async Task ServerEventOccursAsync(Stream s)
-    { 
-        using (var sr = new StreamReader(s))
+    {
+        using var sr = new StreamReader(s);
+        string message = await sr.ReadLineAsync();
+
+        if (!message.Contains("ping"))
         {
-            string message = await sr.ReadLineAsync();
-
-            if (!message.Contains("ping"))
-            {
-                message = message.Replace("data: ", "");
-                channel.SendMessageAsync(message);
-            }
-
+            message = message.Replace("data: ", "");
+            channel.SendMessageAsync(message);
         }
     }
 }

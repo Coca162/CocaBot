@@ -6,12 +6,6 @@ using Shared;
 using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
-using DSharpPlus.Entities;
-using static Discord.Bot;
-using static Shared.Commands.Balance;
-using System.Text.Json.Serialization;
-using static SpookVooper.Api.SpookVooperAPI;
-using System.Collections.Generic;
 using System;
 
 namespace Discord.Commands;

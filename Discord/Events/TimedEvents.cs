@@ -3,19 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using Shared;
 using SpookVooper.Api.Entities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using static Discord.Bot;
 using static Shared.Main;
-using static Shared.Tools;
 using Timer = System.Timers.Timer;
-using Shared.Models;
 
-namespace Discord;
+namespace Discord.Events;
 
 public class TimedEvents
 {

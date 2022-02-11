@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +8,7 @@ namespace Discord;
 class Program
 {
     public static bool prod;
-    public static string UBIKey;
+    public static string UBIKey = "";
 
     public static async Task Main()
     {
@@ -18,7 +18,7 @@ class Program
         if (prod) LoadSVIDNameCache();
         platform = Platform.Discord;
 
-        await Bot.RunAsync(config);
+        await Bot.RunAsync(config.Token, config.Prefix);
 
         await Task.Delay(-1);
     }
