@@ -95,6 +95,9 @@ public class Bot
 
         if (!File.Exists("moi.json")) return;
 
+        var rng = new Random();
+        Events.MemberJoinEvents.NextHelper = rng.Next(0, Events.MemberJoinEvents.Helpers.Count - 1);
+
         Client.GuildMemberAdded += (s, args) =>
         {
             Task.Run(async () => await Events.MemberJoinEvents.HandleSVJoin(args));

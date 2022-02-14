@@ -14,32 +14,7 @@ namespace Discord.Events;
 public static class MemberJoinEvents
 {
     private static HelperList helpers = null;
-
-    public static HelperList Helpers { 
-        get
-        { 
-            if (helpers != null) return helpers;
-
-            helpers = JsonSerializer.Deserialize<HelperList>(File.ReadAllText("moi.json"));
-            return helpers;
-        }
-    }
-
-    public class HelperList : List<ulong>
-    {
-        public new void Add(ulong item)
-        {
-            base.Add(item);
-            File.WriteAllText("moi.json", JsonSerializer.Serialize(this));
-        }
-
-        public new void Remove(ulong item)
-        {
-            base.Add(item);
-            File.WriteAllText("moi.json", JsonSerializer.Serialize(this));
-        }
-    }
-
+    public static int NextHelper { get; set; }
 
     public static async Task HandleSVJoin(GuildMemberAddEventArgs args)
     {
@@ -62,12 +37,39 @@ public static class MemberJoinEvents
         }
         try
         {
-            await dms.SendMessageAsync("this is the message!");
+            await dms.SendMessageAsync($"\n\nIf you need any help or have any questions, contact <@{Helpers[NextHelper]}>");
+            NextHelper++;
         }
         catch (UnauthorizedException)
         {
             await moi.SendMessageAsync($"Failure to send message to {member.Username}#{member.Discriminator} because the user has DMs from server members turned off.");
             return;
+        }
+    }
+
+    public static HelperList Helpers
+    {
+        get
+        {
+            if (helpers != null) return helpers;
+
+            helpers = JsonSerializer.Deserialize<HelperList>(File.ReadAllText("moi.json"));
+            return helpers;
+        }
+    }
+
+    public class HelperList : List<ulong>
+    {
+        public new void Add(ulong item)
+        {
+            base.Add(item);
+            File.WriteAllText("moi.json", JsonSerializer.Serialize(this));
+        }
+
+        public new void Remove(ulong item)
+        {
+            base.Add(item);
+            File.WriteAllText("moi.json", JsonSerializer.Serialize(this));
         }
     }
 }
