@@ -12,43 +12,26 @@ namespace ValourSharp
         public CommandInfo(MethodInfo method)
         {
             Method = method;
+            Parameters = method.GetParameters();
+            AllowBots = Method.GetCustomAttribute(typeof(AllowBots), false) is not null;
+            AllowSelf = Method.GetCustomAttribute(typeof(AllowSelf), false) is not null;
         }
 
-        public MethodInfo Method { get; set; }
+        public CommandInfo(Dictionary<string, CommandInfo> groupcCommands)
+            => GroupCommands = new Dictionary<string, CommandInfo>(groupcCommands, StringComparer.InvariantCultureIgnoreCase);
 
-        private ParameterInfo[]? parameters = null;
-        public ParameterInfo[] Parameters
-        {
-            get
-            {
-                if (parameters is not null) return parameters;
+        public CommandInfo(Dictionary<string, CommandInfo> groupcCommands, MethodInfo method) : this(method)
+            => GroupCommands = new Dictionary<string, CommandInfo>(groupcCommands, StringComparer.InvariantCultureIgnoreCase);
 
-                parameters = Method.GetParameters();
-                return parameters;
-            }
-        }
-        private bool? allowBots = null;
-        public bool AllowBots
-        {
-            get
-            {
-                if (allowBots is not null) return (bool)allowBots;
 
-                allowBots = Method.GetCustomAttribute(typeof(AllowBots), false) is not null;
-                return (bool)allowBots;
-            }
-        }
+        public Dictionary<string, CommandInfo>? GroupCommands { get; }
 
-        private bool? allowSelf = null;
-        public bool AllowSelf
-        {
-            get
-            {
-                if (allowSelf is not null) return (bool)allowSelf;
+        public MethodInfo? Method { get; }
 
-                allowSelf = Method.GetCustomAttribute(typeof(AllowSelf), false) is not null;
-                return (bool)allowSelf;
-            }
-        }
+        public ParameterInfo[] Parameters { get; }
+
+        public bool AllowBots { get; }
+
+        public bool AllowSelf { get; }
     }
 }

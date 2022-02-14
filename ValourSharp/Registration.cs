@@ -18,13 +18,15 @@ public static class Registration
         var assembly = Assembly.GetCallingAssembly();
         var methods = assembly.GetTypes().SelectMany(t => t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static)).ToList();
 
-        methods.RemoveAll(x => x.IsAbstract | !x.GetCustomAttributes(typeof(Command)).Any());
+        methods.RemoveAll(x => x.IsAbstract || x.GetCustomAttribute(typeof(Command)) is null || (x.DeclaringType is null && x.DeclaringType.GetCustomAttribute(typeof(Group)) is null));
 
         foreach (var method in methods)
         {
-            var attribute = method.GetCustomAttributes(typeof(Command)).Single() as Command;
+            var attribute = method.GetCustomAttribute(typeof(Command)) as Command;
             RegisterCommand(method, attribute.Names);
             //TODO make it so it checks if you used the remainder incorrectly
         }
+
+        //DO GROUP COMMANDS HERE
     }
 }

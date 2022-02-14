@@ -13,7 +13,8 @@ namespace ValourSharp;
 
 public static class CommandHandler
 {
-    public static ConcurrentDictionary<string, CommandInfo> Commands = new(StringComparer.InvariantCultureIgnoreCase);
+    public static Dictionary<string, CommandInfo> Commands = new(StringComparer.InvariantCultureIgnoreCase);
+
     public static async Task MessageHandler(PlanetMessage ctx)
     {
         var sender = await (await ctx.GetAuthorAsync()).GetUserAsync();
@@ -26,19 +27,16 @@ public static class CommandHandler
 
         List<string> stringArgs = ctx.Content[prefixLength..].Split(null).ToList();
 
-        string commandname = stringArgs[0].ToLowerInvariant();
-        stringArgs.RemoveAt(0);
+        bool isCommand = GetCommand(ref stringArgs, Commands, out CommandInfo? command, out string commandName);
 
-        bool isCommand = Commands.TryGetValue(commandname, out CommandInfo command);
-
-        if (!isCommand ||
-           command.Parameters.SkipWhile(x => x.ParameterType == typeof(PlanetMessage)).Count() != stringArgs.Count ||
-           (sender.Bot && command.AllowBots) ||
-           (ValourClient.Self == sender && command.AllowSelf)) return;
+        if (!isCommand || command.Method is null ||
+       command.Parameters.SkipWhile(x => x.ParameterType == typeof(PlanetMessage)).Count() != stringArgs.Count ||
+       (sender.Bot && command.AllowBots) ||
+       (ValourClient.Self == sender && command.AllowSelf)) return;
 
         object[] args = new object[command.Parameters.Length];
 
-        int length = prefixLength + commandname.Length + 1;
+        int length = prefixLength + commandName.Length + 1;
         List<Mention> mentions = ctx.Mentions;
         int contexts = 0;
         for (int i = 0; i < command.Parameters.Length; i++)
@@ -79,6 +77,26 @@ public static class CommandHandler
         }
 
         command.Method.Invoke(null, args);
+    }
+
+    private static bool GetCommand(ref List<string> stringArgs, Dictionary<string, CommandInfo> commands, out CommandInfo? command, out string commandName)
+    {
+        commandName = stringArgs[0];
+        stringArgs.RemoveAt(0);
+
+        if (!commands.TryGetValue(commandName, out command)) return false;
+
+        if (command.GroupCommands is not null)
+        {
+            var currentArgs = stringArgs;
+            var currentCommand = command;
+            if (GetCommand(ref stringArgs, command.GroupCommands, out command, out commandName)) return true;
+
+            stringArgs = currentArgs;
+            command = currentCommand;
+        };
+
+        return true;
     }
 
     private static bool IsValourType(this ParameterInfo parameter) => 
