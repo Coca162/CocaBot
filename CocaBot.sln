@@ -10,8 +10,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Shared\Shared.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Website", "Website\Website.csproj", "{24D02D03-89E0-4752-B301-604D1C93CE96}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DBRecovery", "DBRecovery\DBRecovery.csproj", "{B6A63F03-8F6F-4A3E-B489-85233AE35873}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpookVooper.Api", "SVAPI\SpookVooper.Api\SpookVooper.Api.csproj", "{123AB5C2-AB4A-4D06-B298-5FD21FB991BF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TransactionLogger", "TransactionLogger\TransactionLogger.csproj", "{B1050D47-A838-481B-8C25-FDE3A31FF968}"
@@ -44,10 +42,6 @@ Global
 		{24D02D03-89E0-4752-B301-604D1C93CE96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24D02D03-89E0-4752-B301-604D1C93CE96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24D02D03-89E0-4752-B301-604D1C93CE96}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B6A63F03-8F6F-4A3E-B489-85233AE35873}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B6A63F03-8F6F-4A3E-B489-85233AE35873}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B6A63F03-8F6F-4A3E-B489-85233AE35873}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B6A63F03-8F6F-4A3E-B489-85233AE35873}.Release|Any CPU.Build.0 = Release|Any CPU
 		{123AB5C2-AB4A-4D06-B298-5FD21FB991BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{123AB5C2-AB4A-4D06-B298-5FD21FB991BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{123AB5C2-AB4A-4D06-B298-5FD21FB991BF}.Release|Any CPU.ActiveCfg = Release|Any CPU

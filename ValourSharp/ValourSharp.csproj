@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ValourGit\Valour\API\Valour.Api.csproj" />
-    <ProjectReference Include="..\ValourGit\Valour\Shared\Valour.Shared.csproj" />
   </ItemGroup>
 
 </Project>
