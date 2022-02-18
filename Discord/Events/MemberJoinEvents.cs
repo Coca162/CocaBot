@@ -18,12 +18,12 @@ public static class MemberJoinEvents
 
     public static async Task HandleSVJoin(GuildMemberAddEventArgs args)
     {
+        await Task.Delay(10000);
+
         var member = args.Member;
         var server = args.Guild;
 
         if (member.IsBot || server.Id != 798307000206360588) return;
-
-        var moi = server.GetChannel(870371308393873498);
 
         DiscordDmChannel dms;
         try
@@ -32,16 +32,20 @@ public static class MemberJoinEvents
         }
         catch (NullReferenceException)
         {
+            var channels = await server.GetChannelsAsync();
+            var moi = channels.Where(x => x.Id == 870371308393873498).Single();
             await moi.SendMessageAsync($"Failure to send message to {member.Username}#{member.Discriminator} because member doesn't exist (what? get over here <@388454632835514380>).");
             return;
         }
         try
         {
-            await dms.SendMessageAsync($"\n\nIf you need any help or have any questions, contact <@{Helpers[NextHelper]}>");
+            await dms.SendMessageAsync($"Hi there! Welcome to SpookVooper, a roleplay planet and community with a government and other cool things! If you need any help or have any questions, contact <@{Helpers[NextHelper]}>. Enjoy your stay!");
             NextHelper++;
         }
         catch (UnauthorizedException)
         {
+            var channels = await server.GetChannelsAsync();
+            var moi = channels.Where(x => x.Id == 870371308393873498).Single();
             await moi.SendMessageAsync($"Failure to send message to {member.Username}#{member.Discriminator} because the user has DMs from server members turned off.");
             return;
         }
@@ -60,16 +64,16 @@ public static class MemberJoinEvents
 
     public class HelperList : List<ulong>
     {
-        public new void Add(ulong item)
+        public new async Task Add(ulong item)
         {
             base.Add(item);
-            File.WriteAllText("moi.json", JsonSerializer.Serialize(this));
+            await JsonSerializer.SerializeAsync(File.Create("moi.json"), this);
         }
 
-        public new void Remove(ulong item)
+        public new async Task Remove(ulong item)
         {
             base.Add(item);
-            File.WriteAllText("moi.json", JsonSerializer.Serialize(this));
+            await JsonSerializer.SerializeAsync(File.Create("moi.json"), this);
         }
     }
 }

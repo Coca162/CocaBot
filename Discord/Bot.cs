@@ -34,7 +34,8 @@ public class Bot
         {
             Token = token,
             TokenType = TokenType.Bot,
-            MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Debug
+            MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Debug,
+            Intents = DiscordIntents.GuildMembers | DiscordIntents.Guilds | DiscordIntents.GuildMessages
         };
 
         Client = new DiscordClient(config);
@@ -43,20 +44,20 @@ public class Bot
 
         SetUpEvents();
 
-        //CommandsNextConfiguration commandsConfig = new()
-        //{
-        //    StringPrefixes = prefixes,
-        //    Services = new ServiceCollection().AddDbContextPool<CocaBotWebContext>((serviceProvider, options) =>
-        //    {
-        //        options.UseMySql(CocaBotWebContext.ConnectionString, CocaBotWebContext.version);
-        //    }).BuildServiceProvider()
-        //};
+        CommandsNextConfiguration commandsConfig = new()
+        {
+            StringPrefixes = prefixes,
+            Services = new ServiceCollection().AddDbContextPool<CocaBotWebContext>((serviceProvider, options) =>
+            {
+                options.UseMySql(CocaBotWebContext.ConnectionString, CocaBotWebContext.version);
+            }).BuildServiceProvider()
+        };
 
-        //var commandsNext = Client.UseCommandsNext(commandsConfig);
+        var commandsNext = Client.UseCommandsNext(commandsConfig);
 
-        //commandsNext.SetHelpFormatter<HelpFormatter>();
+        commandsNext.SetHelpFormatter<HelpFormatter>();
 
-        //commandsNext.RegisterCommands(Assembly.GetExecutingAssembly());
+        commandsNext.RegisterCommands(Assembly.GetExecutingAssembly());
 
         await Client.ConnectAsync();
     }
@@ -66,12 +67,6 @@ public class Bot
         Client.Ready += async (sender, e) =>
         {
             Console.WriteLine("CocaBot on!");
-
-            var guild = await sender.GetGuildAsync(798307000206360588);
-            var members = await guild.GetAllMembersAsync();
-            var filtered = members.Select(x => (x.Username, x.Discriminator)).ToList();
-            JsonSerializer.SerializeAsync(File.Create("results.json"), filtered.Select(x => new { Username = x.Username, Discriminator = x.Discriminator }));
-            Console.WriteLine(filtered.Average(x => x.Username.Length));
         };
 
         if (!prod) return;

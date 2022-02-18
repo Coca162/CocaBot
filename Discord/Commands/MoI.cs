@@ -13,7 +13,7 @@ namespace Discord.Commands;
 [Group("moi")] // let's mark this class as a command group
 public class MoI : BaseCommandModule
 {
-    private static List<ulong> EditPerms = new List<ulong>()
+    private static readonly List<ulong> EditPerms = new()
     {
         388454632835514380, //Coca
         553041789976838154, //Snov
@@ -33,7 +33,7 @@ public class MoI : BaseCommandModule
                 member = await ctx.Guild.GetMemberAsync(id);
             }
             catch (DSharpPlus.Exceptions.NotFoundException) {
-                Helpers.Remove(id);
+                await Helpers.Remove(id);
                 continue; 
             }
 
@@ -58,23 +58,30 @@ public class MoI : BaseCommandModule
             return;
         }
 
-        Helpers.Add(id);
+        await Helpers.Add(id);
         await ctx.RespondAsync("Added helper!");
     }
 
-    [Command("remove")]
+    [Command("remove"), Priority(1)]
     public async Task Remove(CommandContext ctx, DiscordUser user)
     {
-        if (!EditPerms.Contains(ctx.User.Id)) return;
-        ulong id = user.Id;
+        if (EditPerms.Contains(ctx.User.Id)) 
+            await Remove(ctx, user.Id);
+    }
 
+    [Command("remove"), Priority(0)]
+    public async Task Remove(CommandContext ctx) => 
+        await Remove(ctx, ctx.User.Id);
+
+    public async Task Remove(CommandContext ctx, ulong id)
+    {
         if (!Helpers.Contains(id))
         {
             await ctx.RespondAsync("They are not a helper!");
             return;
         }
 
-        Helpers.Remove(id);
-        await ctx.RespondAsync("Removed helper!");  
+        await Helpers.Remove(id);
+        await ctx.RespondAsync("Removed helper!");
     }
 }
