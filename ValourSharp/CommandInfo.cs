@@ -24,14 +24,14 @@ namespace ValourSharp
             => GroupCommands = new Dictionary<string, CommandInfo>(groupcCommands, StringComparer.InvariantCultureIgnoreCase);
 
 
-        public readonly Dictionary<string, CommandInfo>? GroupCommands { get; }
+        public Dictionary<string, CommandInfo>? GroupCommands { get; }
 
-        public readonly MethodInfo? Method { get; }
+        public MethodInfo? Method { get; }
 
-        public readonly ParameterInfo[] Parameters { get; }
+        public ParameterInfo[] Parameters { get; }
 
-        public readonly bool AllowBots { get; }
+        public bool AllowBots { get; }
 
-        public readonly bool AllowSelf { get; }
+        public bool AllowSelf { get; }
     }
 }

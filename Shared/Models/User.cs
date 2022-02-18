@@ -9,4 +9,10 @@ public class User
     public ulong? Valour { get; set; }
     public ulong? Discord { get; set; }
     public string ValourName { get; set; }
+
+    public void Deconstruct(out string svid, out string token)
+    {
+        svid = SVID;
+        token = Token;
+    }
 }
