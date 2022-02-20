@@ -38,14 +38,15 @@ public class Time : BaseCommandModule
         var (additional, owner) = eventPair.Value;
 
         long now = ConvertToSVTime();
-        long ceiled = VooperYearCeiled();
+        DateTimeOffset ceiled = VooperYearCeiled();
 
-        long time = ceiled - (31536000 - additional);
-        if (time < now) time = ceiled + additional;
+        DateTimeOffset down = ceiled.AddSeconds(-(31536000 - additional));
 
-        time = ReverseSVTime(time);
+        DateTimeOffset time = down.ToUnixTimeSeconds() > now ? down : ceiled.AddSeconds(additional);
 
-        await ctx.RespondAsync($"{eventPair.Key} will be on <t:{time}:F> which is <t:{time}:R>");
+        long unix = ReverseSVTime(time.ToUnixTimeSeconds());
+
+        await ctx.RespondAsync($"{eventPair.Key} will be on <t:{unix}:F> which is <t:{unix}:R>");
     }
 
     [Command("sv")]
@@ -61,8 +62,8 @@ public class Time : BaseCommandModule
         await ctx.RespondAsync($"Reversed Time: <t:{reversed}:F>");
     }
 
-    private static long VooperYearCeiled() => 
-        new DateTimeOffset(new DateTime(DateTimeOffset.FromUnixTimeSeconds(ConvertToSVTime()).Year + 1, 1, 1)).ToUnixTimeSeconds();
+    private static DateTimeOffset VooperYearCeiled() => 
+        new DateTimeOffset(new DateTime(DateTimeOffset.FromUnixTimeSeconds(ConvertToSVTime()).Year + 1, 1, 1));
 
     private static async Task SVTime(CommandContext ctx, DateTimeOffset time)
     {
@@ -110,35 +111,10 @@ public class Time : BaseCommandModule
             foreach ((string name, (long difference, ulong owner)) in Events)
             {
                 var date = DateTimeOffset.FromUnixTimeSeconds(difference).UtcDateTime;
-                embed.AddField(name, $"Date: {date:dd MMMM}\nOwner: <@{owner}>");
+                embed.AddField(name, $"Date: {date:dd MMMM HH:mm:ss}\nOwner: <@{owner}>");
             }
 
             await ctx.RespondAsync(embed);
-        }
-
-        [Command("add"), Priority(0)]
-        public async Task Add(CommandContext ctx, string date, [RemainingText] string name)
-        {
-            if (!DateTime.TryParse(date, out DateTime converted)) return;
-
-            long seconds = ((converted.DayOfYear - 1) * 86400) + (converted.Hour * 3600) + (converted.Minute * 60) + converted.Second;
-
-            await Add(ctx, seconds, name);
-        }
-
-        [Command("add"), Priority(1)]
-        public async Task Add(CommandContext ctx, long additional, [RemainingText] string name)
-        {
-            if (Events.ContainsKey(name))
-            {
-                await ctx.RespondAsync("Already a event!");
-                return;
-            }
-
-            await Events.Add(name, (additional, ctx.User.Id));
-
-            var date = DateTimeOffset.FromUnixTimeSeconds(additional).UtcDateTime;
-            await ctx.RespondAsync($"Added event for the date {date:dd MMMM}!");
         }
 
         [Command("remove")]
@@ -158,6 +134,47 @@ public class Time : BaseCommandModule
 
             await Events.Remove(name);
             await ctx.RespondAsync("Removed event!");
+        }
+
+        [Group("add")]
+        public class Add : BaseCommandModule
+        {
+            [GroupCommand, Priority(0)]
+            public async Task AddDate(CommandContext ctx, string date, [RemainingText] string name)
+            {
+                if (!DateTime.TryParse(date, out DateTime converted)) return;
+
+                long seconds = ((converted.DayOfYear - 1) * 86400) + (converted.Hour * 3600) + (converted.Minute * 60) + converted.Second;
+
+                await AddSecs(ctx, seconds, name);
+            }
+
+            [GroupCommand, Priority(1)]
+            public async Task AddSecs(CommandContext ctx, long additional, [RemainingText] string name)
+            {
+                if (Events.ContainsKey(name))
+                {
+                    await ctx.RespondAsync("Already a event!");
+                    return;
+                }
+
+                additional =- 86400;
+
+                await Events.Add(name, (additional, ctx.User.Id));
+
+                var date = DateTimeOffset.FromUnixTimeSeconds(additional);
+                await ctx.RespondAsync($"Added event for the date {date:dd MMMM HH:mm:ss}!");
+            }
+
+            [Command("irl")]
+            public async Task AddSecs(CommandContext ctx, string date, [RemainingText] string name)
+            {
+                if (!DateTimeOffset.TryParse(date, out DateTimeOffset time)) return;
+
+                long seconds = ((time.DayOfYear - 1) * 86400) + (time.Hour * 3600) + (time.Minute * 60) + time.Second;
+
+                await AddSecs(ctx, seconds, name);
+            }
         }
     }
 }
