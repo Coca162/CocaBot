@@ -13,8 +13,20 @@ namespace Discord.Events;
 
 public static class MemberJoinEvents
 {
-    private static HelperList helpers = null;
     public static int NextHelper { get; set; }
+
+    private static JsonList<ulong> _helpers;
+
+    public static JsonList<ulong> Helpers
+    {
+        get
+        {
+            if (_helpers is not null) return _helpers;
+
+            _helpers = new JsonList<ulong>("moi.json", JsonSerializer.Deserialize<IEnumerable<ulong>>(File.ReadAllText("moi.json")));
+            return _helpers;
+        }
+    }
 
     public static async Task HandleSVJoin(GuildMemberAddEventArgs args)
     {
@@ -50,31 +62,4 @@ public static class MemberJoinEvents
             return;
         }
     }
-
-    public static HelperList Helpers
-    {
-        get
-        {
-            if (helpers != null) return helpers;
-
-            helpers = JsonSerializer.Deserialize<HelperList>(File.ReadAllText("moi.json"));
-            return helpers;
-        }
-    }
-
-    public class HelperList : List<ulong>
-    {
-        public new async Task Add(ulong item)
-        {
-            base.Add(item);
-            await JsonSerializer.SerializeAsync(File.Create("moi.json"), this);
-        }
-
-        public new async Task Remove(ulong item)
-        {
-            base.Add(item);
-            await JsonSerializer.SerializeAsync(File.Create("moi.json"), this);
-        }
-    }
 }
-
