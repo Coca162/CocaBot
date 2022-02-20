@@ -43,6 +43,8 @@ public class Time : BaseCommandModule
         long time = ceiled - (31536000 - additional);
         if (time < now) time = ceiled + additional;
 
+        time = ReverseSVTime(time);
+
         await ctx.RespondAsync($"{eventPair.Key} will be on <t:{time}:F> which is <t:{time}:R>");
     }
 
@@ -107,7 +109,7 @@ public class Time : BaseCommandModule
 
             foreach ((string name, (long difference, ulong owner)) in Events)
             {
-                var date = DateTimeOffset.FromUnixTimeSeconds(31536000 - difference);
+                var date = DateTimeOffset.FromUnixTimeSeconds(difference).UtcDateTime;
                 embed.AddField(name, $"Date: {date:dd MMMM}\nOwner: <@{owner}>");
             }
 
@@ -119,7 +121,7 @@ public class Time : BaseCommandModule
         {
             if (!DateTime.TryParse(date, out DateTime converted)) return;
 
-            long seconds = (converted.DayOfYear * 86400) + (converted.Hour * 3600) + (converted.Minute * 60) + converted.Second;
+            long seconds = ((converted.DayOfYear - 1) * 86400) + (converted.Hour * 3600) + (converted.Minute * 60) + converted.Second;
 
             await Add(ctx, seconds, name);
         }
@@ -135,7 +137,7 @@ public class Time : BaseCommandModule
 
             await Events.Add(name, (additional, ctx.User.Id));
 
-            var date = DateTimeOffset.FromUnixTimeSeconds(additional);
+            var date = DateTimeOffset.FromUnixTimeSeconds(additional).UtcDateTime;
             await ctx.RespondAsync($"Added event for the date {date:dd MMMM}!");
         }
 
