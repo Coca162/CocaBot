@@ -1,2 +1,4 @@
 [submodule "ValourGit"]
 	url = https://github.com/Vooper-Media-LLC/Valour
+[submodule "SVAPI"]
+	url = https://github.com/Coca162/SpookVooper.Api

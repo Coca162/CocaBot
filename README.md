@@ -1,0 +1,1 @@
+When cloning the project it is recommended you use `git clone --recurse-submodules` as to include all submodules or if already cloned `git submodule update --init --recursive`.
