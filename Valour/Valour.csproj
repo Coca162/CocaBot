@@ -12,8 +12,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.csproj" />
-	<ProjectReference Include="..\ValourGit\Valour\API\Valour.Api.csproj" />
-	<ProjectReference Include="..\SVAPI\SpookVooper.Api\SpookVooper.Api.csproj" />
+	<ProjectReference Include="..\Valour.Api\Valour\API\Valour.Api.csproj" />
+	<ProjectReference Include="..\SpookVooper.Api\SpookVooper.Api\SpookVooper.Api.csproj" />
 	<ProjectReference Include="..\ValourSharp\ValourSharp.csproj" />
   </ItemGroup>
 

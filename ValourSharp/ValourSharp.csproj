@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ValourGit\Valour\API\Valour.Api.csproj" />
+    <ProjectReference Include="..\Valour.Api\Valour\API\Valour.Api.csproj" />
   </ItemGroup>
 
 </Project>

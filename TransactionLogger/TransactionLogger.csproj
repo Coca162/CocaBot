@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.csproj" />
-    <ProjectReference Include="..\SVAPI\SpookVooper.Api\SpookVooper.Api.csproj" />
+    <ProjectReference Include="..\SpookVooper.Api\SpookVooper.Api\SpookVooper.Api.csproj" />
   </ItemGroup>
 
 </Project>

@@ -22,10 +22,10 @@ public class Jury : BaseCommandModule
     public DiscordRole Imperial = null;
     public DiscordRole District = null;
 
-    [Command("jury"), Description("Get the median for xp data")]
+    [Command("jury"), Description("Get 4 jurors")]
     public async Task JuryCommand(CommandContext ctx) => await JuryCommand(ctx, 4);
 
-    [Command("jury"), Description("Get the median for xp data")]
+    [Command("jury"), Description("Get the amount of jurors you want")]
     public async Task JuryCommand(CommandContext ctx, int amount)
     {
         GetRoles(ctx);
