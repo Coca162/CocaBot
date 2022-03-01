@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Valour.Api.Items.Planets.Channels;
 using Valour.Api.Items.Planets;
 using static Valour.ValourTools;
-using static Valour.Commands;
+using static Valour.Misc;
 using static SpookVooper.Api.SpookVooperAPI;
 using Valour.Api.Items.Users;
 using System.ComponentModel;
@@ -41,12 +41,11 @@ class Program
         UBIKey = config.JacobUBIKey;
         //if (prod) LoadSVIDNameCache();
 
-        Registration.RegisterCommands();
+        Registration.RegisterCommands(Assembly.GetExecutingAssembly());
 
         await Start.Initialize(config.Email, config.BotPassword, prefixes.ToArray());
 
-        OnMessageRecieved += async (message) =>
-            await MessageHandler(message);
+        //OnMessageRecieved += MessageHandler;
 
         await Task.Delay(-1);
     }

@@ -8,92 +8,122 @@ using Valour.Api.Items.Planets.Members;
 using Valour.Api.Items.Planets.Channels;
 using System.Collections.Concurrent;
 using static ValourSharp.Start;
+using System.Collections.ObjectModel;
 
 namespace ValourSharp;
 
 public static class CommandHandler
 {
-    public static Dictionary<string, CommandInfo> Commands = new(StringComparer.InvariantCultureIgnoreCase);
+    public static Dictionary<string, CommandModule> Commands { get; set; } = new(StringComparer.InvariantCultureIgnoreCase);
 
     public static async Task MessageHandler(PlanetMessage ctx)
     {
         var sender = await (await ctx.GetAuthorAsync()).GetUserAsync();
 
-        var matches = Prefixes.Where(prefix => ctx.Content.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase));
+        var matches = Prefixes!.Where(prefix => ctx.Content.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase));
 
         if (!matches.Any()) return;
 
-        int prefixLength = matches.Max().Length;
+        int prefixLength = matches.Max()!.Length;
 
         List<string> stringArgs = ctx.Content[prefixLength..].Split(null).ToList();
 
-        bool isCommand = GetCommand(ref stringArgs, Commands, out CommandInfo? command, out string commandName);
+        bool isCommand = GetCommands(ref stringArgs, Commands, out CommandModule? module, out string commandName);
 
-        if (!isCommand || command.Method is null ||
-       command.Parameters.SkipWhile(x => x.ParameterType == typeof(PlanetMessage)).Count() != stringArgs.Count ||
-       (sender.Bot && command.AllowBots) ||
-       (ValourClient.Self == sender && command.AllowSelf)) return;
+        if (!isCommand) return;
 
-        object[] args = new object[command.Parameters.Length];
+        foreach (var check in module!.Checks)
+            if (!await check.ExecuteCheckAsync(ctx)) return;
 
-        int length = prefixLength + commandName.Length + 1;
-        List<Mention> mentions = ctx.Mentions;
-        int contexts = 0;
-        for (int i = 0; i < command.Parameters.Length; i++)
+        foreach (var command in module!.ModuleCommands)
         {
-            ParameterInfo parameter = command.Parameters[i];
+            int paramAmount = command.Parameters.SkipWhile(x => x.ParameterType == typeof(PlanetMessage)).Count();
+            if (paramAmount != stringArgs.Count ||
+               (sender.Bot && command.AllowBots) ||
+               (ValourClient.Self == sender && command.AllowSelf)) return;
 
-            if (parameter.ParameterType == typeof(PlanetMessage))
+            object[] args = new object[command.Parameters.Length];
+
+            int length = prefixLength + commandName.Length + 1;
+            List<Mention> mentions = ctx.Mentions;
+            int contexts = 0;
+            for (int i = 0; i < command.Parameters.Length; i++)
             {
-                contexts++;
-                args[i] = ctx;
-                continue;
+                ParameterInfo parameter = command.Parameters[i];
+
+                if (parameter.ParameterType == typeof(PlanetMessage))
+                {
+                    contexts++;
+                    args[i] = ctx;
+                    continue;
+                }
+
+                var position = i - contexts;
+                string rawargs = stringArgs[position];
+
+                if (parameter.ParameterType == typeof(string) && parameter.GetCustomAttribute(typeof(Remainder), false) is not null)
+                {
+                    args[i] = string.Join(' ', stringArgs.GetRange(position, stringArgs.Count - position));
+                }
+                else if (parameter.IsValourType())
+                {
+                    Mention? mention = mentions.FirstOrDefault();
+
+                    if (mention is null || mention.Position != length + 3) break;
+
+                    object? type = await mention.ConvertToObject(parameter);
+                    if (type is null) break;
+                    args[i] = type;
+
+                    mentions.RemoveAt(0);
+                }
+                else
+                {
+                    TypeConverter typeConverter = TypeDescriptor.GetConverter(parameter.ParameterType);
+                    var arg = typeConverter.ConvertFromInvariantString(rawargs);
+                  
+                    if (arg is null) break;
+                    args[i] = arg;
+                }
+
+                length += rawargs.Length + 1;
             }
 
-            var position = i - contexts;
-            string rawargs = stringArgs[position];
+            if (stringArgs.Count != args.Length - contexts) return;
 
-            if (parameter.ParameterType == typeof(string) && parameter.GetCustomAttribute(typeof(Remainder), false) is not null)
-            {
-                args[i] = string.Join(' ', stringArgs.GetRange(position, stringArgs.Count - position));
-            }
-            else if (parameter.IsValourType())
-            {
-                var mention = mentions.FirstOrDefault();
+            ConstructorInfo? constructor = command.Method.DeclaringType!.GetConstructor(Type.EmptyTypes);
+            object classObject = constructor!.Invoke(Array.Empty<object>());
 
-                if (mention is null || mention.Position != length + 3) continue;
 
-                args[i] = await mention.ConvertToObject(parameter);
+            if (classObject is BaseCommandModule before)
+                await before.BeforeCommandAsync(ctx);
 
-                mentions.RemoveAt(0);
-            }
-            else
-            {
-                TypeConverter typeConverter = TypeDescriptor.GetConverter(parameter.ParameterType);
-                args[i] = typeConverter.ConvertFrom(rawargs);
-            }
+            command.Method.Invoke(classObject, args);
 
-            length += rawargs.Length + 1;
+            if (classObject is BaseCommandModule after)
+                await after.AfterCommandAsync(ctx);
         }
-
-        command.Method.Invoke(null, args);
     }
 
-    private static bool GetCommand(ref List<string> stringArgs, Dictionary<string, CommandInfo> commands, out CommandInfo? command, out string commandName)
+    private static bool GetCommands(ref List<string> stringArgs, Dictionary<string, CommandModule> modules, out CommandModule? module, out string commandName)
     {
+        module = null;
         commandName = stringArgs[0];
         stringArgs.RemoveAt(0);
 
-        if (!commands.TryGetValue(commandName, out command)) return false;
+        if (!modules.TryGetValue(commandName, out CommandModule? commandModule)) return false;
+        module = commandModule;
 
-        if (command.GroupCommands is not null)
+        if (commandModule.Submodules is not null && commandModule.Submodules.Count != 0 && stringArgs.Count != 0)
         {
             var currentArgs = stringArgs;
-            var currentCommand = command;
-            if (GetCommand(ref stringArgs, command.GroupCommands, out command, out commandName)) return true;
+            var currentModule = module;
+            var currentCommandName = commandName;
+            if (GetCommands(ref stringArgs, commandModule.Submodules, out module, out commandName)) return true;
 
             stringArgs = currentArgs;
-            command = currentCommand;
+            module = currentModule;
+            commandName = currentCommandName;
         };
 
         return true;
@@ -102,7 +132,7 @@ public static class CommandHandler
     private static bool IsValourType(this ParameterInfo parameter) => 
         parameter.ParameterType == typeof(User) || parameter.ParameterType == typeof(PlanetMember) || parameter.ParameterType == typeof(PlanetCategory) || parameter.ParameterType == typeof(PlanetChatChannel) || parameter.ParameterType == typeof(PlanetRole);
 
-    private static async Task<object> ConvertToObject(this Mention mention, ParameterInfo parameter) => mention.Type switch
+    private static async Task<object?> ConvertToObject(this Mention mention, ParameterInfo parameter) => mention.Type switch
     {
         //User
         MentionType.Member when parameter.ParameterType == typeof(User) => await (await PlanetMember.FindAsync(mention.Target_Id)).GetUserAsync(),
@@ -111,6 +141,6 @@ public static class CommandHandler
         MentionType.Category when parameter.ParameterType == typeof(PlanetCategory) => await PlanetCategory.FindAsync(mention.Target_Id),
         MentionType.Channel when parameter.ParameterType == typeof(PlanetChatChannel) => await PlanetChatChannel.FindAsync(mention.Target_Id),
         MentionType.Role when parameter.ParameterType == typeof(PlanetRole) => await PlanetRole.FindAsync(mention.Target_Id),
-        _ => throw new NotSupportedException("Unrecognized mention and paramater pair"),
+        _ => null
     };
 }

@@ -11,10 +11,24 @@ using Shared;
 
 namespace Valour;
 
-public static class Commands
+[Group("wild")]
+public class Wild : BaseCommandModule
 {
-    [Command("confirm", "conf")]
-    public static async Task Confirm(PlanetMessage ctx)
+    public override async Task BeforeCommandAsync(PlanetMessage ctx) => await ctx.ReplyAsync("beforemessage!");
+
+    public override async Task AfterCommandAsync(PlanetMessage ctx) => await ctx.ReplyAsync("aftermessage!");
+
+    [GroupCommand]
+    public async Task GroupCommand(PlanetMessage ctx) => await ctx.ReplyAsync("Wildin'");
+
+    [Command("confirm"), Aliases("conf")]
+    public async Task Confirm(PlanetMessage ctx) => await ctx.ReplyAsync("POggers!");
+}
+
+public class Misc : BaseCommandModule
+{ 
+    [Command("confirm"), Aliases("conf")]
+    public async Task Confirm(PlanetMessage ctx)
     {
         CocaBotContext db = new();
         var sender = await (await ctx.GetAuthorAsync()).GetUserAsync();
