@@ -16,11 +16,11 @@ using static System.Math;
 namespace Discord.Commands;
 public class Jury : BaseCommandModule
 {
-    public bool gotRoles = false;
+    private static bool gotRoles = false;
 
-    public DiscordRole Supreme = null;
-    public DiscordRole Imperial = null;
-    public DiscordRole District = null;
+    private static DiscordRole Supreme;
+    private static DiscordRole Imperial;
+    private static DiscordRole District;
 
     [Command("jury"), Description("Get 4 jurors")]
     public async Task JuryCommand(CommandContext ctx) => await JuryCommand(ctx, 4);
@@ -89,7 +89,7 @@ public class Jury : BaseCommandModule
         await ctx.RespondAsync(message);
     }
 
-    private void GetRoles(CommandContext ctx)
+    private static void GetRoles(CommandContext ctx)
     {
         if (gotRoles == false)
         {

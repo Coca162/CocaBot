@@ -1,0 +1,3 @@
+[*.cs]
+
+dotnet_code_quality.CA1822.api_surface = private, internal

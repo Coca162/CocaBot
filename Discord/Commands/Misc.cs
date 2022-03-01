@@ -13,27 +13,28 @@ public class Misc : BaseCommandModule
 {
     [Command("code"), Aliases("opensource")]
     [Description("Gives link for linking your SV account to your discord account")]
-    public async Task Code(CommandContext ctx) => ctx.RespondAsync(CodeMessage).ConfigureAwait(false);
+    public async Task Code(CommandContext ctx) => await ctx.RespondAsync(CodeMessage).ConfigureAwait(false);
 
     [Command("privacy")]
     [Description("Gives link for your privacy")]
-    public async Task Privacy(CommandContext ctx) => ctx.RespondAsync(PrivacyMessage).ConfigureAwait(false);
+    public async Task Privacy(CommandContext ctx) => await ctx.RespondAsync(PrivacyMessage).ConfigureAwait(false);
 
     [Command("website")]
-    public async Task Website(CommandContext ctx) => ctx.RespondAsync("https://cocabot.cf");
+    public async Task Website(CommandContext ctx) => await ctx.RespondAsync("https://cocabot.cf");
 
     [Command("summon")]
-    public async Task Summon(CommandContext ctx) => ctx.RespondAsync("Hello!");
+    public async Task Summon(CommandContext ctx) => await ctx.RespondAsync("Hello!");
 
     [Command("sheep")]
-    public async Task Sheep(CommandContext ctx) => ctx.RespondAsync("beeee!");
+    public async Task Sheep(CommandContext ctx) => await ctx.RespondAsync("beeee!");
 
     [Command("ping")]
     [Description("pong!")]
-    public async Task Ping(CommandContext ctx) => ctx.RespondAsync(ctx.Client.Ping.ToString() + " ms");
+    public async Task Ping(CommandContext ctx) => await ctx.RespondAsync(ctx.Client.Ping.ToString() + " ms");
 
     [Command("search"), GeneralBlacklist]
-    public async Task SearchCommand(CommandContext ctx, [RemainingText, Description("A name")] string input) => ctx.RespondAsync(await SearchMessage(input));
+    public async Task SearchCommand(CommandContext ctx, [RemainingText, Description("A name")] string input) => await 
+        ctx.RespondAsync(await SearchMessage(input));
 
     [Command("reset"), Aliases("restart"), DevOnly]
     [Description("Reset Eco Cache")]
@@ -41,7 +42,7 @@ public class Misc : BaseCommandModule
     {
         await ctx.TriggerTypingAsync();
         await Shared.Cache.RefreshCacheBalances();
-        ctx.RespondAsync("Eco Cache Reset!");
+        await ctx.RespondAsync("Eco Cache Reset!");
     }
 
     [Command("kill"), Hidden()]
@@ -49,7 +50,7 @@ public class Misc : BaseCommandModule
     public async Task Kill(CommandContext ctx)
     {
         if (ctx.User.Id != 388454632835514380) return;
-        ctx.RespondAsync("Goodbye world...");
+        await ctx.RespondAsync("Goodbye world...");
         Environment.Exit(666);
     }
 
