@@ -30,7 +30,6 @@ public class Aliases : Attribute
     }
 }
 
-//TODO
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 public class Group : Attribute
 {
@@ -42,7 +41,6 @@ public class Group : Attribute
     }
 }
 
-//TODO
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
 public class Priority : Attribute
 {

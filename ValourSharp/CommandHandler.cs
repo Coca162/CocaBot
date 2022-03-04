@@ -6,9 +6,7 @@ using Valour.Api.Items.Users;
 using Valour.Api.Items.Messages;
 using Valour.Api.Items.Planets.Members;
 using Valour.Api.Items.Planets.Channels;
-using System.Collections.Concurrent;
 using static ValourSharp.Start;
-using System.Collections.ObjectModel;
 
 namespace ValourSharp;
 
@@ -28,23 +26,22 @@ public static class CommandHandler
 
         List<string> stringArgs = ctx.Content[prefixLength..].Split(null).ToList();
 
-        bool isCommand = GetCommands(ref stringArgs, Commands, out CommandModule? module, out string commandName);
+        var tuple = GetModule(ref stringArgs);
 
-        if (!isCommand) return;
+        if (tuple is null) return;
+        var (module, name) = tuple.Value;
 
         foreach (var check in module!.Checks)
             if (!await check.ExecuteCheckAsync(ctx)) return;
 
         foreach (var command in module!.ModuleCommands)
         {
-            int paramAmount = command.Parameters.SkipWhile(x => x.ParameterType == typeof(PlanetMessage)).Count();
-            if (paramAmount != stringArgs.Count ||
-               (sender.Bot && command.AllowBots) ||
+            if ((sender.Bot && command.AllowBots) ||
                (ValourClient.Self == sender && command.AllowSelf)) return;
 
             object[] args = new object[command.Parameters.Length];
 
-            int length = prefixLength + commandName.Length + 1;
+            int length = prefixLength + name!.Length + 1;
             List<Mention> mentions = ctx.Mentions;
             int contexts = 0;
             for (int i = 0; i < command.Parameters.Length; i++)
@@ -59,13 +56,14 @@ public static class CommandHandler
                 }
 
                 var position = i - contexts;
-                string rawargs = stringArgs[position];
-
                 if (parameter.ParameterType == typeof(string) && parameter.GetCustomAttribute(typeof(Remainder), false) is not null)
                 {
                     args[i] = string.Join(' ', stringArgs.GetRange(position, stringArgs.Count - position));
+                    continue;
                 }
-                else if (parameter.IsValourType())
+
+                string rawargs = stringArgs[position];
+                if (parameter.IsValourType())
                 {
                     Mention? mention = mentions.FirstOrDefault();
 
@@ -89,11 +87,8 @@ public static class CommandHandler
                 length += rawargs.Length + 1;
             }
 
-            if (stringArgs.Count != args.Length - contexts) return;
-
             ConstructorInfo? constructor = command.Method.DeclaringType!.GetConstructor(Type.EmptyTypes);
             object classObject = constructor!.Invoke(Array.Empty<object>());
-
 
             if (classObject is BaseCommandModule before)
                 await before.BeforeCommandAsync(ctx);
@@ -105,25 +100,39 @@ public static class CommandHandler
         }
     }
 
-    private static bool GetCommands(ref List<string> stringArgs, Dictionary<string, CommandModule> modules, out CommandModule? module, out string commandName)
+    private static (CommandModule module, string name)? GetModule(ref List<string> stringArgs)
     {
-        module = null;
-        commandName = stringArgs[0];
+        string name = stringArgs[0];
+        if (!Commands.TryGetValue(name, out CommandModule? module)) return null;
         stringArgs.RemoveAt(0);
 
-        if (!modules.TryGetValue(commandName, out CommandModule? commandModule)) return false;
-        module = commandModule;
-
-        if (commandModule.Submodules is not null && commandModule.Submodules.Count != 0 && stringArgs.Count != 0)
+        for (var modules = module.SubGroups; module.SubGroups is not null && stringArgs.Count != 0; modules = module.SubGroups)
         {
-            var currentArgs = stringArgs;
+            string possibleName = stringArgs[0];
+            if (!modules!.TryGetValue(possibleName, out CommandModule? possibleModule)) break;
+            name = possibleName;
+            module = possibleModule;
+            stringArgs.RemoveAt(0);
+        }
+
+        return (module, name);
+    }
+
+    private static bool GetCommands(ref List<string> stringArgs, Dictionary<string, CommandModule> modules, out CommandModule? module, out string names)
+    {
+        names = stringArgs[0];
+        if (!modules.TryGetValue(names, out module)) return false;
+        stringArgs.RemoveAt(0);
+
+        if (module.SubGroups is not null && module.SubGroups.Count != 0 && stringArgs.Count != 0)
+        {
+            List<string> currentArgs = new(stringArgs);
             var currentModule = module;
-            var currentCommandName = commandName;
-            if (GetCommands(ref stringArgs, commandModule.Submodules, out module, out commandName)) return true;
+            if (GetCommands(ref stringArgs, module.SubGroups, out module, out names)) return true;
 
             stringArgs = currentArgs;
             module = currentModule;
-            commandName = currentCommandName;
+            names = stringArgs[0];
         };
 
         return true;

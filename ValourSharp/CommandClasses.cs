@@ -10,16 +10,15 @@ namespace ValourSharp
 {
     public class CommandModule
     {
-
-        public CommandModule(string[] names, CommandInfo[] groupCommands, CheckBaseAttribute[] checks)
+        public CommandModule(string[] names, CommandInfo[] commands, CheckBaseAttribute[] checks)
         {
             Names = names;
-            ModuleCommands = groupCommands;
+            ModuleCommands = commands;
             _checks = checks;
         }
 
-        public CommandModule(string[] names, CommandInfo[] groupCommands, CheckBaseAttribute[] checks, Dictionary<string, CommandModule> submodules) : this(names, groupCommands, checks)
-            => Submodules = submodules;
+        public CommandModule(string[] names, CommandInfo[] groupCommands, CheckBaseAttribute[] checks, Dictionary<string, CommandModule> subGroups) : this(names, groupCommands, checks)
+            => SubGroups = subGroups;
 
         public string[] Names { get; }
 
@@ -30,12 +29,17 @@ namespace ValourSharp
         public CommandModule CombineChecks(IEnumerable<CheckBaseAttribute> newChecks)
         {
             _checks = _checks.Concat(newChecks).ToArray();
+
+            if (SubGroups is not null)
+                foreach (var module in SubGroups.DistinctBy(x => x.Value))
+                    module.Value.CombineChecks(newChecks);
+
             return this;
         }
 
         public CommandInfo[] ModuleCommands { get; }
 
-        public Dictionary<string, CommandModule>? Submodules { get; }
+        public Dictionary<string, CommandModule>? SubGroups { get; }
     }
 
     public class CommandInfo

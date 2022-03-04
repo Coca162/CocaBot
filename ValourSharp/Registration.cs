@@ -77,7 +77,7 @@ public static class Registration
                 alias[array1OriginalLength] = group.Key;
             }
 
-            modules.Add(new(alias, commandModule, group.ToArray(), checks));
+            modules.Add(new(alias, group.ToArray(), checks));
         }
 
         return modules;
@@ -116,7 +116,7 @@ public static class Registration
 
         return commands.Count != commands.DistinctBy(x => x.Priority).Count()
             ? throw new Exception("Same priority or no priority for overloads of command!")
-            : new CommandModule(group.Names, commandModule, commands.OrderByDescending(x => x.Priority).ToArray(), checks, modules);
+            : new CommandModule(group.Names, commands.OrderByDescending(x => x.Priority).ToArray(), checks, modules);
     }
 
     public static void RegisterCommands(Assembly assembly)
