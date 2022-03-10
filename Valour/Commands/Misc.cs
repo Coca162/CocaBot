@@ -8,6 +8,7 @@ using Valour.Api.Items.Messages;
 using ValourSharp;
 using Valour.Api.Items.Planets.Members;
 using Shared;
+using ValourSharp.Attributes;
 
 namespace Valour;
 
