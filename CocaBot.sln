@@ -14,9 +14,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpookVooper.Api", "SpookVoo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TransactionLogger", "TransactionLogger\TransactionLogger.csproj", "{B1050D47-A838-481B-8C25-FDE3A31FF968}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valour.Api", "Valour.Api\Valour\API\Valour.Api.csproj", "{46D8A1B9-FF0D-467F-99CC-7F386FAB23A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valour.Api", "ValourSharp\Valour\Valour\API\Valour.Api.csproj", "{46D8A1B9-FF0D-467F-99CC-7F386FAB23A4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valour.Shared", "Valour.Api\Valour\Shared\Valour.Shared.csproj", "{2949B0AB-5889-4B38-9C10-EC69DB09A010}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Valour.Shared", "ValourSharp\Valour\Valour\Shared\Valour.Shared.csproj", "{2949B0AB-5889-4B38-9C10-EC69DB09A010}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValourSharp", "ValourSharp\ValourSharp\ValourSharp.csproj", "{3F368F32-E3E3-4F92-BBF4-0E5F3E34A6FC}"
 EndProject
