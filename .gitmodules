@@ -1,6 +1,6 @@
 [submodule "SpookVooper.Api"]
 	path = SpookVooper.Api
 	url = https://github.com/Coca162/SpookVooper.Api
-[submodule "Valour"]
-	path = Valour.Api
-	url = https://github.com/Vooper-Media-LLC/Valour
+[submodule "ValourSharp"]
+	path = ValourSharp
+	url = https://github.com/Coca162/ValourSharp
