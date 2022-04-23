@@ -10,7 +10,7 @@ using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using System.IO;
 using System.Text.Json;
-using static Shared.Cache;
+using SpookVooper.Api;
 
 namespace Shared;
 public static class Tools
@@ -43,7 +43,7 @@ public static class Tools
     {
         if (input == null) return null;
         List<string> entities = new();
-        bool isSVID = await TestSVID(input);
+        bool isSVID = (await TryName(input)).Item1;
         if (isSVID) entities.Add(input);
         else
         {
@@ -60,8 +60,6 @@ public static class Tools
         string result = await GetName(svid);
         return result is not null ? (true, result) : (false, null);
     }
-
-    public static async Task<bool> TestSVID(string svid) => (svid.StartsWith('u') || svid.StartsWith('g')) && await Contains(svid);
 
     public static SVIDTypes SVIDToType(string svid)
     {
@@ -82,7 +80,6 @@ public static class Tools
         {
             if (string.Equals(entity.Name, input, StringComparison.OrdinalIgnoreCase))
             {
-                EntityCache.TryAdd(entity.SVID, (entity.Name, entity.Credits));
                 exact.Add(entity);
             }
             else notExact.Add(entity);
@@ -91,7 +88,7 @@ public static class Tools
         return (exact, notExact);
     }
 
-    public static async Task<(List<string> exact, List<(string, string)> notExact)> SearchNameToSVIDs(string input)
+    public static async Task<(List<string> exact, List<(string name, string svid)> notExact)> SearchNameToSVIDs(string input)
     {
         List<string> exact = new();
         List<(string name, string svid)> notExact = new();
@@ -103,7 +100,6 @@ public static class Tools
         {
             if (string.Equals(entity.Name, input, StringComparison.OrdinalIgnoreCase))
             {
-                EntityCache.TryAdd(entity.SVID, (entity.Name, entity.Credits));
                 exact.Add(entity.SVID);
             }
             else notExact.Add((entity.Name, entity.SVID));
@@ -112,7 +108,7 @@ public static class Tools
         return (exact, notExact);
     }
 
-    public static async Task<(List<(string svid, decimal balance)>, List<(string, string)> notExact)> SearchNameToBalances(string input)
+    public static async Task<(List<(string svid, decimal balance)>, List<(string name, string svid)> notExact)> SearchNameToBalances(string input)
     {
         List<(string svid, decimal balance)> exact = new();
         List<(string name, string svid)> notExact = new();
@@ -124,13 +120,18 @@ public static class Tools
         {
             if (string.Equals(entity.Name, input, StringComparison.OrdinalIgnoreCase))
             {
-                EntityCache.TryAdd(entity.SVID, (entity.Name, entity.Credits));
                 exact.Add((entity.SVID, entity.Credits));
             }
             else notExact.Add((entity.Name, entity.SVID));
         }
 
         return (exact, notExact);
+    }
+
+    public static async Task<string> GetName(string svid)
+    {
+        string results = await SpookVooperAPI.GetData($"Entity/GetName?svid={svid}");
+        return results.Contains("Could not find entity") ? "" : results;
     }
 
     public static string SVIDToTypeString(string svid)

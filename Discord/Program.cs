@@ -1,3 +1,4 @@
+using Shared;
 using System;
 using System.Text;
 using System.Threading;
@@ -15,7 +16,7 @@ class Program
         DiscordConfig config = await GetConfig<DiscordConfig>();
         prod = config.Production;
         UBIKey = config.JacobUBIKey;
-        if (prod) LoadSVIDNameCache();
+
         platform = Platform.Discord;
 
         await Bot.RunAsync(config.Token, config.Prefix);

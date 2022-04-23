@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Shared.Tools;
 using static Shared.Commands.Shared;
-using static Shared.Cache;
 
 namespace Shared.Commands;
 public static class Get
@@ -15,7 +14,7 @@ public static class Get
 
         if (isSVID) return GetMessage(name, input);
 
-        var (exact, nonExact) = await GetSVIDs(input);
+        var (exact, nonExact) = await SearchNameToSVIDs(name);
 
         if (!exact.Any()) return NoExacts(input, nonExact.Select(x => x.name));
         else if (exact.Count == 1) return GetMessage(input, exact.First());

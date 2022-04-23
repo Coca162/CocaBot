@@ -17,51 +17,22 @@ public class Administrative : BaseCommandModule
             x.Nickname = new_nickname;
             x.AuditLogReason = $"Changed by {ctx.User.Username} ({ctx.User.Id}).";
         });
+
+        await ctx.RespondAsync($"<@388454632835514380> command triggered look in audit logs");
     }
 
-    [Command("leave"), Hidden, RequireOwner, DevOnly, DevModeOnly]
+    [Command("leave"), Hidden, DevOnly]
     public async Task Leave(CommandContext ctx, ulong id)
     {
         var guild = await ctx.Client.GetGuildAsync(id);
         await guild.LeaveAsync();
+        await ctx.RespondAsync($"<@388454632835514380> left {guild.Name}");
     }
 
     [Command("guilds"), Hidden, DevOnly]
     public async Task Guilds(CommandContext ctx)
     {
         foreach (var item in ctx.Client.Guilds) Console.WriteLine(item.Value.Name + " " + item.Key);
-    }
-
-    [Command("sudo"), Description("Executes a command as another user."), Hidden, RequireOwner, DevOnly, DevModeOnly]
-    public async Task Sudo(CommandContext ctx, 
-        [Description("Member to execute as.")] DiscordMember member, 
-        [RemainingText, Description("Command text to execute.")] string command)
-    {
-        if (ctx.Channel.Id != 850578492185509898) return;
-
-        // note the [RemainingText] attribute on the argument.
-        // it will capture all the text passed to the command
-
-        await ExecuteCommand(ctx, member, command);
-    }
-
-    public static async Task ExecuteCommand(CommandContext ctx, DiscordMember member, string command)
-    {
-        // let's trigger a typing indicator to let
-        // users know we're working
-        await ctx.TriggerTypingAsync();
-
-        // get the command service, we need this for
-        // sudo purposes
-        var cmds = ctx.CommandsNext;
-
-        // retrieve the command and its arguments from the given string
-        var cmd = cmds.FindCommand(command, out var customArgs);
-
-        // create a fake CommandContext
-        var fakeContext = cmds.CreateFakeContext(member, ctx.Channel, command, ctx.Prefix, cmd, customArgs);
-
-        // and perform the sudo
-        await cmds.ExecuteCommandAsync(fakeContext);
+        await ctx.RespondAsync($"<@388454632835514380> command triggered look in console");
     }
 }

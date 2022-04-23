@@ -8,7 +8,6 @@ using System.Linq;
 using System;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using static Shared.Cache;
 using SpookVooper.Api.Economy;
 
 namespace Shared;
@@ -34,27 +33,6 @@ public class Main
         Main.config = config;
 
         return config;
-    }
-
-    public static async Task LoadSVIDNameCache()
-    {
-        CocaBotContext db = new();
-
-        var people = db.Transactions.Where(x => x.Detail.Contains("Coca"))
-                                    .OrderByDescending(x => x.Count)
-                                    .Select(x => x.ToAccount)
-                                    .Distinct()
-                                    .Take(100);
-
-        // Create transaction hub object
-        TransactionHub tHub = new();
-
-        // Hook transaction event to method
-        tHub.OnTransaction += (Transaction transaction) => BalanceUpdater(transaction);
-
-        foreach (var svid in people) AddEntityCache(svid);
-
-        Console.WriteLine("Cache loaded");
     }
 
     public enum Platform

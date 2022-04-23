@@ -12,7 +12,7 @@ public static class MessageEvents
     public static async Task HandleMessage(string ubiKey, MessageCreateEventArgs e)
     {
         if (e.Author.IsBot) return;
-
+        
         // send role data too for senator/gov pay & for district level UBI
 
         DiscordGuild server = await Client.GetGuildAsync(798307000206360588);

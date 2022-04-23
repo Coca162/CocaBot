@@ -47,9 +47,9 @@ public class Bot
         CommandsNextConfiguration commandsConfig = new()
         {
             StringPrefixes = prefixes,
-            Services = new ServiceCollection().AddDbContextPool<CocaBotWebContext>((serviceProvider, options) =>
+            Services = new ServiceCollection().AddDbContextPool<CocaBotPoolContext>((serviceProvider, options) =>
             {
-                options.UseMySql(CocaBotWebContext.ConnectionString, CocaBotWebContext.version);
+                options.UseNpgsql(CocaBotPoolContext.ConnectionString);
             }).BuildServiceProvider()
         };
 
@@ -76,7 +76,7 @@ public class Bot
             Task.Run(async () =>
             {
                 ServiceWrapper wrapper = new();
-                Task.Run(async () => await wrapper._ServiceWrapper(s));
+                var _ = Task.Run(() => wrapper._ServiceWrapper(s));
                 await SetTimer();
             });
             return Task.CompletedTask;
@@ -84,18 +84,7 @@ public class Bot
 
         Client.MessageCreated += (s, args) =>
         {
-            Task.Run(async () => await HandleMessage(UBIKey, args));
-            return Task.CompletedTask;
-        };
-
-        if (!File.Exists("moi.json")) return;
-
-        var rng = new Random();
-        Events.MemberJoinEvents.NextHelper = rng.Next(0, Events.MemberJoinEvents.Helpers.Count - 1);
-
-        Client.GuildMemberAdded += (s, args) =>
-        {
-            Task.Run(async () => await Events.MemberJoinEvents.HandleSVJoin(args));
+            Task.Run(() => HandleMessage(UBIKey, args));
             return Task.CompletedTask;
         };
     }

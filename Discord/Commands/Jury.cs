@@ -23,7 +23,8 @@ public class Jury : BaseCommandModule
     private static DiscordRole District;
 
     [Command("jury"), Description("Get 4 jurors")]
-    public async Task JuryCommand(CommandContext ctx) => await JuryCommand(ctx, 4);
+    public async Task JuryCommand(CommandContext ctx) 
+        => await JuryCommand(ctx, 4);
 
     [Command("jury"), Description("Get the amount of jurors you want")]
     public async Task JuryCommand(CommandContext ctx, int amount)
@@ -46,7 +47,7 @@ public class Jury : BaseCommandModule
         foreach (var item in everyone)
         {
             if (item.Roles.Contains("Jury"))
-                filtered.Add((item.Id, (int)Pow(item.Xp, 0.5)));
+                filtered.Add((item.Id, 100 + (int)Pow(item.Xp, 0.5)));
         }
 
         if (filtered.Count < amount) throw new Exception("Too big jury request!");
@@ -83,7 +84,7 @@ public class Jury : BaseCommandModule
             }
             catch (DSharpPlus.Exceptions.NotFoundException) { }
 
-            message += $"\n{member.Username}#{member.Discriminator} ({xp} XP)";
+            message += $"\n{member.Username}#{member.Discriminator} ({xp} Scaled XP)";
         }
 
         await ctx.RespondAsync(message);

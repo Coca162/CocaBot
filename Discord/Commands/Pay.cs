@@ -4,7 +4,6 @@ using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using Shared;
 using Shared.Models;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,7 +13,7 @@ using static Shared.Commands.Payment;
 namespace Discord.Commands;
 public class Pay : BaseCommandModule
 {
-    public CocaBotWebContext db { private get; set; }
+    public CocaBotPoolContext db { private get; set; }
 
     [Command("pay"), Aliases("p", "payment")]
     [Description("Pay another enitity on SV (Requires you to link your account using c/register and following the instructions)")]
@@ -26,7 +25,7 @@ public class Pay : BaseCommandModule
         var (svid, token) = await DiscordToUserToken(ctx.User.Id, db);
 
         string message = svid is not null ? await PayAll(amount, svid, await DiscordToSVID(discordUser.Id, db), token) 
-                                          : "You need to do `c/register` to use `c/pay`!";
+                                          : "You do not have a account!";
 
         await ctx.RespondAsync(message);
     }
@@ -40,7 +39,7 @@ public class Pay : BaseCommandModule
         var (svid, token) = await DiscordToUserToken(ctx.User.Id, db);
 
         string message = svid is not null ? await PayAll(amount, svid, await DiscordToSVID(discordUser.Id, db), token) 
-                                          : "You need to do `c/register` to use `c/pay`!";
+                                          : "You do not have a account!";
 
         await ctx.RespondAsync(message);
     }
@@ -54,7 +53,7 @@ public class Pay : BaseCommandModule
         var (svid, token) = await DiscordToUserToken(ctx.User.Id, db);
 
         string message = svid is not null ? await PayAll(amount, svid, to, token) 
-                                          : "You need to do `c/register` to use `c/pay`!";
+                                          : "You do not have a account!";
 
         await ctx.RespondAsync(message);
     }
@@ -68,7 +67,7 @@ public class Pay : BaseCommandModule
         var (svid, token) = await DiscordToUserToken(ctx.User.Id, db);
 
         string message = svid is not null ? await PayAll(amount, svid, to, token) 
-                                          : "You need to do `c/register` to use `c/pay`!";
+                                          : "You do not have a account!";
 
         await ctx.RespondAsync(message);
     }
@@ -80,7 +79,7 @@ public class Pay : BaseCommandModule
     {
         if (string.IsNullOrWhiteSpace(input))
         {
-            await Administrative.ExecuteCommand(ctx, ctx.Member, "help pay");
+            await ExecuteCommand(ctx, ctx.Member, "help pay");
             return;
         }
 
@@ -92,5 +91,14 @@ public class Pay : BaseCommandModule
         string message = $"Did you mean to do?\n`c/pay {amount} {string.Join(" ", array.SkipLast(1))}`";
 
         await ctx.RespondAsync(message);
+    }
+
+    private static async Task ExecuteCommand(CommandContext ctx, DiscordMember member, string command)
+    {
+        var cmd = ctx.CommandsNext.FindCommand(command, out var customArgs);
+
+        var fakeContext = ctx.CommandsNext.CreateFakeContext(member, ctx.Channel, command, ctx.Prefix, cmd, customArgs);
+
+        await ctx.CommandsNext.ExecuteCommandAsync(fakeContext);
     }
 }

@@ -19,7 +19,7 @@ await Task.Delay(Timeout.Infinite);
 
 static async void HandleTransaction(Transaction transaction)
 {
-    var db = new CocaBotContext();
+    using var db = new CocaBotContext();
 
     DBTransaction dBTransaction = new()
     {

@@ -8,7 +8,6 @@ using static Shared.Main;
 using static Shared.Tools;
 using static Shared.Commands.Balance;
 using static Shared.Commands.Shared;
-using static Shared.Cache;
 
 namespace Shared.Commands;
 public static class Payment
@@ -27,7 +26,7 @@ public static class Payment
         if (toIsSVID) toSVID = to;
         else
         {
-            (List<string> exact, List<(string _, string svid)> nonExact) = await GetSVIDs(to);
+            (List<string> exact, List<(string _, string svid)> nonExact) = await SearchNameToSVIDs(to);
 
             int count = exact.Count;
             if (count == 1)

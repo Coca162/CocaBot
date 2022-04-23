@@ -36,14 +36,6 @@ public class Misc : BaseCommandModule
     public async Task SearchCommand(CommandContext ctx, [RemainingText, Description("A name")] string input) => await 
         ctx.RespondAsync(await SearchMessage(input));
 
-    [Command("reset"), Aliases("restart"), DevOnly]
-    [Description("Reset Eco Cache")]
-    public async Task Reset(CommandContext ctx)
-    {
-        await ctx.TriggerTypingAsync();
-        await Shared.Cache.RefreshCacheBalances();
-        await ctx.RespondAsync("Eco Cache Reset!");
-    }
 
     [Command("kill"), Hidden()]
     [Description("Kills the bot incase of a emergency. Coca only command for obiovus reasons!")]

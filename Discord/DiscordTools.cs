@@ -8,7 +8,7 @@ using User = Shared.Models.User;
 namespace Discord;
 public class DiscordTools
 {
-    public static async Task<string> DiscordToSVID(ulong id, CocaBotWebContext db)
+    public static async Task<string> DiscordToSVID(ulong id, CocaBotPoolContext db)
     {
         string DbSVID = await db.Users
             .Where(x => x.Discord == id) // Same as: WHERE Discord = id
@@ -21,7 +21,7 @@ public class DiscordTools
         return DiscordSVID != "u-2a0057e6-356a-4a49-b825-c37796cb7bd9" ? DiscordSVID : null;
     }
 
-    public static async Task<User> DiscordToUserToken(ulong id, CocaBotWebContext db) => 
+    public static async Task<User> DiscordToUserToken(ulong id, CocaBotPoolContext db) => 
                await db.Users
                        .Where(x => x.Discord == id) // Same as: WHERE Discord = id
                        .Select(x => new User() { SVID = x.SVID, Token = x.Token }) // Same as: SELECT SVID, Token

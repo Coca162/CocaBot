@@ -16,87 +16,7 @@ using static System.Math;
 namespace Discord.Commands;
 public class UBI : BaseCommandModule
 {
-    public CocaBotWebContext db { private get; set; }
-
-    public class JacobUBILeaderboardItem
-    {
-        [JsonPropertyName("Name")]
-        public string Name { get; set; }
-
-        [JsonPropertyName("xp")]
-        public int XP { get; set; }
-
-        [JsonPropertyName("messages")]
-        public int Messages { get; set; }
-
-        [JsonPropertyName("messagexp")]
-        public int MessageXP { get; set; }
-    }
-
-    public class JacobUBILeaderboardData
-    {
-        [JsonPropertyName("Users")]
-        public List<JacobUBILeaderboardItem> Users { get; set; }
-    }
-
-    public class JacobUBIXPData
-    {
-        [JsonPropertyName("XP")]
-        public int XP { get; set; }
-
-        [JsonPropertyName("Messages Sent")]
-        public int MessagesSent { get; set; }
-        [JsonPropertyName("Message Xp")]
-        public int MessageXP { get; set; }
-
-        [JsonPropertyName("Current Rank")]
-        public string CurrentRank { get; set; }
-
-        [JsonPropertyName("Daily UBI")]
-        public int DailyUBI { get; set; }
-    }
-
-    public class LeaderboardUserGet
-    {
-        [JsonPropertyName("position")]
-        public int Ranking { get; set; }
-
-        [JsonPropertyName("user")]
-        public User User { get; set; }
-    }
-
-    public class User
-    {
-        [JsonPropertyName("xp")]
-        public int XP { get; set; }
-
-        [JsonPropertyName("LastSent")]
-        public double LastSent { get; set; }
-
-        [JsonPropertyName("XP")]
-        public string SVID { get; set; }
-
-        [JsonPropertyName("rank")]
-        public string Rank { get; set; }
-
-        [JsonPropertyName("messages")]
-        public int Messages { get; set; }
-
-        [JsonPropertyName("stars")]
-        public int Stars { get; set; }
-
-        [JsonPropertyName("discordid")]
-        public long DiscordId { get; set; }
-
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-
-        [JsonPropertyName("roles")]
-        public List<string> Roles { get; set; }
-
-        [JsonPropertyName("messagexp")]
-        public int MessageXP { get; set; }
-    }
+    public CocaBotPoolContext db { private get; set; }
 
     [Command("leaderboard"), Aliases("lb"), GeneralBlacklist()]
     public async Task LBString(CommandContext ctx)
@@ -115,7 +35,7 @@ public class UBI : BaseCommandModule
             embed.AddField(item.Name, $"{item.XP} XP (1 : {Round(CalculateRatio(item.MessageXP, item.Messages), 2)})");
         }
 
-        ctx.RespondAsync(embed);
+        await ctx.RespondAsync(embed);
     }
 
 
@@ -139,11 +59,12 @@ public class UBI : BaseCommandModule
             embed.AddField("Message To XP Ratio", $"1 : {Round(CalculateRatio(data.MessageXP, data.MessagesSent), 2)}");
             embed.AddField("Daily UBI", $"¢{data.DailyUBI}");
 
-            ctx.RespondAsync(embed);
+            await ctx.RespondAsync(embed);
         }
 
         [GroupCommand, Priority(0)]
-        public async Task XPString(CommandContext ctx) => XPString(ctx, ctx.User);
+        public async Task XPString(CommandContext ctx) 
+            => await XPString(ctx, ctx.User);
 
         [Command("average"), Description("Get the averages for xp data")]
         public async Task XPAvarage(CommandContext ctx)
@@ -160,8 +81,8 @@ public class UBI : BaseCommandModule
             embed.AddField("Messages", $"{Round(everyone.Average(x => x.Messages))}");
             embed.AddField("XP To Message", $"1 : {Round(everyone.Average(x => CalculateRatio(x.MessageXp, x.Messages)), 2)}");
             embed.AddField("Daily UBI", $"¢{Round(everyone.Average(x => x.DailyUBI), 2)}");
-            
-            ctx.RespondAsync(embed);
+
+            await ctx.RespondAsync(embed);
         }
 
         [Command("median"), Description("Get the median for xp data")]
@@ -180,14 +101,12 @@ public class UBI : BaseCommandModule
             embed.AddField("XP To Message", $"1 : {Median(everyone.Select(x => CalculateRatio(x.MessageXp, x.Messages)))}");
             embed.AddField("Daily UBI", $"¢{Median(everyone.Select(x => x.DailyUBI))}");
 
-            ctx.RespondAsync(embed);
+            await ctx.RespondAsync(embed);
         }
     }
 
-    private static decimal CalculateRatio(int messageXP, int messages) =>
-#pragma warning disable IDE0004
-        (decimal)(messageXP) / (decimal)(messages + 1);
-#pragma warning restore IDE0004
+    private static decimal CalculateRatio(int messageXP, int messages) 
+        => messageXP / (messages + 1);
 
     public static double Median<T>(IEnumerable<T> source)
     {

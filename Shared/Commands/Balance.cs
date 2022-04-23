@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Shared.Tools;
 using static Shared.Commands.Shared;
-using static Shared.Cache;
 
 namespace Shared.Commands;
 public static class Balance
@@ -14,7 +13,7 @@ public static class Balance
         (bool isSVID, string name) = await TryName(input);
         if (isSVID) return await BalanceMessage(name, input);
 
-        var (exact, nonExact) = await NameToBalance(input);
+        var (exact, nonExact) = await SearchNameToBalances(name);
         var first = exact.FirstOrDefault();
         if (first == default) return NoExacts(input, nonExact.Select(x => x.name));
         else if (exact.Count == 1) return await BalanceMessage(first.svid, first.balance);

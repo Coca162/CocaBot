@@ -1,3 +1,4 @@
 [*.cs]
 
 dotnet_code_quality.CA1822.api_surface = private, internal
+dotnet_code_quality_unused_parameters = non_public 

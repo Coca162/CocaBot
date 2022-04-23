@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Shared.Tools;
 using static Shared.Commands.Shared;
-using static Shared.Cache;
 
 namespace Shared.Commands;
 public static class Search

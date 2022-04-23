@@ -11,13 +11,13 @@ namespace Discord.Commands;
 [Description("Valour related commands")] // give it a description for help purposes
 public class Valour : BaseCommandModule
 {
-    public CocaBotWebContext db { private get; set; }
+    public CocaBotPoolContext db { private get; set; }
 
     [Command("connect"), Aliases("link")]
     [Description("Connects your valour account so that it can do /pay and self /balance")]
     public async Task Connect(CommandContext ctx, [Description("Valour Name")] string name)
     {
-        User user = user = db.Users.SingleOrDefault(x => x.Discord == ctx.User.Id);
+        var user = db.Users.SingleOrDefault(x => x.Discord == ctx.User.Id);
         if (user is null)
         {
             await ctx.RespondAsync("Your discord account is not linked to a SV account! Do c/register first!").ConfigureAwait(false);
@@ -34,7 +34,7 @@ public class Valour : BaseCommandModule
     [Description("Removes valour name and valour id from db.")]
     public async Task Disconnect(CommandContext ctx)
     {
-        User user = db.Users.SingleOrDefault(x => x.Discord == ctx.User.Id);
+        var user = db.Users.SingleOrDefault(x => x.Discord == ctx.User.Id);
         if (user is null)
         {
             await ctx.RespondAsync("Your discord account is not linked to a SV account! Do c/register first and then c/connect to be able to do this command!").ConfigureAwait(false);

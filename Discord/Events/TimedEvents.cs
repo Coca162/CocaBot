@@ -31,7 +31,7 @@ public class TimedEvents
         //WeeklyChannel = await Client.GetChannelAsync(896654987013259324);
         //DailyChannel = await Client.GetChannelAsync(896655216085192784);
 
-        CocaBotContext db = new();
+        await using CocaBotContext db = new();
         string svid = "u-e1616412-c384-4b00-b443-b8940423df67";
         coca = new(svid, db.Users.Find(svid).Token + "|" + config.OauthSecret);
 
@@ -43,7 +43,7 @@ public class TimedEvents
 
     private static async Task OnTimedEvent()
     {
-        CocaBotContext db = new();
+        await using CocaBotContext db = new();
 
         await Client.UpdateStatusAsync(new DiscordActivity($"{db.Users.Count()} Users! | ;help", ActivityType.Watching));
 
@@ -51,7 +51,7 @@ public class TimedEvents
 
         if (UBIRoleCheck)
         {
-            UBIRoles.UpdateHourly();
+            await UBIRoles.UpdateHourly();
             UBIRoleCheck = false;
         }
         else UBIRoleCheck = true;

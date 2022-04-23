@@ -79,7 +79,8 @@ public class Districts : BaseCommandModule
 
             embed.AddField($"{i}. {Name}" + (median == Count ? " (Median)" : ""), Count.ToString());
         }
-        ctx.RespondAsync(embed);
+
+        await ctx.RespondAsync(embed);
     }
 
     /// <summary>

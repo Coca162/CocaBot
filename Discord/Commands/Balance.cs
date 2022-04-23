@@ -9,7 +9,7 @@ using static Shared.Commands.Balance;
 namespace Discord.Commands;
 public class Balance : BaseCommandModule
 {
-    public CocaBotWebContext db { private get; set; }
+    public CocaBotPoolContext db { private get; set; }
 
     [Command("balance"), Aliases("balan", "bal", "b")]
     [Description("Gets a entities balance")]
@@ -21,11 +21,11 @@ public class Balance : BaseCommandModule
 
         if (svid is null)
         {
-            ctx.RespondAsync("The person does not have their account registered! Tell them to do `c/register`!");
+            await ctx.RespondAsync("The person does not have their account registered!");
             return;
         }
 
-        ctx.RespondAsync(await BalanceMessage(svid));
+        await ctx.RespondAsync(await BalanceMessage(svid));
     }
 
     [Command("balance")]
@@ -35,10 +35,10 @@ public class Balance : BaseCommandModule
     {
         if (input is null)
         {
-            BalanceDiscord(ctx, ctx.User);
+            await BalanceDiscord(ctx, ctx.User);
             return;
         }
 
-        ctx.RespondAsync(await BalanceAll(input));
+        await ctx.RespondAsync(await BalanceAll(input));
     }
 }
