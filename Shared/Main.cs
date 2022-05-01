@@ -8,7 +8,6 @@ using System.Linq;
 using System;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using SpookVooper.Api.Economy;
 
 namespace Shared;
 public class Main

@@ -13,7 +13,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.csproj" />
 	<ProjectReference Include="..\ValourSharp\Valour\Valour\API\Valour.Api.csproj" />
-	<ProjectReference Include="..\SpookVooper.Api\SpookVooper.Api\SpookVooper.Api.csproj" />
 	<ProjectReference Include="..\ValourSharp\ValourSharp\ValourSharp.csproj" />
   </ItemGroup>
 

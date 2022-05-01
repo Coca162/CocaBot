@@ -17,8 +17,6 @@ using Valour.Api.Items.Planets.Channels;
 using Valour.Api.Items.Planets;
 using static Valour.ValourTools;
 using static Valour.Commands.Misc;
-using static SpookVooper.Api.SpookVooperAPI;
-using Valour.Api.Items.Users;
 using System.ComponentModel;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
@@ -27,8 +25,10 @@ using System.Reflection;
 using ValourSharp;
 using ValourSharp.Classes;
 using Valour.Api.Items.Planets.Members;
+using static Shared.Tools;
 
 namespace Valour;
+
 class Program
 {
     public static bool prod { get; private set; }

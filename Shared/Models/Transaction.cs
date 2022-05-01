@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using SpookVooper.Api.Economy;
 
 namespace Shared.Models;
 public class Transaction
@@ -25,4 +24,9 @@ public class Transaction
     public ApplicableTax Tax { get; set; }
 
     public long Timestamp { get; set; }
+}
+
+public enum ApplicableTax
+{
+    None = 0, Corporate = 1, Payroll = 2, CapitalGains = 3, Sales = 4
 }

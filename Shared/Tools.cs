@@ -1,6 +1,4 @@
-﻿using SpookVooper.Api.Entities;
-using SpookVooper.Api.Entities.Groups;
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,169 +8,32 @@ using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using System.IO;
 using System.Text.Json;
-using SpookVooper.Api;
+using System.Net.Http;
 
 namespace Shared;
+
 public static class Tools
 {
-    public static async Task<List<string>> NameToSVIDs(string name)
+    public static async Task<T> GetDataFromJson<T>(string url)
     {
-        if (name == "Old King")
-            return new List<string> { "g-oldking" };
-
-        List<string> svids = new();
-
-        string gsvid = await Group.GetSVIDFromNameAsync(name);
-        string usvid = await User.GetSVIDFromUsernameAsync(name);
-
-        bool isgroup = gsvid.StartsWith('g');
-        bool isuser = usvid.StartsWith('u');
-
-        if (!isgroup && !isuser) return null;
-        if (isgroup && isuser)
+        var client = new HttpClient();
+        var response = await client.GetStreamAsync(url);
+        try
         {
-            svids.Add(usvid);
-            svids.Add(gsvid);
+            return await JsonSerializer.DeserializeAsync<T>(response);
         }
-        else svids.Add(isuser ? usvid : gsvid);
-
-        return svids;
-    }
-
-    public static async Task<List<string>> ConvertToSVIDs(string input)
-    {
-        if (input == null) return null;
-        List<string> entities = new();
-        bool isSVID = (await TryName(input)).Item1;
-        if (isSVID) entities.Add(input);
-        else
+        catch (Exception e)
         {
-            List<string> nameEntities = await NameToSVIDs(input);
-            if (nameEntities != null) entities.AddRange(nameEntities);
+            throw new Exception($"HTTP Error for GetDataFromJson!\n{e}");
         }
-        return entities;
     }
 
-    public static async Task<(bool, string)> TryName(string svid)
+    public static async Task<string> GetData(string url)
     {
-        if (!(svid.StartsWith('u') || svid.StartsWith('g'))) return (false, null);
+        var client = new HttpClient();
+        var httpResponse = await client.GetAsync(url);
+        string response = await httpResponse.Content.ReadAsStringAsync();
 
-        string result = await GetName(svid);
-        return result is not null ? (true, result) : (false, null);
-    }
-
-    public static SVIDTypes SVIDToType(string svid)
-    {
-        if (svid.StartsWith('u')) return SVIDTypes.User;
-        if (svid.StartsWith('g')) return SVIDTypes.Group;
-        return SVIDTypes.None;
-    }
-
-    public static async Task<(List<SearchReturn>, List<SearchReturn>)> SearchName(string input)
-    {
-        List<SearchReturn> exact = new();
-        List<SearchReturn> notExact = new();
-
-        Stream response = await client.GetStreamAsync($"https://api.spookvooper.com/Entity/Search?name={input}");
-        SearchReturn[] entities = await JsonSerializer.DeserializeAsync<SearchReturn[]>(response);
-
-        foreach (SearchReturn entity in entities)
-        {
-            if (string.Equals(entity.Name, input, StringComparison.OrdinalIgnoreCase))
-            {
-                exact.Add(entity);
-            }
-            else notExact.Add(entity);
-        }
-
-        return (exact, notExact);
-    }
-
-    public static async Task<(List<string> exact, List<(string name, string svid)> notExact)> SearchNameToSVIDs(string input)
-    {
-        List<string> exact = new();
-        List<(string name, string svid)> notExact = new();
-
-        Stream response = await client.GetStreamAsync($"https://api.spookvooper.com/Entity/Search?name={input}");
-        SearchReturn[] entities = await JsonSerializer.DeserializeAsync<SearchReturn[]>(response);
-
-        foreach (SearchReturn entity in entities)
-        {
-            if (string.Equals(entity.Name, input, StringComparison.OrdinalIgnoreCase))
-            {
-                exact.Add(entity.SVID);
-            }
-            else notExact.Add((entity.Name, entity.SVID));
-        }
-
-        return (exact, notExact);
-    }
-
-    public static async Task<(List<(string svid, decimal balance)>, List<(string name, string svid)> notExact)> SearchNameToBalances(string input)
-    {
-        List<(string svid, decimal balance)> exact = new();
-        List<(string name, string svid)> notExact = new();
-
-        Stream response = await client.GetStreamAsync($"https://api.spookvooper.com/Entity/Search?name={input}");
-        SearchReturn[] entities = await JsonSerializer.DeserializeAsync<SearchReturn[]>(response);
-
-        foreach (SearchReturn entity in entities)
-        {
-            if (string.Equals(entity.Name, input, StringComparison.OrdinalIgnoreCase))
-            {
-                exact.Add((entity.SVID, entity.Credits));
-            }
-            else notExact.Add((entity.Name, entity.SVID));
-        }
-
-        return (exact, notExact);
-    }
-
-    public static async Task<string> GetName(string svid)
-    {
-        string results = await SpookVooperAPI.GetData($"Entity/GetName?svid={svid}");
-        return results.Contains("Could not find entity") ? "" : results;
-    }
-
-    public static string SVIDToTypeString(string svid)
-    {
-        if (svid.StartsWith('u')) return nameof(SVIDTypes.User);
-        if (svid.StartsWith('g')) return nameof(SVIDTypes.Group);
-        return null;
-    }
-
-    public static string SVIDTypeToString(SVIDTypes type)
-    {
-        return type switch
-        {
-            SVIDTypes.User => nameof(SVIDTypes.User),
-            SVIDTypes.Group => nameof(SVIDTypes.Group),
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-        };
-    }
-
-    public enum SVIDTypes
-    {
-        User,
-        Group,
-        None
-    }
-
-    public enum StringInputs
-    {
-        Name,
-        SVID
-    }
-
-    public class SearchReturn
-    {
-        [JsonPropertyName("id")]
-        public string SVID { get; set; }
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-        [JsonPropertyName("image_Url")]
-        public string Pfp { get; set; }
-        [JsonPropertyName("credits")]
-        public decimal Credits { get; set; }
+        return httpResponse.IsSuccessStatusCode ? response : $"HTTP Error: {httpResponse.StatusCode}; {response}";
     }
 }

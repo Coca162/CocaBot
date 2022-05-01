@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using static SpookVooper.Api.SpookVooperAPI;
 using Discord;
+using static Shared.Tools;
 using static Discord.Bot;
 using static Discord.Program;
 

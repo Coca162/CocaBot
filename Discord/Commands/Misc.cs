@@ -4,7 +4,6 @@ using System;
 using System.Threading.Tasks;
 using static Shared.Commands.Privacy;
 using static Shared.Commands.Code;
-using static Shared.Commands.Search;
 using System.Diagnostics;
 using Humanizer;
 
@@ -37,10 +36,6 @@ public class Misc : BaseCommandModule
     [Description("pong!")]
     public async Task Ping(CommandContext ctx) 
         => await ctx.RespondAsync(ctx.Client.Ping.ToString() + " ms");
-
-    [Command("search"), GeneralBlacklist]
-    public async Task SearchCommand(CommandContext ctx, [RemainingText, Description("A name")] string input) => await 
-        ctx.RespondAsync(await SearchMessage(input));
 
 
     [Command("kill"), Hidden()]

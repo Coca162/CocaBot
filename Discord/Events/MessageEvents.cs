@@ -2,8 +2,9 @@
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using static SpookVooper.Api.SpookVooperAPI;
 using static Discord.Bot;
+using System.Net.Http;
+using static Shared.Tools;
 
 namespace Discord.Events;
 
@@ -25,7 +26,7 @@ public static class MessageEvents
 
         if (member is null)
         {
-            GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ubiKey}");
+            await GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ubiKey}");
             return;
         }
 
@@ -39,7 +40,7 @@ public static class MessageEvents
         // removes the last "|" symbol
         end = end[0..^1];
 
-        GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ubiKey}&roledata={end}");
+        await GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ubiKey}&roledata={end}");
     }
 }
 

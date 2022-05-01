@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http;
 using static Shared.Main;
-using static Shared.Commands.Balance;
 using System;
 using Shared;
 using Microsoft.AspNetCore.Hosting;
@@ -23,11 +22,9 @@ using System.Reflection.Metadata;
 using System.Timers;
 using System.Diagnostics;
 using Humanizer;
-using SpookVooper.Api.Entities;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using SpookVooper.Api;
 using System.IO;
 using static Shared.Tools;
 using Shared.Models;
@@ -35,7 +32,6 @@ using Shared.Models;
 namespace Website;
 public static class Program
 {
-    public static string TotalMoney = "";
     public const double TotalMoneyInterval = 60 * 60 * 1000; //one hour
 
     public static async Task Main(string[] args)
@@ -117,11 +113,6 @@ public static class Program
             return await GetTransactionsFilter(db, amount, to, from, detail, tax, start, end).SumAsync(x => x.Amount);
         });
 
-        await SetTotalMoneyAsync();
-        Timer timer = new(TotalMoneyInterval);
-        timer.Elapsed += async (object source, ElapsedEventArgs e) => await SetTotalMoneyAsync();
-        timer.Enabled = true;
-
         app.Run();
     }
 
@@ -141,26 +132,6 @@ public static class Program
         if (amount is not null) a = (int)amount;
      
         return search.OrderByDescending(x => x.Count).Take(a);
-    }
-
-    static async Task SetTotalMoneyAsync()
-    {
-        CocaBotContext db = new();
-
-        decimal total = 0;
-        var svids = db.Users.Select(x => x.SVID);
-        foreach (string svid in svids)
-        {
-            Entity entity = new(svid);
-            TaskResult<decimal> balance = await entity.GetBalanceAsync();
-            if (balance.Succeeded == false) return;
-            total += balance.Data;
-        }
-
-        double scale = Math.Pow(10, Math.Floor(Math.Log10((double)Math.Abs(total))) + 1);
-        double final = scale * Math.Round((double)total / scale, 2); //change that number
-
-        TotalMoney = "¢" + string.Format("{0:n0}", final);
     }
 }
 

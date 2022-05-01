@@ -3,15 +3,15 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Shared;
 using System.Threading.Tasks;
-using static Discord.DiscordTools;
-using static Shared.Commands.Balance;
+using static Shared.Tools;
 using System.Text.Json.Serialization;
-using static SpookVooper.Api.SpookVooperAPI;
 using System.Collections.Generic;
 using System;
 using System.Linq;
 using static Discord.Program;
 using static System.Math;
+using System.Text.Json;
+using System.Net.Http;
 
 namespace Discord.Commands;
 public class UBI : BaseCommandModule

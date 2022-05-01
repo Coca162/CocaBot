@@ -14,7 +14,6 @@ using Humanizer;
 using Valour.Api.Items.Users;
 using static Shared.Commands.Privacy;
 using static Shared.Commands.Code;
-using static Shared.Commands.Search;
 
 namespace Valour.Commands;
 
@@ -39,10 +38,6 @@ public class Misc : BaseCommandModule
     [Command("sheep")]
     public async Task Sheep(PlanetMessage ctx)
         => await ctx.ReplyAsync("beeee!");
-
-    [Command("search")]
-    public async Task SearchCommand(PlanetMessage ctx, [Remainder] string input)
-        => await ctx.ReplyAsync(await SearchMessage(input));
 
     [Command("uptime")]
     public async Task Uptime(PlanetMessage ctx)
