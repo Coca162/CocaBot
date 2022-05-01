@@ -33,7 +33,7 @@ public class Balance : BaseCommandModule
     public async Task BalanceString(CommandContext ctx,
     [RemainingText, Description("A Entity (Either SVID, Name or if empty just you)")] string input)
     {
-        if (input is null)
+        if (string.IsNullOrWhiteSpace(input))
         {
             await BalanceDiscord(ctx, ctx.User);
             return;

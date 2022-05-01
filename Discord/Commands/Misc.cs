@@ -13,24 +13,30 @@ public class Misc : BaseCommandModule
 {
     [Command("code"), Aliases("opensource")]
     [Description("Gives link for linking your SV account to your discord account")]
-    public async Task Code(CommandContext ctx) => await ctx.RespondAsync(CodeMessage).ConfigureAwait(false);
+    public async Task Code(CommandContext ctx) 
+        => await ctx.RespondAsync(CodeMessage).ConfigureAwait(false);
 
     [Command("privacy")]
     [Description("Gives link for your privacy")]
-    public async Task Privacy(CommandContext ctx) => await ctx.RespondAsync(PrivacyMessage).ConfigureAwait(false);
+    public async Task Privacy(CommandContext ctx) 
+        => await ctx.RespondAsync(PrivacyMessage).ConfigureAwait(false);
 
     [Command("website")]
-    public async Task Website(CommandContext ctx) => await ctx.RespondAsync("https://cocabot.cf");
+    public async Task Website(CommandContext ctx)
+        => await ctx.RespondAsync("https://cocabot.cf");
 
     [Command("summon")]
-    public async Task Summon(CommandContext ctx) => await ctx.RespondAsync("Hello!");
+    public async Task Summon(CommandContext ctx) 
+        => await ctx.RespondAsync("Hello!");
 
     [Command("sheep")]
-    public async Task Sheep(CommandContext ctx) => await ctx.RespondAsync("beeee!");
+    public async Task Sheep(CommandContext ctx) 
+        => await ctx.RespondAsync("beeee!");
 
     [Command("ping")]
     [Description("pong!")]
-    public async Task Ping(CommandContext ctx) => await ctx.RespondAsync(ctx.Client.Ping.ToString() + " ms");
+    public async Task Ping(CommandContext ctx) 
+        => await ctx.RespondAsync(ctx.Client.Ping.ToString() + " ms");
 
     [Command("search"), GeneralBlacklist]
     public async Task SearchCommand(CommandContext ctx, [RemainingText, Description("A name")] string input) => await 

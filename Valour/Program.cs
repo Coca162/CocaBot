@@ -16,46 +16,55 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Valour.Api.Items.Planets.Channels;
 using Valour.Api.Items.Planets;
 using static Valour.ValourTools;
-using static Valour.Misc;
+using static Valour.Commands.Misc;
 using static SpookVooper.Api.SpookVooperAPI;
 using Valour.Api.Items.Users;
 using System.ComponentModel;
 using System.Globalization;
-using Valour.Api.Items.Planets.Members;
-using Valour.Shared.Items.Messages.Mentions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using ValourSharp;
+using ValourSharp.Classes;
+using Valour.Api.Items.Planets.Members;
 
 namespace Valour;
 class Program
 {
-    public static bool prod;
-    public static List<string> prefixes;
-    public static string UBIKey;
+    public static bool prod { get; private set; }
+    public static string UBIKey { get; private set; }
+    public static IServiceProvider Service { get; private set; }
 
     static async Task Main()
     {
         ValourConfig config = await GetConfig<ValourConfig>();
         prod = config.Production;
-        prefixes = config.Prefix;
+        IEnumerable<string> prefixes = config.Prefix;
         UBIKey = config.JacobUBIKey;
-        //if (prod) LoadSVIDNameCache();
+
+        ValourSharpConfig valourConfig = new()
+        {
+            Email = config.Email,
+            Password = config.BotPassword,
+            Prefixes = prefixes,
+            Services = Service
+        };
 
         Registration.RegisterCommands(Assembly.GetExecutingAssembly());
 
-        await Start.Initialize(config.Email, config.BotPassword, prefixes.ToArray());
+        OnMessageRecieved += MessageHandler;
 
-        //OnMessageRecieved += MessageHandler;
+        await Initialize.Start(valourConfig);
 
         await Task.Delay(-1);
     }
 
     private static async Task MessageHandler(PlanetMessage ctx)
     {
-        var sender = await (await ctx.GetAuthorAsync()).GetUserAsync();
+        var sender = await ctx.GetAuthorUserAsync();
         if (sender.Bot && Self == sender) return;
 
-        CocaBotContext db = new();
+        await using CocaBotContext db = new();
         string id = await ValourToSVID(sender.Id, db);
         if (id is null) return;
 

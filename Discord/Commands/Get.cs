@@ -18,8 +18,10 @@ public class Get : BaseCommandModule
     {
         string discord = await DiscordToSVID(discordUser.Id, db);
 
-        if (discord != "") await ctx.RespondAsync(await GetSVID(discord));
-        else await ctx.RespondAsync(await GetAll(discordUser.Username));
+        if (discord != "") 
+            await ctx.RespondAsync(await GetSVID(discord));
+        else 
+            await ctx.RespondAsync(await GetAll(discordUser.Username));
     }
 
     [Command("get")]
@@ -27,7 +29,12 @@ public class Get : BaseCommandModule
     public async Task GetString(CommandContext ctx,
         [RemainingText, Description("A Entity (Either SVID, Name or if empty just you)")] string input)
     {
-        if (input == null){ await GetDiscord(ctx, ctx.User); return; }
+        if (string.IsNullOrWhiteSpace(input))
+        { 
+            await GetDiscord(ctx, ctx.User);
+            return; 
+        }
+
         await ctx.RespondAsync(await GetAll(input));
     }
 }

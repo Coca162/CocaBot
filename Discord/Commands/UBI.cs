@@ -32,7 +32,7 @@ public class UBI : BaseCommandModule
 
         foreach(JacobUBILeaderboardItem item in data.Users)
         {
-            embed.AddField(item.Name, $"{item.XP} XP (1 : {Round(CalculateRatio(item.MessageXP, item.Messages), 2)})");
+            embed.AddField(item.Name, $"{item.XP} XP ({Round(CalculateWPM(item.MessageXP, item.Messages), 2)} WPM)");
         }
 
         await ctx.RespondAsync(embed);
@@ -56,7 +56,7 @@ public class UBI : BaseCommandModule
             };
 
             embed.AddField("Messages", $"{data.MessagesSent}");
-            embed.AddField("Message To XP Ratio", $"1 : {Round(CalculateRatio(data.MessageXP, data.MessagesSent), 2)}");
+            embed.AddField("Words Per Minute", $"{Round(CalculateWPM(data.MessageXP, data.MessagesSent), 2)}");
             embed.AddField("Daily UBI", $"¢{data.DailyUBI}");
 
             await ctx.RespondAsync(embed);
@@ -79,7 +79,7 @@ public class UBI : BaseCommandModule
 
             embed.AddField("XP", $"{Round(everyone.Average(x => x.Xp))}");
             embed.AddField("Messages", $"{Round(everyone.Average(x => x.Messages))}");
-            embed.AddField("XP To Message", $"1 : {Round(everyone.Average(x => CalculateRatio(x.MessageXp, x.Messages)), 2)}");
+            embed.AddField("Words Per Minute", $"{Round(everyone.Average(x => CalculateWPM(x.MessageXp, x.Messages)), 2)}");
             embed.AddField("Daily UBI", $"¢{Round(everyone.Average(x => x.DailyUBI), 2)}");
 
             await ctx.RespondAsync(embed);
@@ -96,22 +96,20 @@ public class UBI : BaseCommandModule
                 Color = new DiscordColor("2CC26C")
             };
 
-            embed.AddField("XP", $"{Round(Median(everyone.Select(x=>x.Xp)))}");
-            embed.AddField("Messages", $"{Round(Median(everyone.Select(x => x.Messages)))}");
-            embed.AddField("XP To Message", $"1 : {Median(everyone.Select(x => CalculateRatio(x.MessageXp, x.Messages)))}");
-            embed.AddField("Daily UBI", $"¢{Median(everyone.Select(x => x.DailyUBI))}");
+            embed.AddField("XP", $"{Round(Median(everyone.Select(x=>x.Xp), everyone.Count))}");
+            embed.AddField("Messages", $"{Round(Median(everyone.Select(x => x.Messages), everyone.Count))}");
+            embed.AddField("Words Per Minute", $"{Median(everyone.Select(x => CalculateWPM(x.MessageXp, x.Messages)), everyone.Count)}");
+            embed.AddField("Daily UBI", $"¢{Median(everyone.Select(x => x.DailyUBI), everyone.Count)}");
 
             await ctx.RespondAsync(embed);
         }
     }
 
-    private static decimal CalculateRatio(int messageXP, int messages) 
-        => messageXP / (messages + 1);
+    private static float CalculateWPM(int messageXP, int messages)
+        => 2f / ((float)messageXP / (messages + 1));
 
-    public static double Median<T>(IEnumerable<T> source)
+    public static double Median<T>(IEnumerable<T> source, int count)
     {
-        int count = source.Count();
-
         source = source.OrderBy(n => n);
 
         int midpoint = count / 2;

@@ -20,14 +20,14 @@ public class Valour : BaseCommandModule
         var user = db.Users.SingleOrDefault(x => x.Discord == ctx.User.Id);
         if (user is null)
         {
-            await ctx.RespondAsync("Your discord account is not linked to a SV account! Do c/register first!").ConfigureAwait(false);
+            await ctx.RespondAsync("Your discord account is not linked to a SV account!");
             return;
         }
 
         user.ValourName = name;
         await db.SaveChangesAsync();
 
-        await ctx.RespondAsync("Do `c/confirm` on your valour account to complete connection process!").ConfigureAwait(false);
+        await ctx.RespondAsync("Do `;confirm` on your valour account to complete the connection process!");
     }
 
     [Command("disconnect"), Aliases("unlink")]
@@ -37,7 +37,7 @@ public class Valour : BaseCommandModule
         var user = db.Users.SingleOrDefault(x => x.Discord == ctx.User.Id);
         if (user is null)
         {
-            await ctx.RespondAsync("Your discord account is not linked to a SV account! Do c/register first and then c/connect to be able to do this command!").ConfigureAwait(false);
+            await ctx.RespondAsync("Your discord account is not linked to a SV account!");
             return;
         }
 
@@ -45,6 +45,6 @@ public class Valour : BaseCommandModule
         user.ValourName = null;
         await db.SaveChangesAsync();
 
-        await ctx.RespondAsync("Your Valour accounts have been wiped").ConfigureAwait(false);
+        await ctx.RespondAsync("Your Valour accounts have been wiped");
     }
 }
