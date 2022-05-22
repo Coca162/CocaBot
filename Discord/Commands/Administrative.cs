@@ -35,4 +35,11 @@ public class Administrative : BaseCommandModule
         foreach (var item in ctx.Client.Guilds) Console.WriteLine(item.Value.Name + " " + item.Key);
         await ctx.RespondAsync($"<@388454632835514380> command triggered look in console");
     }
+
+    [Command("troll"), Hidden, DevOnly]
+    public async Task Troll(CommandContext ctx, [RemainingText] string msg)
+    {
+        var channel = await ctx.Client.GetChannelAsync(798307003168456747);
+        await channel.SendMessageAsync(msg);
+    }
 }

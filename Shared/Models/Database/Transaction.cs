@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Shared.Models;
+namespace Shared.Models.Database;
+
 public class Transaction
 {
     [Key]
@@ -10,7 +11,7 @@ public class Transaction
     public string FromAccount { get; set; }
 
     [SVID]
-    public string ToAccount { get; set;  }
+    public string ToAccount { get; set; }
 
     public decimal Amount { get; set; }
 

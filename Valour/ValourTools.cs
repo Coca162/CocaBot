@@ -2,7 +2,7 @@
 using Shared;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using User = Shared.Models.User;
+using User = Shared.Models.Database.User;
 
 namespace Valour;
 public static class ValourTools

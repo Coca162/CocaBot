@@ -46,9 +46,9 @@ public class Time : BaseCommandModule
         await ctx.RespondAsync($"Vooperian Time: {date:dddd, dd MMMM yyyy HH:mm:ss}");
     }
 
-    private static long ConvertToSVTime(DateTimeOffset time) => 
+    public static long ConvertToSVTime(DateTimeOffset time) => 
         vooperEpoch + (time.ToUnixTimeSeconds() * 3);
 
-    private static long ReverseSVTime(long time) =>
+    public static long ReverseSVTime(long time) =>
         (time - vooperEpoch) / 3;
 }

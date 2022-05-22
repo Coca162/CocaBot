@@ -13,7 +13,7 @@ using DSharpPlus.Entities;
 using static Discord.Events.MessageEvents;
 using static Discord.Events.TimedEvents;
 using static Discord.Program;
-using static Shared.Tools;
+using static Shared.HttpClientExtensions;
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
 using DSharpPlus.EventArgs;
@@ -26,6 +26,9 @@ namespace Discord;
 public class Bot
 {
     public static DiscordClient Client { get; private set; }
+
+    public static IServiceProvider ServiceProvider { get; private set; }
+
     public static async Task RunAsync(string token, string[] prefixes)
     {
         DiscordConfiguration config = new()
@@ -42,13 +45,29 @@ public class Bot
 
         SetUpEvents();
 
+        ServiceCollection services = new();
+
+        services.AddDbContextPool<CocaBotPoolContext>((serviceProvider, options) =>
+        {
+            options.UseNpgsql(CocaBotPoolContext.ConnectionString);
+        });
+
+        services.AddHttpClient();
+
+        services.AddHttpClient<IUbiUserAPI, UbiUserAPI>();
+
+        services.AddSingleton(Client);
+
+        //services.AddTransient<IUbiUsers>(provider => new UbiUsers(provider.GetRequiredService<HttpClient>()));
+
+        services.AddSingleton<IUbiRoles<ulong>>(provider => new UbiRoles(provider.GetRequiredService<DiscordClient>()));
+
+        ServiceProvider = services.BuildServiceProvider();
+
         CommandsNextConfiguration commandsConfig = new()
         {
             StringPrefixes = prefixes,
-            Services = new ServiceCollection().AddDbContextPool<CocaBotPoolContext>((serviceProvider, options) =>
-            {
-                options.UseNpgsql(CocaBotPoolContext.ConnectionString);
-            }).BuildServiceProvider()
+            Services = ServiceProvider
         };
 
         var commandsNext = Client.UseCommandsNext(commandsConfig);
@@ -62,7 +81,7 @@ public class Bot
 
     private static void SetUpEvents()
     {
-        Client.Ready += async (sender, e) =>
+        Client.Ready += async (s, e) =>
         {
             Console.WriteLine("CocaBot on!");
         };

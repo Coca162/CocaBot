@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Shared.Models;
+namespace Shared.Models.Database;
+
 public class User
 {
     [Key]

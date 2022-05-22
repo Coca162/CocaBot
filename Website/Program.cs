@@ -26,8 +26,8 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.IO;
-using static Shared.Tools;
-using Shared.Models;
+using static Shared.HttpClientExtensions;
+using Shared.Models.Database;
 
 namespace Website;
 public static class Program

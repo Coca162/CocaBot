@@ -25,7 +25,7 @@ using System.Reflection;
 using ValourSharp;
 using ValourSharp.Classes;
 using Valour.Api.Items.Planets.Members;
-using static Shared.Tools;
+using static Shared.HttpClientExtensions;
 
 namespace Valour;
 
@@ -68,6 +68,7 @@ class Program
         string id = await ValourToSVID(sender.Id, db);
         if (id is null) return;
 
-        await GetData($"https://ubi.vtech.cf/new_valour_message?svid={id}&valour_id={sender.Id}&key={UBIKey}");
+        HttpClient httpClient = new();
+        await httpClient.GetAsync($"https://ubi.vtech.cf/new_valour_message?svid={id}&valour_id={sender.Id}&key={UBIKey}");
     }
 }

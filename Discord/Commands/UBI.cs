@@ -3,25 +3,29 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Shared;
 using System.Threading.Tasks;
-using static Shared.Tools;
+using static Shared.HttpClientExtensions;
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using Humanizer;
 using static Discord.Program;
 using static System.Math;
 using System.Text.Json;
 using System.Net.Http;
+using System.Globalization;
+using Shared.Models;
 
 namespace Discord.Commands;
 public class UBI : BaseCommandModule
 {
-    public CocaBotPoolContext db { private get; set; }
+    public HttpClient httpClient;
+    public IUbiUserAPI api;
 
     [Command("leaderboard"), Aliases("lb"), GeneralBlacklist()]
     public async Task LBString(CommandContext ctx)
     {
-        JacobUBILeaderboardData data = await GetDataFromJson<JacobUBILeaderboardData>($"https://ubi.vtech.cf/api/leaderboard");
+        var data = await api.GetTop10();
 
         DiscordEmbedBuilder embed = new()
         {
@@ -30,9 +34,9 @@ public class UBI : BaseCommandModule
             Color = new DiscordColor("2CC26C")
         };
 
-        foreach(JacobUBILeaderboardItem item in data.Users)
+        await foreach(UbiUser item in data)
         {
-            embed.AddField(item.Name, $"{item.XP} XP ({Round(CalculateWPM(item.MessageXP, item.Messages), 2)} WPM)");
+            embed.AddField(item.Name, $"{(int)item.XP} XP ({Round(CalculatePerMinutes(item.MinutesSpoken, item.MessagesSent), 2)} MPM)");
         }
 
         await ctx.RespondAsync(embed);
@@ -42,22 +46,26 @@ public class UBI : BaseCommandModule
     [Group("xp"), Description("Get's xp"), Aliases("do")]
     public class XP : BaseCommandModule
     {
+        public HttpClient httpClient;
+        public IUbiUserAPI api;
+
         [GroupCommand, Priority(1)]
         public async Task XPString(CommandContext ctx, DiscordUser user)
         {
-            JacobUBIXPData data = await GetDataFromJson<JacobUBIXPData>($"https://ubi.vtech.cf/get_xp_info?id={user.Id}");
-
-            int ranking = (await GetDataFromJson<LeaderboardUserGet>($"https://ubi.vtech.cf/api/leaderboard/getuser?id={user.Id}")).Ranking;
+            UbiUser data = await api.GetUserAsync(user.Id);
 
             DiscordEmbedBuilder embed = new()
             {
-                Title = $"{data.XP} XP (Rank {ranking} {data.CurrentRank})",
+                Title = $"{(int)data.XP} XP (Rank {data.Rank.Humanize()})",
                 Color = new DiscordColor("2CC26C")
             };
 
-            embed.AddField("Messages", $"{data.MessagesSent}");
-            embed.AddField("Words Per Minute", $"{Round(CalculateWPM(data.MessageXP, data.MessagesSent), 2)}");
-            embed.AddField("Daily UBI", $"¢{data.DailyUBI}");
+
+
+            embed.AddField("Messages", data.MessagesSent.ToString());
+            embed.AddField("Active Time", TimeFromMinutes(data.MinutesSpoken).ToString());
+            embed.AddField("Messages Per Minute", Math.Round(CalculatePerMinutes(data.MinutesSpoken, data.MessagesSent), 2).ToString());
+            embed.AddField("Characters Per Minute", Math.Round(CalculatePerMinutes(data.MinutesSpoken, data.TotalChars), 2).ToString());
 
             await ctx.RespondAsync(embed);
         }
@@ -69,7 +77,7 @@ public class UBI : BaseCommandModule
         [Command("average"), Description("Get the averages for xp data")]
         public async Task XPAvarage(CommandContext ctx)
         {
-            var everyone = (await GetDataFromJson<JacobHourlyUserData>($"https://ubi.vtech.cf/all_user_data?key={UBIKey}")).Users;
+            var everyone = await api.GetAllAsync();
 
             DiscordEmbedBuilder embed = new()
             {
@@ -77,10 +85,14 @@ public class UBI : BaseCommandModule
                 Color = new DiscordColor("2CC26C")
             };
 
-            embed.AddField("XP", $"{Round(everyone.Average(x => x.Xp))}");
-            embed.AddField("Messages", $"{Round(everyone.Average(x => x.Messages))}");
-            embed.AddField("Words Per Minute", $"{Round(everyone.Average(x => CalculateWPM(x.MessageXp, x.Messages)), 2)}");
-            embed.AddField("Daily UBI", $"¢{Round(everyone.Average(x => x.DailyUBI), 2)}");
+            var filtered = everyone.Where(x => x.MessagesSent != 0 && x.MinutesSpoken != 0);
+            int xp = (int)filtered.Average(x => x.XP);
+
+            embed.AddField("XP", $"{xp}");
+            embed.AddField("Active Time", TimeFromMinutes(filtered.Average(x => x.MinutesSpoken)).ToString());
+            embed.AddField("Messages", Round(filtered.Average(x => x.MessagesSent)).ToString());
+            embed.AddField("Messages Per Minute", Math.Round(filtered.Average(x => CalculatePerMinutes(x.MinutesSpoken, x.MessagesSent)), 2).ToString());
+            embed.AddField("Characters Per Minute", Math.Round(filtered.Average(x => CalculatePerMinutes(x.MinutesSpoken, x.TotalChars)), 2).ToString());
 
             await ctx.RespondAsync(embed);
         }
@@ -88,7 +100,7 @@ public class UBI : BaseCommandModule
         [Command("median"), Description("Get the median for xp data")]
         public async Task XPMedian(CommandContext ctx)
         {
-            var everyone = (await GetDataFromJson<JacobHourlyUserData>($"https://ubi.vtech.cf/all_user_data?key={UBIKey}")).Users;
+            var everyone = await api.GetAllAsync();
 
             DiscordEmbedBuilder embed = new()
             {
@@ -96,17 +108,22 @@ public class UBI : BaseCommandModule
                 Color = new DiscordColor("2CC26C")
             };
 
-            embed.AddField("XP", $"{Round(Median(everyone.Select(x=>x.Xp), everyone.Count))}");
-            embed.AddField("Messages", $"{Round(Median(everyone.Select(x => x.Messages), everyone.Count))}");
-            embed.AddField("Words Per Minute", $"{Median(everyone.Select(x => CalculateWPM(x.MessageXp, x.Messages)), everyone.Count)}");
-            embed.AddField("Daily UBI", $"¢{Median(everyone.Select(x => x.DailyUBI), everyone.Count)}");
+            var filtered = everyone.Where(x => x.MessagesSent != 0 && x.MinutesSpoken != 0);
+            int count = filtered.Count();
+            int xp = (int)Median(filtered.Select(x => x.XP), count);
+
+            embed.AddField("XP", $"{xp}");
+            embed.AddField("Active Time", TimeFromMinutes(Median(filtered.Select(x => x.MinutesSpoken), count)).ToString());
+            embed.AddField("Messages", Round(Median(filtered.Select(x => x.MessagesSent), count)).ToString());
+            embed.AddField("Messages Per Minute", Round(Median(filtered.Select(x => CalculatePerMinutes(x.MinutesSpoken, x.MessagesSent)), count), 2).ToString());
+            embed.AddField("Characters Per Minute", Round(Median(filtered.Select(x => CalculatePerMinutes(x.MinutesSpoken, x.TotalChars)), count), 2).ToString());
 
             await ctx.RespondAsync(embed);
         }
     }
 
-    private static float CalculateWPM(int messageXP, int messages)
-        => 2f / ((float)messageXP / (messages + 1));
+    private static float CalculatePerMinutes(int minutes, int value)
+        => (float)value / (minutes + 1);
 
     public static double Median<T>(IEnumerable<T> source, int count)
     {
@@ -117,5 +134,11 @@ public class UBI : BaseCommandModule
             return (Convert.ToDouble(source.ElementAt(midpoint - 1)) + Convert.ToDouble(source.ElementAt(midpoint))) / 2.0;
         else
             return Convert.ToDouble(source.ElementAt(midpoint));
+    }
+
+    public static string TimeFromMinutes(double minutes)
+    {
+        TimeSpan timespan = new(0, (int)minutes, 0);
+        return timespan.Humanize(2, CultureInfo.InvariantCulture);
     }
 }

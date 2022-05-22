@@ -8,7 +8,7 @@ using System.Diagnostics;
 using Humanizer;
 
 namespace Discord.Commands;
-public class Misc : BaseCommandModule
+public class Graph : BaseCommandModule
 {
     [Command("code"), Aliases("opensource")]
     [Description("Gives link for linking your SV account to your discord account")]

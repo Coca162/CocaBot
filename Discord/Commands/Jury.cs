@@ -3,16 +3,20 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Shared;
 using System.Threading.Tasks;
-using static Shared.Tools;
+using static Shared.HttpClientExtensions;
 using System.Collections.Generic;
 using System;
 using System.Linq;
 using static Discord.Program;
 using static System.Math;
+using System.Net.Http;
 
 namespace Discord.Commands;
 public class Jury : BaseCommandModule
 {
+    public HttpClient httpClient;
+    public UbiUserAPI api;
+
     private static bool gotRoles = false;
 
     private static DiscordRole Supreme;
@@ -37,25 +41,28 @@ public class Jury : BaseCommandModule
             return;
         }
 
-        var everyone = (await GetDataFromJson<JacobHourlyUserData>($"https://ubi.vtech.cf/all_user_data?key={UBIKey}")).Users;
 
-        List<(ulong id, int xp)> filtered = new();
+        var everyone = await api.GetAllAsyncEnumerable();
 
-        foreach (var item in everyone)
+        List<(string id, int xp)> filtered = new();
+        int sum = 0;
+
+        await foreach (var item in everyone)
         {
+            sum += (int)item.XP;
             if (item.Roles.Contains("Jury"))
-                filtered.Add((item.Id, 100 + (int)Pow(item.Xp, 0.5)));
+                filtered.Add((item.DiscordId, 100 + (int)Pow((int)item.XP, 0.5)));
         }
 
         if (filtered.Count < amount) throw new Exception("Too big jury request!");
 
 
-        List<(ulong id, int xp)> finals = new();
+        List<(string id, int xp)> finals = new();
 
         while (finals.Count != amount)
         {
             Random rnd = new();
-            int number = rnd.Next(0, everyone.Sum(x => x.Xp));
+            int number = rnd.Next(0, sum);
 
             int xpTotal = 0;
             foreach (var item in filtered)
@@ -77,7 +84,7 @@ public class Jury : BaseCommandModule
             DiscordMember member = null;
             try
             {
-                member = await ctx.Guild.GetMemberAsync(id);
+                member = await ctx.Guild.GetMemberAsync(ulong.Parse(id));
             }
             catch (DSharpPlus.Exceptions.NotFoundException) { }
 

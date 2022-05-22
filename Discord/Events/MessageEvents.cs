@@ -4,7 +4,13 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using static Discord.Bot;
 using System.Net.Http;
-using static Shared.Tools;
+using static Shared.HttpClientExtensions;
+using System.Collections.Generic;
+using System.Net;
+using System;
+using System.Net.Http.Json;
+using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json;
 
 namespace Discord.Events;
 
@@ -24,23 +30,54 @@ public static class MessageEvents
 
         await e.Channel.GetMessageAsync(e.Message.Id);
 
-        if (member is null)
+        Message msg = new(e.Message.Content, e.Author.Id, e.Author.Username, member.Roles.Select(x => x.Name).ToList(), e.Channel.Name, e.Channel.Id, e.Guild.Name, e.Guild.Id);
+
+        HttpRequestMessage httpRequestMessage = new()
         {
-            await GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ubiKey}");
-            return;
+            Method = HttpMethod.Post,
+            RequestUri = new Uri("https://ubi.vtech.cf/new_message"),
+            Headers = {
+                { HttpRequestHeader.Authorization.ToString(), ubiKey },
+                { HttpRequestHeader.Accept.ToString(), "application/json" },
+            },
+            Content = new StringContent(JsonSerializer.Serialize(msg))
+        };
+
+        HttpClient client = Bot.ServiceProvider.GetRequiredService<HttpClient>();
+
+        await client.SendAsync(httpRequestMessage);
+        return;
+    }
+
+    public class Message
+    {
+        public Message(string content, ulong userId, string username, List<string> roles, string channelName, ulong channelId, string serverName, ulong serverId)
+        {
+            Content = content;
+            UserId = userId.ToString();
+            Username = username;
+            Roles = roles;
+            ChannelName = channelName;
+            ChannelId = channelId.ToString();
+            ServerName = serverName;
+            ServerId = serverId.ToString();
         }
 
-        string end = "";
+        public string Content { get; init; }
 
-        foreach (string rolename in member.Roles.Select(x => x.Name))
-        {
-            end += $"{rolename}|";
-        }
+        public string UserId { get; init; }
 
-        // removes the last "|" symbol
-        end = end[0..^1];
+        public string Username { get; init; }
 
-        await GetData($"https://ubi.vtech.cf/new_message?id={e.Author.Id}&name={e.Author.Username}&key={ubiKey}&roledata={end}");
+        public List<string> Roles { get; init; }
+
+        public string ChannelName { get; init; }
+
+        public string ChannelId { get; init; }
+
+        public string ServerName { get; init; }
+
+        public string ServerId { get; init; }
     }
 }
 

@@ -1,122 +1,73 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
+using Shared;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Discord;
-using static Shared.Tools;
-using static Discord.Bot;
-using static Discord.Program;
 
-public static class UBIRoles
+namespace Discord;
+
+public class UbiRoles: IUbiRoles<ulong>
 {
-    public static async Task UpdateHourly()
+    private readonly DiscordClient _discordClient;
+
+    public UbiRoles(DiscordClient client) =>
+        _discordClient = client;
+
+    public ReadOnlyDictionary<string, ulong> RankNamesToIds { get; } = new(new Dictionary<string, ulong>()
     {
-        JacobHourlyUserData data = null;
+        { "spleen", 894632235326656552 },
+        { "crab", 894632423776731157 },
+        { "corgi", 894632541552791632 },
+        { "gaty", 894632641477894155 },
+        { "oof", 894632682330423377 }
+    });
 
-        while (true)
+    public async Task<(bool, IUbiMember<ulong>)> TryGetMemberAsync(ulong id)
+    {
+        DiscordGuild guild = await _discordClient.GetGuildAsync(798307000206360588);
+        DiscordMember member;
+        try
         {
-            try
-            {
-                data = await GetDataFromJson<JacobHourlyUserData>($"https://ubi.vtech.cf/all_user_data?key={UBIKey}");
-                break;
-            }
-            catch
-            {
-                // wait 5s before trying again
-                Console.WriteLine("Jacob did a stupid! ubi.vtech.cf is down!");
-                await Task.Delay(5000);
-                continue;
-            }
+            member = await guild.GetMemberAsync(id);
         }
-
-        DiscordGuild server = await Bot.Client.GetGuildAsync(798307000206360588);
-
-        List<DiscordRole> SVRoles = new()
+        catch (DSharpPlus.Exceptions.DiscordException)
         {
-            server.GetRole(894632235326656552),
-            server.GetRole(894632423776731157),
-            server.GetRole(894632541552791632),
-            server.GetRole(894632641477894155),
-            server.GetRole(894632682330423377)
-        };
-
-        foreach (var item in data.Users)
-        {
-            DiscordMember member = null;
-            try
-            {
-                member = await server.GetMemberAsync(item.Id);
-            }
-            catch (DSharpPlus.Exceptions.NotFoundException e)
-            {
-                continue;
-            }
-
-            if (member == null)
-            {
-                continue;
-            }
-
-            // check if unranked
-
-            if (item.Rank == "Unranked")
-            {
-                bool HasRole = false;
-                DiscordRole RoleToRemove = null;
-                foreach (var role in SVRoles.Where(role => member.Roles.Contains(role)))
-                {
-                    HasRole = true;
-                    RoleToRemove = role;
-                    break;
-                }
-
-                if (HasRole) await member.RevokeRoleAsync(RoleToRemove);
-                continue;
-            }
-            else
-            {
-                foreach (var role in SVRoles.Where(role => member.Roles.Contains(role) && role.Name != item.Rank))
-                {
-                    await member.RevokeRoleAsync(role);
-                    break;
-                }
-
-                DiscordRole ToHave = SVRoles.Find(x => x.Name == item.Rank);
-                if (!member.Roles.Contains(ToHave)) await member.GrantRoleAsync(ToHave);
-            }
+            return (false, null);
         }
+        return (true, new DiscordUbiMember(member));
     }
 }
 
-public class JacobHourlyUser
+public class DiscordUbiMember : IUbiMember<ulong>
 {
-    [JsonPropertyName("Id")]
-    public ulong Id { get; set; }
+    public DiscordUbiMember(DiscordMember member)
+    {
+        Member = member;
+        Id = Member.Id;
+        Roles = member.Roles.Select(x => x.Id);
+    }
 
-    [JsonPropertyName("Rank")]
-    public string Rank { get; set; }
+    public DiscordMember Member { get; }
 
-    [JsonPropertyName("Xp")]
-    public int Xp { get; set; }
+    public ulong Id { get; }
 
-    [JsonPropertyName("Message Xp")]
-    public int MessageXp { get; set; }
+    public IEnumerable<ulong> Roles { get; }
 
-    [JsonPropertyName("Messages")]
-    public int Messages { get; set; }
+    public async Task GrantRoleAsync(ulong id)
+    {
+        DiscordRole role = Member.Guild.GetRole(id);
+        await Member.GrantRoleAsync(role);
+    }
 
-    [JsonPropertyName("Daily UBI")]
-    public int DailyUBI { get; set; }
-
-    [JsonPropertyName("Roles")]
-    public List<string> Roles { get; set; }
-}
-
-public class JacobHourlyUserData
-{
-    [JsonPropertyName("Users")]
-    public List<JacobHourlyUser> Users { get; set; }
+    public async Task RevokeRangeAsync(IEnumerable<ulong> ToRemove)
+    {
+        foreach (ulong id in ToRemove)
+        {
+            DiscordRole role = Member.Guild.GetRole(id);
+            await Member.RevokeRoleAsync(role);
+        }
+    }
 }
