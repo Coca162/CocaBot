@@ -15,13 +15,7 @@ namespace Discord.Commands;
 public class Jury : BaseCommandModule
 {
     public HttpClient httpClient;
-    public UbiUserAPI api;
-
-    private static bool gotRoles = false;
-
-    private static DiscordRole Supreme;
-    private static DiscordRole Imperial;
-    private static DiscordRole District;
+    public IUbiUserAPI api;
 
     [Command("jury"), Description("Get 4 jurors")]
     public async Task JuryCommand(CommandContext ctx) 
@@ -30,28 +24,15 @@ public class Jury : BaseCommandModule
     [Command("jury"), Description("Get the amount of jurors you want")]
     public async Task JuryCommand(CommandContext ctx, int amount)
     {
-        GetRoles(ctx);
-
-        var roles = ctx.Member.Roles;
-
-        if (!(roles.Contains(Supreme) || roles.Contains(Imperial) || roles.Contains(District)) 
-            && ctx.User.Id != 388454632835514380)
-        {
-            await ctx.RespondAsync("You are not a judge!");
-            return;
-        }
-
-
         var everyone = await api.GetAllAsyncEnumerable();
 
         List<(string id, int xp)> filtered = new();
         int sum = 0;
 
-        await foreach (var item in everyone)
+        await foreach (var item in everyone.Where(x => x.Roles.Contains("Jury")))
         {
             sum += (int)item.XP;
-            if (item.Roles.Contains("Jury"))
-                filtered.Add((item.DiscordId, 100 + (int)Pow((int)item.XP, 0.5)));
+            filtered.Add((item.DiscordId, 100 + (int)Pow((int)item.XP, 0.5)));
         }
 
         if (filtered.Count < amount) throw new Exception("Too big jury request!");
@@ -72,12 +53,13 @@ public class Jury : BaseCommandModule
                 {
                     finals.Add(item);
                     filtered.Remove(item);
+                    sum -= item.xp;
                     break;
                 }
             }
         }
 
-        string message = $"Selected {amount} judges to be picked!";
+        string message = $"Selected {amount} jurors to be picked!";
 
         foreach (var (id, xp) in finals)
         {
@@ -92,16 +74,5 @@ public class Jury : BaseCommandModule
         }
 
         await ctx.RespondAsync(message);
-    }
-
-    private static void GetRoles(CommandContext ctx)
-    {
-        if (gotRoles == false)
-        {
-            Supreme = ctx.Guild.GetRole(798365091435249674);
-            Imperial = ctx.Guild.GetRole(798367610461749259);
-            District = ctx.Guild.GetRole(800088731355971585);
-            gotRoles = true;
-        }
     }
 }

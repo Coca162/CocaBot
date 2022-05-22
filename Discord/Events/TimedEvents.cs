@@ -29,6 +29,7 @@ public class TimedEvents
         StatusTimer.Enabled = true;
 
         var roleupdate = new UBIRoleUpdater(new UbiRoles(Client));
+        await roleupdate.UpdateHourly();
         UbiRoleTimer.Elapsed += async (object source, ElapsedEventArgs e) => await roleupdate.UpdateHourly();
         UbiRoleTimer.Enabled = true;
     }
