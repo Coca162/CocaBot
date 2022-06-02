@@ -51,7 +51,7 @@ public static class Program
         });
 
         builder.Services.AddHttpClient();
-
+        
         builder.Services.AddRazorPages();
 
         var app = builder.Build();
@@ -89,49 +89,54 @@ public static class Program
             return svid is not null ? svid : "";
         });
 
-        app.MapGet("/Transactions/Get", async (CocaBotPoolContext db, int amount) =>
+        app.MapGet("/Transactions/Get", (CocaBotPoolContext db, int amount) =>
             db.Transactions.OrderByDescending(x => x.Count)
-                           .Take(amount));
+                                 .Take(amount));
 
         app.MapGet("/Transactions/GetFrom", async (CocaBotPoolContext db, string svid, int amount) =>
-            db.Transactions.Where(x => x.FromAccount == svid)
-                           .OrderByDescending(x => x.Count)
-                           .Take(amount));
+            await db.Transactions.Where(x => x.FromAccount == svid)
+                                 .OrderByDescending(x => x.Count)
+                                 .Take(amount)
+                                 .ToListAsync());
 
         app.MapGet("/Transactions/GetTo", async (CocaBotPoolContext db, string svid, int amount) =>
-            db.Transactions.Where(x => x.ToAccount == svid)
-                           .OrderByDescending(x => x.Count)
-                           .Take(amount));
+            await db.Transactions.Where(x => x.ToAccount == svid)
+                                 .OrderByDescending(x => x.Count)
+                                 .Take(amount)
+                                 .ToListAsync());
 
-        app.MapGet("/Transactions/Filter", async (CocaBotPoolContext db, int? amount, string? to, string? from, string? detail, int? tax, long? start, long? end) =>
-        {
-            return await GetTransactionsFilter(db, amount, to, from, detail, tax, start, end).ToListAsync();
-        });
+        app.MapGet("/Transactions/Filter", Filter);
 
-        app.MapGet("/Transactions/SumFilter", async (CocaBotPoolContext db, int? amount, string? to, string? from, string? detail, int? tax, long? start, long? end) =>
-        {
-            return await GetTransactionsFilter(db, amount, to, from, detail, tax, start, end).SumAsync(x => x.Amount);
-        });
+        app.MapGet("/Transactions/SumFilter", SumFilter);
 
         app.Run();
     }
 
-    static IQueryable<Transaction> GetTransactionsFilter(CocaBotPoolContext db, int? amount, string? to, string? from, string? detail, int? tax, long? start, long? end)
+    static async Task<List<Transaction>> Filter(CocaBotPoolContext db, int amount = -1, string to = "", string from = "", string detail = "", int tax = -1, long start = -1, long end = -1) 
+        => await GetTransactionsFilter(db, amount, to, from, detail, tax, start, end).ToListAsync();
+
+    static async Task<decimal> SumFilter(CocaBotPoolContext db, int amount = -1, string to = "", string from = "", string detail = "", int tax = -1, long start = -1, long end = -1)
+        => await GetTransactionsFilter(db, amount, to, from, detail, tax, start, end).SumAsync(x => x.Amount);
+
+    static IQueryable<Transaction> GetTransactionsFilter(CocaBotPoolContext db, int proposedAmount, string to, string from, string detail, int tax, long start, long end)
     {
         IQueryable<Transaction> search = db.Transactions.AsQueryable();
 
-        if (to is not null) search = search.Where(x => x.ToAccount == to);
-        if (from is not null) search = search.Where(x => x.FromAccount == from);
-        if (tax is not null) search = search.Where(x => ((int)x.Tax) == (int)tax);
-        if (detail is not null) search = search.Where(x => x.Detail.Contains(detail));
-        if (start is not null) search = search.Where(x => x.Timestamp > start);
-        if (end is not null) search = search.Where(x => x.Timestamp < end);
+        if (to != "") search = search.Where(x => x.ToAccount == to);
+        if (from != "") search = search.Where(x => x.FromAccount == from);
+        if (tax != -1) search = search.Where(x => (int)x.Tax == tax);
+        if (detail != "") search = search.Where(x => x.Detail.Contains(detail));
+        if (start != -1) search = search.Where(x => x.Timestamp > start);
+        if (end != -1) search = search.Where(x => x.Timestamp < end);
 
-        int a = 100;
-        if (amount > 100000) amount = 100000;
-        if (amount is not null) a = (int)amount;
+        int amount = proposedAmount switch
+        {
+            -1 => 100,
+            > 100000 => 100000,
+            _ => proposedAmount
+        };
      
-        return search.OrderByDescending(x => x.Count).Take(a);
+        return search.OrderByDescending(x => x.Count).Take(amount);
     }
 }
 

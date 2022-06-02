@@ -30,7 +30,7 @@ public static class MessageEvents
 
         await e.Channel.GetMessageAsync(e.Message.Id);
 
-        Message msg = new(e.Message.Content, e.Author.Id, e.Author.Username, member.Roles.Select(x => x.Name).ToList(), e.Channel.Name, e.Channel.Id, e.Guild.Name, e.Guild.Id);
+        Message msg = new(e.Message.Content, e.Author.Id, e.Author.Username, member.Roles.Select(x => x.Name), e.Channel.Name, e.Channel.Id, e.Guild.Name, e.Guild.Id, e.Message.Attachments.Select(x => x.MediaType));
 
         HttpRequestMessage httpRequestMessage = new()
         {
@@ -51,16 +51,18 @@ public static class MessageEvents
 
     public class Message
     {
-        public Message(string content, ulong userId, string username, List<string> roles, string channelName, ulong channelId, string serverName, ulong serverId)
+        public Message(string content, ulong userId, string username, IEnumerable<string> roles, string channelName, ulong channelId, string serverName, ulong serverId, IEnumerable<string> attachmentTypes)
         {
             Content = content;
             UserId = userId.ToString();
             Username = username;
-            Roles = roles;
+            Roles = roles.ToList();
             ChannelName = channelName;
             ChannelId = channelId.ToString();
             ServerName = serverName;
             ServerId = serverId.ToString();
+            AttachmentTypes = attachmentTypes.ToList();
+
         }
 
         public string Content { get; init; }
@@ -69,7 +71,7 @@ public static class MessageEvents
 
         public string Username { get; init; }
 
-        public List<string> Roles { get; init; }
+        public IReadOnlyList<string> Roles { get; init; }
 
         public string ChannelName { get; init; }
 
@@ -78,6 +80,8 @@ public static class MessageEvents
         public string ServerName { get; init; }
 
         public string ServerId { get; init; }
+
+        public IReadOnlyList<string> AttachmentTypes { get; init; }
     }
 }
 

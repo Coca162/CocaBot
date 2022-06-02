@@ -13,6 +13,7 @@ using System.Text.Json;
 using System.Net.Http;
 using Shared;
 using Shared.Models;
+using LanguageExt;
 
 namespace Discord;
 
@@ -51,11 +52,11 @@ public class UBIRoleUpdater
 
         await foreach (UbiUser user in data)
         {
-            (bool success, IUbiMember<ulong> member) = await _manager.TryGetMemberAsync(ulong.Parse(user.DiscordId));
-            if (!success)
-                continue;
+            Option<IUbiMember<ulong>> possibleMember = await _manager.TryGetMemberAsync(ulong.Parse(user.DiscordId));
 
-            await AssignOnlyCorrectUbiRole(member, user.Rank);
+            possibleMember.Match(
+                async member => await AssignOnlyCorrectUbiRole(member, user.Rank),
+                () => { });
         }
     }
 

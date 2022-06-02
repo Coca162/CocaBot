@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore;
 using Shared;
 using System;
@@ -19,7 +20,7 @@ public class TimedEvents
 
     private static readonly Timer StatusTimer = new(1000 * 20);
 
-    public static async Task SetTimer()
+    public static async Task SetTimer(DiscordClient client)
     {
         await EstimateOnTheSvMinute();
 
@@ -28,8 +29,8 @@ public class TimedEvents
         StatusTimer.Elapsed += async (object source, ElapsedEventArgs e) => await OnTimedStatusEvent();
         StatusTimer.Enabled = true;
 
-        var roleupdate = new UBIRoleUpdater(new UbiRoles(Client));
-        await roleupdate.UpdateHourly();
+        var roleupdate = new UBIRoleUpdater(new UbiRoles(client));
+        //await roleupdate.UpdateHourly();
         UbiRoleTimer.Elapsed += async (object source, ElapsedEventArgs e) => await roleupdate.UpdateHourly();
         UbiRoleTimer.Enabled = true;
     }

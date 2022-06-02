@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using LanguageExt;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
@@ -8,7 +9,7 @@ public interface IUbiRoles<T>
 {
     ReadOnlyDictionary<string, T> RankNamesToIds { get; }
 
-    Task<(bool Success, IUbiMember<T> Member)> TryGetMemberAsync(T id);
+    Task<Option<IUbiMember<T>>> TryGetMemberAsync(T id);
 }
 
 public interface IUbiMember<T>

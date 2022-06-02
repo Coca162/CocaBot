@@ -5,6 +5,8 @@
     <LangVersion>preview</LangVersion>
     <ApplicationIcon>wwwroot\favicon.ico</ApplicationIcon>
 	<ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
+	<Nullable>disable</Nullable>
+	<WarningsAsErrors>Nullable</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

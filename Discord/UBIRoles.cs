@@ -1,5 +1,6 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
+using LanguageExt;
 using Shared;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Discord;
 
-public class UbiRoles: IUbiRoles<ulong>
+public class UbiRoles : IUbiRoles<ulong>
 {
     private readonly DiscordClient _discordClient;
 
@@ -25,7 +26,7 @@ public class UbiRoles: IUbiRoles<ulong>
         { "oof", 894632682330423377 }
     });
 
-    public async Task<(bool, IUbiMember<ulong>)> TryGetMemberAsync(ulong id)
+    public async Task<Option<IUbiMember<ulong>>> TryGetMemberAsync(ulong id)
     {
         DiscordGuild guild = await _discordClient.GetGuildAsync(798307000206360588);
         DiscordMember member;
@@ -35,9 +36,9 @@ public class UbiRoles: IUbiRoles<ulong>
         }
         catch (DSharpPlus.Exceptions.DiscordException)
         {
-            return (false, null);
+            return Option<IUbiMember<ulong>>.None;
         }
-        return (true, new DiscordUbiMember(member));
+        return new DiscordUbiMember(member);
     }
 }
 
@@ -70,4 +71,7 @@ public class DiscordUbiMember : IUbiMember<ulong>
             await Member.RevokeRoleAsync(role);
         }
     }
+
+    public override string ToString() 
+        => $"{Member.Username}#{Member.Discriminator}";
 }
