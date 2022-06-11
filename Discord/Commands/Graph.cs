@@ -73,14 +73,15 @@ public class Graphs : BaseCommandModule
 
     private DiscordMessageBuilder GenerateLineGraphInMessage(IEnumerable<float> data, int count)
     {
-        ChartEntry[] entries = CreateEntries(data, count);
+        ChartEntry[] entries = CreateCumulativeEntries(data, count);
 
         return new DiscordMessageBuilder().WithFile("graph.png", GenerateLineGraph(entries));
     }
 
-    private static ChartEntry[] CreateEntries(IEnumerable<float> data, int count)
+    private static ChartEntry[] CreateCumulativeEntries(IEnumerable<float> data, int count)
     {
         using var enumerator = data.GetEnumerator();
+        //enumerator.MoveNext();
 
         ChartEntry[] entries = new ChartEntry[30];
         int gap = 30 - count;
@@ -121,6 +122,53 @@ public class Graphs : BaseCommandModule
         return entries;
     }
 
+    private static ChartEntry[] CreateNonCumulativeEntries(IEnumerable<float> data, int count)
+    {
+        using var enumerator = data.GetEnumerator();
+
+        enumerator.MoveNext();
+        float previous = enumerator.Current;
+
+        ChartEntry[] entries = new ChartEntry[30];
+        int gap = 30 - count + 1;
+
+        for (int i = 0; i < 30; i++)
+        {
+            if (gap > i)
+            {
+                ChartEntry empty = new(0)
+                {
+                    Label = (i - 30 + 1).ToString(),
+                    Color = LineColour,
+                    ValueLabel = "0",
+                    TextColor = Grey,
+                    ValueLabelColor = Grey
+                };
+
+                entries[i] = empty;
+                continue;
+            }
+
+            enumerator.MoveNext();
+
+            float point = enumerator.Current - previous;
+            previous = enumerator.Current;
+
+            ChartEntry entry = new(point)
+            {
+                Label = (i - 30 + 1).ToString(),
+                Color = LineColour,
+                ValueLabel = ((int)point).ToString(),
+                TextColor = Grey,
+                ValueLabelColor = Grey
+            };
+
+            entries[i] = entry;
+        }
+
+        return entries;
+    }
+
     [GroupCommand, Priority(0)]
     public async Task GraphDefault(CommandContext ctx)
         => await GraphDefault(ctx, ctx.User);
@@ -134,7 +182,6 @@ public class Graphs : BaseCommandModule
             Entries = entries,
             LabelOrientation = Orientation.Horizontal,
             PointMode = PointMode.Circle,
-            IsAnimated = false,
             LineMode = LineMode.Straight,
             MaxValue = rounded,
             MinValue = 0,
@@ -143,6 +190,7 @@ public class Graphs : BaseCommandModule
             Margin = 30,
             Typeface = Font,
             LabelTextSize = 16,
+            IsAnimated = false,
             AnimationDuration = TimeSpan.Zero
         };
 

@@ -36,7 +36,7 @@ public class Bot
             Token = token,
             TokenType = TokenType.Bot,
             MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Debug,
-            Intents = DiscordIntents.GuildMembers | DiscordIntents.Guilds | DiscordIntents.GuildMessages
+            Intents = DiscordIntents.Guilds | DiscordIntents.AllUnprivileged
         };
 
         var client = new DiscordClient(config);

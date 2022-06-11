@@ -6,60 +6,60 @@ namespace Shared.Models;
 public class UbiUser
 {
     [JsonPropertyName("xp")]
-    public decimal XP { get; set; }
+    public decimal XP { get; init; }
 
     [JsonPropertyName("messages")]
-    public int MessagesSent { get; set; }
+    public int MessagesSent { get; init; }
 
     [JsonPropertyName("minutes")]
-    public int MinutesSpoken { get; set; }
+    public int MinutesSpoken { get; init; }
 
     [JsonPropertyName("totalchars")]
-    public int TotalChars { get; set; }
+    public int TotalChars { get; init; }
 
     [JsonPropertyName("roles")]
-    public List<string> Roles { get; set; }
+    public IReadOnlyCollection<string> Roles { get; init; }
 
     [JsonPropertyName("rank")]
-    public string Rank { get; set; }
+    public string Rank { get; init; }
 
 
     [JsonPropertyName("charsthisminute")]
-    public int CharsInCurrentMinute { get; set; }
+    public int CharsInCurrentMinute { get; init; }
 
     [JsonPropertyName("LastSent")]
-    public double LastSent { get; set; }
+    public double LastSent { get; init; }
 
     [JsonPropertyName("messagexp")]
-    public double MessageXp { get; set; }
+    public double MessageXp { get; init; }
 
     [JsonPropertyName("templinkcode")]
-    public string TempLinkCode { get; set; }
+    public string TempLinkCode { get; init; }
 
 
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string Name { get; init; }
 
     [JsonPropertyName("svid")]
-    public string SVID { get; set; }
+    public string SVID { get; init; }
 
 
     [JsonPropertyName("discordid")]
-    public string DiscordId { get; set; }
+    public string DiscordId { get; init; }
 
     [JsonPropertyName("discord_message_xp")]
-    public double DiscordMessageXp { get; set; }
+    public double DiscordMessageXp { get; init; }
 
     [JsonPropertyName("discordmessages")]
-    public int DiscordMessages { get; set; }
+    public int DiscordMessages { get; init; }
 
 
     [JsonPropertyName("valour_id")]
-    public string ValourId { get; set; }
+    public string ValourId { get; init; }
 
     [JsonPropertyName("valour_message_xp")]
-    public double ValourMessageXp { get; set; }
+    public double ValourMessageXp { get; init; }
 
     [JsonPropertyName("valourmessages")]
-    public int ValourMessages { get; set; }
+    public int ValourMessages { get; init; }
 }

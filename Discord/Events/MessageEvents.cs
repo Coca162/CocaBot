@@ -11,18 +11,19 @@ using System;
 using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
+using DSharpPlus;
+using Shared;
+using LanguageExt;
 
 namespace Discord.Events;
 
 public static class MessageEvents
 {
-    public static async Task HandleMessage(string ubiKey, MessageCreateEventArgs e)
+    public static async Task HandleMessage(string ubiKey, DiscordClient discordClient, MessageCreateEventArgs e)
     {
         if (e.Author.IsBot) return;
-        
-        // send role data too for senator/gov pay & for district level UBI
 
-        DiscordGuild server = await Client.GetGuildAsync(798307000206360588);
+        DiscordGuild server = await discordClient.GetGuildAsync(798307000206360588);
 
         DiscordMember member = await server.GetMemberAsync(e.Author.Id);
 

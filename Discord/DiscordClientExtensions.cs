@@ -31,7 +31,7 @@ public static class DiscordClientExtensions
             return Task.CompletedTask;
         };
 
-        client.MessageCreated += (_, eventArgs) =>
-            Task.Run(() => MessageEvents.HandleMessage(Program.UBIKey, eventArgs));
+        client.MessageCreated += (client, eventArgs) =>
+            Task.Run(() => MessageEvents.HandleMessage(Program.UBIKey, client, eventArgs));
     }
 }

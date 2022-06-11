@@ -19,7 +19,7 @@ public class Jury : BaseCommandModule
     private readonly Random rnd = new();
 
     [Command("jury"), Description("Get 4 jurors")]
-    public async Task JuryCommand(CommandContext ctx) 
+    public async Task JuryCommand(CommandContext ctx)
         => await JuryCommand(ctx, 4);
 
     [Command("jury"), Description("Get the amount of jurors you want")]
@@ -29,8 +29,8 @@ public class Jury : BaseCommandModule
 
         var everyone = await ubiUsers.GetAllAsyncEnumerable();
 
-        List<(string id, int tickets)> filtered = 
-            await everyone.Where(x => x.Roles.Contains("Jury") 
+        List<(string id, int tickets)> filtered =
+            await everyone.Where(x => x.Roles.Contains("Jury")
                                    && (long)x.LastSent > DateTimeOffset.UtcNow.ToUnixTimeSeconds() - 604800)
                           .Select(x => (x.DiscordId, 100 + (int)Pow((int)x.XP, 0.5)))
                           .ToListAsync();
